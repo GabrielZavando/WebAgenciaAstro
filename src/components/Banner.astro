@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets';
+import banner from '@img/banner-web.jpg';
+
+const title = "Desarrollador Full Stack Especializado en Soluciones Digitales";
+const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo sitios web, aplicaciones y soluciones personalizadas que impulsan el crecimiento de tu negocio.";
+---
+
+<section class="banner">
+    <div class="banner__container">
+        <div class="banner__content">
+            <h1 class="banner__title">
+                {title}
+            </h1>
+            <p class="banner__subtitle">
+                {subtitle}
+            </p>
+            <div class="banner__actions">
+                <a href="#contact" class="banner__cta">
+                    Hablemos de tu proyecto
+                    <span class="banner__cta-arrow">→</span>
+                </a>
+                <a href="#services" class="banner__cta banner__cta--secondary">
+                    Ver Servicios
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="banner__background">
+        <Image 
+            src={banner} 
+            alt="Gabriel Zavando - Desarrollador Full Stack"
+            width={1920}
+            height={1080}
+        />
+    </div>
+</section>

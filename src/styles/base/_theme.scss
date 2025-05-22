@@ -1,0 +1,97 @@
+@use '../abstracts/colors';
+
+// Reset básico
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+    width: 100%;
+}
+
+// Estilos base que usan las variables de color
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-heading);
+}
+
+// Enlaces
+a {
+    color: var(--color-link);
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: var(--color-link-hover);
+    }
+}
+
+// Botones
+.button {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: var(--color-button-hover);
+    }
+
+    &:active {
+        background-color: var(--color-button-active);
+    }
+
+    // Variante con gradiente
+    &--gradient {
+        background: var(--gradient-primary);
+        
+        &:hover {
+            background: var(--gradient-secondary);
+        }
+    }
+}
+
+// Menú
+.menu {
+    &__item {
+        color: var(--color-menu-inactive);
+        
+        &:hover {
+            color: var(--color-menu-hover);
+        }
+        
+        &--active {
+            color: var(--color-menu-active);
+        }
+    }
+}
+
+// Alertas
+.alert {
+    &--success {
+        background-color: var(--color-success-bg);
+        color: var(--color-success-text);
+    }
+    
+    &--error {
+        background-color: var(--color-error-bg);
+        color: var(--color-error-text);
+    }
+}
+
+// Utilidades de color
+.text-accent {
+    color: var(--color-accent);
+}
+
+.bg-gradient-primary {
+    background: var(--gradient-primary);
+}
+
+.bg-gradient-secondary {
+    background: var(--gradient-secondary);
+}

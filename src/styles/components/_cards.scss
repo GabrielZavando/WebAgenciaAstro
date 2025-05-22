@@ -1,0 +1,70 @@
+@use '../abstracts/colors' as *;
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.card {
+    position: relative;
+    padding: 24px;
+    background: var(--color-card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--color-card-border);
+    transition: all 0.3s ease;
+
+    @include respond-to(md) {
+        padding: 32px;
+    }
+
+    // Título de la tarjeta
+    &__title {
+        font-family: $font-primary;
+        font-size: $text-xl;
+        font-weight: $weight-bold;
+        color: var(--color-card-title);
+        margin-bottom: 1rem;
+    }
+
+    // Contenido de la tarjeta
+    &__content {
+        font-family: $font-secondary;
+        color: var(--color-card-text);
+    }
+
+    // Efectos hover
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-card-border-hover);
+    }
+
+    // Variante con ícono
+    &--with-icon {
+        .card__icon {
+            color: var(--color-card-icon);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+    }
+}
+
+// Grid de tarjetas
+.cards-grid {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+
+    @include respond-to(md) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+    }
+
+    @include respond-to(lg) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    // Variante de 4 columnas
+    &--four-cols {
+        @include respond-to(lg) {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+}

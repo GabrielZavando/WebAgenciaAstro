@@ -1,0 +1,16 @@
+{
+    "extends": "astro/tsconfigs/strict",
+    "compilerOptions": {
+        "strictNullChecks": true,
+        "allowJs": true,
+        "jsx": "preserve",
+        "baseUrl": ".",
+        "paths": {
+            "@img/*": ["./src/assets/img/*"],
+            "@/*": ["src/*"]
+        },
+        "typeRoots": ["./src/types"],
+        "types": ["global"]
+    },
+    "include": ["src/**/*"],
+}

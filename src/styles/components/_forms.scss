@@ -1,0 +1,98 @@
+@use '../abstracts/colors' as *;
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Estilos base para inputs y textareas
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--color-input-border);
+    background-color: var(--color-input-bg);
+    color: var(--color-input-text);
+    font-family: $font-secondary;
+    font-size: $text-base;
+    transition: all 0.2s ease;
+
+    @include respond-to(md) {
+        font-size: $text-lg;
+    }
+
+    &::placeholder {
+        color: var(--color-input-placeholder);
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-input-focus);
+    }
+
+    &.error {
+        border-color: var(--color-error-bg);
+
+        & + .error-message {
+            color: var(--color-error-bg);
+            font-size: $text-sm;
+            margin-top: 4px;
+        }
+    }
+}
+
+// Textarea específico
+textarea.form-input {
+    min-height: 120px;
+    resize: vertical;
+}
+
+// Checkboxes y radios personalizados
+.form-checkbox,
+.form-radio {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkmark {
+        height: 20px;
+        width: 20px;
+        border: 1px solid var(--color-input-border);
+        margin-right: 8px;
+        transition: all 0.2s ease;
+    }
+
+    input:checked ~ .checkmark {
+        background-color: var(--color-input-checked);
+        border-color: var(--color-input-checked);
+    }
+
+    &:hover .checkmark {
+        border-color: var(--color-input-hover);
+    }
+}
+
+// Radio específico
+.form-radio {
+    .checkmark {
+        border-radius: 0;
+    }
+}
+
+// Grupos de formulario
+.form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-family: $font-primary;
+        font-weight: $weight-medium;
+        color: var(--color-text);
+    }
+}

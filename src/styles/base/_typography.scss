@@ -1,0 +1,81 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Importación de fuentes
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Raleway:wght@400;500&display=swap');
+
+// Estilos base de tipografía
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: $font-secondary;
+    font-weight: $weight-regular;
+    line-height: $leading-normal;
+    font-size: $text-base;
+}
+
+// Headings
+h1, .h1 {
+    font-family: $font-primary;
+    font-weight: $weight-bold;
+    line-height: $leading-tight;
+    margin-bottom: 1.5rem;
+    @include responsive-font($text-3xl, $text-4xl, $text-5xl);
+    
+}
+
+h2, .h2 {
+    font-family: $font-primary;
+    font-weight: $weight-bold;
+    line-height: $leading-tight;
+    margin-bottom: 1.25rem;
+    @include responsive-font($text-2xl, $text-3xl, $text-4xl);
+    
+}
+
+h3, .h3 {
+    font-family: $font-primary;
+    font-weight: $weight-semibold;
+    line-height: $leading-snug;
+    margin-bottom: 1rem;
+    @include responsive-font($text-xl, $text-2xl, $text-3xl);
+    
+}
+
+h4, .h4 {
+    font-family: $font-primary;
+    font-weight: $weight-semibold;
+    line-height: $leading-snug;
+    margin-bottom: 0.75rem;
+    @include responsive-font($text-lg, $text-xl, $text-2xl);
+    
+}
+
+// Párrafos
+p {
+    margin-bottom: 1rem;
+    
+    @include respond-to(md) {
+        font-size: $text-lg;
+    }
+}
+
+// Texto pequeño
+small, .text-small {
+    font-size: $text-sm;
+    line-height: $leading-normal;
+}
+
+// Texto grande
+.text-large {
+    font-size: $text-lg;
+    line-height: $leading-relaxed;
+    
+    @include respond-to(md) {
+        font-size: $text-xl;
+    }
+}

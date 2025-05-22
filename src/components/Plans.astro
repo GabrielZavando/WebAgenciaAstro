@@ -1,0 +1,368 @@
+---
+import type { Plan } from '../scripts/plans';
+
+const plans: Plan[] = [
+    {
+        name: "Plan Pro",
+        description: "Landing Page estática ideal para presentar tu negocio",
+        features: [
+            { feature: "Diseño personalizado", included: true },
+            { feature: "Responsive design", included: true },
+            { feature: "Formulario de contacto", included: true },
+            { feature: "SEO básico", included: true },
+            { feature: "Blog integrado", included: false },
+            { feature: "Sistema de pagos", included: false }
+        ],
+        prices: {
+            monthly: 299,
+            quarterly: 269,
+            yearly: 249
+        }
+    },
+    {
+        name: "Plan Plus",
+        description: "Sitio web dinámico con blog y panel de administración",
+        features: [
+            { feature: "Todo del Plan Pro", included: true },
+            { feature: "Blog integrado", included: true },
+            { feature: "Panel de administración", included: true },
+            { feature: "Newsletter", included: true },
+            { feature: "SEO avanzado", included: true },
+            { feature: "Sistema de pagos", included: false }
+        ],
+        prices: {
+            monthly: 499,
+            quarterly: 449,
+            yearly: 419
+        },
+        popular: true
+    },
+    {
+        name: "Plan Premium",
+        description: "Tienda online completa con sistema de pagos",
+        features: [
+            { feature: "Todo del Plan Plus", included: true },
+            { feature: "Tienda online", included: true },
+            { feature: "Sistema de pagos", included: true },
+            { feature: "Gestión de inventario", included: true },
+            { feature: "Reportes de ventas", included: true },
+            { feature: "Integración API", included: true }
+        ],
+        prices: {
+            monthly: 799,
+            quarterly: 719,
+            yearly: 669
+        }
+    }
+];
+
+const periods = [
+    { id: 'quarterly', label: 'Trimestral', months: 3 },
+    { id: 'yearly', label: 'Anual', months: 12 }
+];
+
+// Convertir los planes a JSON para pasarlos al cliente
+const plansData = JSON.stringify(plans);
+let selectedPeriod = 'quarterly';
+---
+
+<section class="plans" id="plans">
+    <div class="plans__container">
+        <h2 class="plans__title">Planes diseñados para tu crecimiento</h2>
+        <p class="plans__subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+
+        <div class="plans__period-selector">
+            <label class="toggle">
+                <span class="toggle__label toggle__label--left">Trimestral</span>
+                <div class="toggle__switch">
+                    <input type="checkbox" class="toggle__input" data-period="quarterly" />
+                    <span class="toggle__slider"></span>
+                </div>
+                <span class="toggle__label toggle__label--right">Anual</span>
+            </label>
+        </div>
+
+        <div class="plans__grid">
+            {plans.map(plan => (
+                <div class={`plan-card ${plan.popular ? 'plan-card--popular' : ''}`}>
+                    {plan.popular && <span class="plan-card__badge">★ Más popular</span>}
+                    
+                    <h3 class="plan-card__title">{plan.name}</h3>
+                    <p class="plan-card__description">{plan.description}</p>
+
+                    <div class="plan-card__price">
+                        <span class="price__amount" data-base-price={plan.prices.monthly}>${plan.prices.monthly}</span>
+                        <span class="price__period">/mes</span>
+                    </div>
+
+                    <ul class="plan-card__features">
+                        {plan.features.map(feature => (
+                            <li class={`feature ${feature.included ? 'feature--included' : ''}`}>
+                                <span class="feature__icon">
+                                    {feature.included ? '✔' : '✘'}
+                                </span>
+                                {feature.feature}
+                            </li>
+                        ))}
+                    </ul>
+
+                    <button class="plan-card__cta">
+                        Contratar ahora
+                    </button>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<!-- Elemento oculto para almacenar los datos de los planes -->
+<div id="plans-data" data-plans={plansData} style="display: none;"></div>
+
+<style lang="scss">
+    // Variables
+    $color-primary: #FF0080;
+    $color-secondary: #A600FF;
+    $color-dark: #1D0033;
+    $color-neutral: #2F2F2F;
+    $color-white: #FFFFFF;
+    $color-accent: #00FFE0;
+
+    // Mixins
+    @mixin responsive($breakpoint) {
+        @if $breakpoint == tablet {
+            @media (min-width: 768px) { @content; }
+        } @else if $breakpoint == desktop {
+            @media (min-width: 1024px) { @content; }
+        }
+    }
+
+    .plans {
+        padding: 4rem 1rem;
+        background-color: #fafafa;
+
+        &__container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        &__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: $color-dark;
+            margin-bottom: 1rem;
+        }
+
+        &__subtitle {
+            font-family: 'Raleway', sans-serif;
+            font-size: 1.125rem;
+            text-align: center;
+            color: $color-neutral;
+            margin-bottom: 3rem;
+        }
+
+        &__period-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        &__grid {
+            display: grid;
+            gap: 2rem;
+            
+            @include responsive(tablet) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            @include responsive(desktop) {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    }
+
+    .toggle {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+
+        &__label {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: $color-neutral;
+            transition: color 0.3s ease;
+
+            &--left.active {
+                color: $color-primary;
+            }
+
+            &--right.active {
+                color: $color-primary;
+            }
+        }
+
+        &__switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        &__input {
+            display: none;
+
+            &:checked + .toggle__slider {
+                background: $color-primary;
+            }
+
+            &:checked + .toggle__slider:before {
+                transform: translateX(28px);
+            }
+        }
+
+        &__slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: $color-neutral;
+            transition: .4s;
+            border-radius: 34px;
+
+            &:before {
+                position: absolute;
+                content: "";
+                height: 24px;
+                width: 24px;
+                left: 4px;
+                bottom: 4px;
+                background-color: $color-white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    .plan-card {
+        background: $color-white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        &--popular {
+            border: 2px solid $color-primary;
+        }
+
+        &__badge {
+            position: absolute;
+            top: -12px;
+            right: 1rem;
+            background: $color-primary;
+            color: $color-white;
+            padding: 0.25rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        &__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: $color-dark;
+            margin-bottom: 0.5rem;
+        }
+
+        &__description {
+            font-family: 'Raleway', sans-serif;
+            color: $color-neutral;
+            margin-bottom: 2rem;
+        }
+
+        &__price {
+            text-align: center;
+            margin-bottom: 2rem;
+
+            .price__amount {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: $color-primary;
+            }
+
+            .price__period {
+                color: $color-neutral;
+            }
+        }
+
+        &__features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+
+            .feature {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.75rem;
+                color: $color-neutral;
+
+                &__icon {
+                    margin-right: 0.75rem;
+                    font-size: 1.125rem;
+                }
+
+                &--included {
+                    color: $color-dark;
+                    
+                    .feature__icon {
+                        color: $color-primary;
+                    }
+                }
+            }
+        }
+
+        &__cta {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: $color-primary;
+            color: $color-white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background: $color-secondary;
+            }
+
+            &:active {
+                background: $color-dark;
+            }
+        }
+    }
+</style>
+
+<script>
+    import { updatePlanPricing } from '../scripts/plans';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inicializar los planes en el objeto window
+        const plansData = document.querySelector('#plans-data')?.getAttribute('data-plans');
+        if (plansData) {
+            window.plans = JSON.parse(plansData);
+            // Inicializar la funcionalidad de precios
+            updatePlanPricing();
+        }
+    });
+</script>

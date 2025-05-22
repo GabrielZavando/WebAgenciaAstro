@@ -1,0 +1,132 @@
+// Colores base
+$color-magenta: #FF0080;
+$color-purple: #A600FF;
+$color-navy: #1D0033;
+$color-turquoise: #00FFE0;
+$color-white: #FFFFFF;
+$color-dark: #2F2F2F;
+
+// Colores de estado
+$color-success: #00C48C;
+$color-error: #FF4D4D;
+
+// Gradientes
+$gradient-primary: linear-gradient(90deg, $color-magenta 0%, $color-purple 100%);
+$gradient-secondary: linear-gradient(90deg, $color-purple 0%, $color-navy 100%);
+
+// Tema claro por defecto
+:root {
+    // Colores base
+    --color-background: #{$color-white};
+    --color-text: #{$color-dark};
+    --color-heading: #{$color-magenta};
+    --color-link: #{$color-purple};
+    --color-link-hover: #{$color-magenta};
+    --color-accent: #{$color-turquoise};
+
+    // Botones CTA
+    --color-button-bg: #{$color-magenta};
+    --color-button-text: #{$color-white};
+    --color-button-hover: #{$color-purple};
+    --color-button-active: #{$color-navy};
+
+    // Menú
+    --color-menu-active: #{$color-magenta};
+    --color-menu-hover: #{$color-purple};
+    --color-menu-inactive: #{$color-dark};
+
+    // Alertas
+    --color-success-bg: #{$color-success};
+    --color-success-text: #{$color-white};
+    --color-error-bg: #{$color-error};
+    --color-error-text: #{$color-white};
+
+    // Gradientes
+    --gradient-primary: #{$gradient-primary};
+    --gradient-secondary: #{$gradient-secondary};
+
+    // Formularios
+    --color-input-bg: #{$color-white};
+    --color-input-border: #{$color-purple};
+    --color-input-text: #{$color-dark};
+    --color-input-placeholder: #999999;
+    --color-input-focus: #{$color-magenta};
+    --color-input-checked: #{$color-magenta};
+    --color-input-hover: #{$color-turquoise};
+
+    // Tooltips
+    --color-tooltip-bg: #{$color-navy};
+    --color-tooltip-text: #{$color-white};
+
+    // Cards
+    --color-card-bg: rgba(255, 255, 255, 0.1);
+    --color-card-border: rgba(255, 255, 255, 0.2);
+    --color-card-border-hover: #{$color-magenta};
+    --color-card-title: #{$color-dark};
+    --color-card-text: #{$color-dark};
+    --color-card-icon: #{$color-turquoise};
+}
+
+// Tema oscuro
+[data-theme="dark"] {
+    // Colores base
+    --color-background: #{$color-navy};
+    --color-text: #{$color-white};
+    --color-heading: #{$color-magenta};
+    --color-link: #{$color-magenta};
+    --color-link-hover: #{$color-white};
+    --color-accent: #{$color-turquoise};
+
+    // Botones CTA
+    --color-button-bg: #{$color-purple};
+    --color-button-text: #{$color-white};
+    --color-button-hover: #{$color-magenta};
+    --color-button-active: #{$color-dark};
+
+    // Menú
+    --color-menu-active: #{$color-white};
+    --color-menu-hover: #{$color-magenta};
+    --color-menu-inactive: #{$color-purple};
+
+    // Alertas
+    --color-success-bg: #{$color-success};
+    --color-success-text: #{$color-navy};
+    --color-error-bg: #{$color-error};
+    --color-error-text: #{$color-navy};
+
+    // Gradientes
+    --gradient-primary: #{$gradient-primary};
+    --gradient-secondary: #{$gradient-secondary};
+
+    // Formularios
+    --color-input-bg: #{$color-dark};
+    --color-input-border: #{$color-turquoise};
+    --color-input-text: #{$color-white};
+    --color-input-placeholder: #CCCCCC;
+    --color-input-focus: #{$color-magenta};
+    --color-input-checked: #{$color-magenta};
+    --color-input-hover: #{$color-white};
+
+    // Tooltips
+    --color-tooltip-bg: #{$color-white};
+    --color-tooltip-text: #{$color-navy};
+
+    // Cards
+    --color-card-bg: rgba(45, 0, 66, 0.1);
+    --color-card-border: rgba(255, 255, 255, 0.15);
+    --color-card-border-hover: #{$color-magenta};
+    --color-card-title: #{$color-white};
+    --color-card-text: #{$color-white};
+    --color-card-icon: #{$color-turquoise};
+}
+
+// Mixins de utilidad para colores
+@mixin themed-styles {
+    @media (prefers-color-scheme: dark) {
+        @content;
+    }
+    
+    [data-theme="dark"] & {
+        @content;
+    }
+}

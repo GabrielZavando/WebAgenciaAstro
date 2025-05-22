@@ -1,0 +1,302 @@
+---
+const currentYear = new Date().getFullYear();
+
+interface SocialLink {
+    name: string;
+    url: string;
+    icon: string;
+}
+
+const socialLinks: SocialLink[] = [
+    {
+        name: 'LinkedIn',
+        url: 'https://linkedin.com/in/gabrielzavando',
+        icon: '/src/assets/img/linkedin_icon.png'
+    },
+    {
+        name: 'GitHub',
+        url: 'https://github.com/gabrielzavando',
+        icon: '/src/assets/img/github_icon.png'
+    },
+    {
+        name: 'Instagram',
+        url: 'https://instagram.com/gabrielzavando',
+        icon: '/src/assets/img/instagram_icon.png'
+    },
+    {
+        name: 'YouTube',
+        url: 'https://youtube.com/@gabrielzavando',
+        icon: '/src/assets/img/youtube_icon.png'
+    }
+];
+
+const menuItems = [
+    { text: 'Servicios', href: '#services' },
+    { text: 'Quién Soy', href: '#about' },
+    { text: 'Metodología', href: '#process' },
+    { text: 'Planes', href: '#plans' },
+    { text: 'Contacto', href: '#contact' }
+];
+---
+
+<footer class="footer">
+    <div class="footer__container">
+        <div class="footer__grid">
+            <!-- Columna de Navegación -->
+            <div class="footer__column">
+                <h3 class="footer__title">Navegación</h3>
+                <nav class="footer__nav">
+                    <ul class="footer__nav-list">
+                        {menuItems.map(item => (
+                            <li class="footer__nav-item">
+                                <a href={item.href} class="footer__nav-link">
+                                    {item.text}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Columna de Redes Sociales -->
+            <div class="footer__column">
+                <h3 class="footer__title">Conecta conmigo</h3>
+                <div class="footer__social">
+                    {socialLinks.map(link => (
+                        <a 
+                            href={link.url} 
+                            class="footer__social-link" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            title={link.name}
+                        >
+                            <img 
+                                src={link.icon} 
+                                alt={link.name} 
+                                class="footer__social-icon"
+                            />
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <!-- Columna de Suscripción -->
+            <div class="footer__column">
+                <h3 class="footer__title">Suscríbete</h3>
+                <form class="footer__form" id="subscribeForm">
+                    <div class="footer__form-group">
+                        <input 
+                            type="email" 
+                            class="footer__form-input" 
+                            placeholder="Tu correo electrónico"
+                            required
+                        />
+                        <button type="submit" class="footer__form-button">
+                            Suscribirme
+                        </button>
+                    </div>
+                    <p class="footer__form-message" id="subscribeMessage"></p>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer__bottom">
+            <p class="footer__copyright">
+                © {currentYear} Gabriel Zavando. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<style lang="scss">
+    // Variables
+    $color-primary: #FF0080;
+    $color-secondary: #A600FF;
+    $color-dark: #1D0033;
+    $color-white: #FFFFFF;
+    $max-width: 1200px;
+    $footer-padding: 4rem;
+    $column-gap: 2rem;
+
+    // Mixins
+    @mixin responsive($breakpoint) {
+        @if $breakpoint == tablet {
+            @media (min-width: 768px) { @content; }
+        } @else if $breakpoint == desktop {
+            @media (min-width: 1024px) { @content; }
+        }
+    }
+
+    .footer {
+        background-color: $color-dark;
+        color: $color-white;
+        padding: $footer-padding 1rem;
+
+        &__container {
+            max-width: $max-width;
+            margin: 0 auto;
+        }
+
+        &__grid {
+            display: grid;
+            gap: $column-gap;
+            margin-bottom: 3rem;
+
+            @include responsive(tablet) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            @include responsive(desktop) {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        &__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        // Estilos de navegación
+        &__nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        &__nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        &__nav-link {
+            color: $color-white;
+            text-decoration: none;
+            font-family: 'Raleway', sans-serif;
+            transition: color 0.3s ease;
+
+            &:hover {
+                color: $color-primary;
+            }
+        }
+
+        // Estilos de redes sociales
+        &__social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        &__social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba($color-white, 0.1);
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: $color-primary;
+                transform: translateY(-2px);
+            }
+        }
+
+        &__social-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        // Estilos del formulario
+        &__form-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        &__form-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.875rem;
+
+            &:focus {
+                outline: 2px solid $color-primary;
+            }
+        }
+
+        &__form-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            background: $color-primary;
+            color: $color-white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background: $color-secondary;
+            }
+        }
+
+        &__form-message {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-family: 'Raleway', sans-serif;
+            
+            &.success {
+                color: #4ADE80;
+            }
+            
+            &.error {
+                color: #FF4B4B;
+            }
+        }
+
+        // Estilos del copyright
+        &__bottom {
+            border-top: 1px solid rgba($color-white, 0.1);
+            padding-top: 2rem;
+            text-align: center;
+        }
+
+        &__copyright {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.875rem;
+            color: rgba($color-white, 0.7);
+        }
+    }
+</style>
+
+<script>
+    const subscribeForm = document.getElementById('subscribeForm') as HTMLFormElement;
+    const subscribeMessage = document.getElementById('subscribeMessage');
+
+    if (subscribeForm && subscribeMessage) {
+        subscribeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const emailInput = subscribeForm.querySelector('input[type="email"]') as HTMLInputElement;
+            
+            if (emailInput.value) {
+                // Aquí iría la lógica de suscripción real
+                subscribeMessage.textContent = '¡Gracias por suscribirte! Te mantendré informado.';
+                subscribeMessage.className = 'footer__form-message success';
+                emailInput.value = '';
+                
+                // Ocultar el mensaje después de 5 segundos
+                setTimeout(() => {
+                    subscribeMessage.textContent = '';
+                    subscribeMessage.className = 'footer__form-message';
+                }, 5000);
+            } else {
+                subscribeMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
+                subscribeMessage.className = 'footer__form-message error';
+            }
+        });
+    }
+</script>

@@ -1,0 +1,231 @@
+---
+
+---
+
+<section class="about-section" id="about">
+    <div class="container">
+        <h2 class="section-title">Sobre Mí</h2>
+        
+        <div class="about-grid">
+            <div class="about-content">
+                <h3 class="content-title">Desarrollador Full Stack Freelance</h3>
+                <p class="content-text">
+                    Con más de 5 años de experiencia en el desarrollo web, me especializo en crear soluciones digitales personalizadas que impulsan el éxito de mis clientes. Mi pasión por la tecnología y la innovación me permite mantenerme siempre actualizado con las últimas tendencias del desarrollo web.
+                </p>
+                
+                <div class="skills-section">
+                    <h4 class="skills-title">Especialidades:</h4>
+                    <ul class="skills-grid">
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            Desarrollo Frontend
+                        </li>
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            Desarrollo Backend
+                        </li>
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            Diseño Responsivo
+                        </li>
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            Optimización SEO
+                        </li>
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            APIs RESTful
+                        </li>
+                        <li class="skill-item">
+                            <span class="check-icon">✓</span>
+                            Bases de Datos
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tech-stack">
+                    <h4 class="tech-title">Tecnologías:</h4>
+                    <div class="tech-grid">
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">TypeScript</span>
+                        <span class="tech-tag">React</span>
+                        <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">SQL</span>
+                        <span class="tech-tag">MongoDB</span>
+                        <span class="tech-tag">AWS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4 class="stat-number">50+</h4>
+                    <p class="stat-text">Proyectos Completados</p>
+                </div>
+                <div class="stat-card">
+                    <h4 class="stat-number">5+</h4>
+                    <p class="stat-text">Años de Experiencia</p>
+                </div>
+                <div class="stat-card">
+                    <h4 class="stat-number">40+</h4>
+                    <p class="stat-text">Clientes Satisfechos</p>
+                </div>
+                <div class="stat-card">
+                    <h4 class="stat-number">100%</h4>
+                    <p class="stat-text">Compromiso</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style lang="scss">
+    // Variables
+    $primary-color: #2563eb;
+    $background-color: #f8f9fa;
+    $text-color: #374151;
+    $gray-light: #f3f4f6;
+    $gray-medium: #9ca3af;
+    $white: #ffffff;
+    $transition-default: all 0.3s ease;
+    $border-radius: 0.5rem;
+    $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    .about-section {
+        background-color: $background-color;
+        padding: 4rem 1rem;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+        color: $text-color;
+    }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        align-items: center;
+
+        @media (min-width: 768px) {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .content-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: $text-color;
+    }
+
+    .content-text {
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        color: $text-color;
+    }
+
+    .skills-section {
+        margin-top: 1.5rem;
+
+        .skills-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .skill-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        transition: $transition-default;
+        border-radius: $border-radius;
+
+        &:hover {
+            background-color: rgba($primary-color, 0.1);
+        }
+
+        .check-icon {
+            margin-right: 0.5rem;
+            color: $primary-color;
+        }
+    }
+
+    .tech-stack {
+        margin-top: 1.5rem;
+
+        .tech-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .tech-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tech-tag {
+        padding: 0.25rem 0.75rem;
+        background-color: $gray-light;
+        border-radius: 9999px;
+        transition: $transition-default;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $primary-color;
+            color: $white;
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-card {
+        background-color: $white;
+        padding: 1.5rem;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        text-align: center;
+        transition: $transition-default;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: $primary-color;
+        }
+
+        .stat-text {
+            color: $gray-medium;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+

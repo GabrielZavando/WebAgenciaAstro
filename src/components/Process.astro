@@ -1,0 +1,263 @@
+---
+ interface Phase {
+    number: number;
+    title: string;
+    duration: string;
+    milestones: string[];
+}
+
+const phases: Phase[] = [
+    {
+        number: 1,
+        title: "Descubrimiento Estratégico",
+        duration: "2 hrs",
+        milestones: [
+            "Alineación de objetivos",
+            "Recolección de requerimientos",
+            "Priorización",
+            "Jerarquía de contenidos",
+            "Definición del acuerdo",
+            "Roadmap inicial"
+        ]
+    },
+    {
+        number: 2,
+        title: "Prototipo y Validación",
+        duration: "1 hr",
+        milestones: [
+            "Presentación MVP",
+            "Revisión y feedback",
+            "Ajustes clave",
+            "Nuevo acuerdo si aplica"
+        ]
+    },
+    {
+        number: 3,
+        title: "Entrega y Activación",
+        duration: "2 hrs",
+        milestones: [
+            "Entrega final",
+            "Capacitación personalizada",
+            "Activación del sistema"
+        ]
+    },
+    {
+        number: 4,
+        title: "Evolución y Mantenimiento",
+        duration: "continuo",
+        milestones: [
+            "Mantenimiento técnico mensual",
+            "Soporte ante requerimientos nuevos",
+            "Mejoras incrementales"
+        ]
+    }
+];
+---
+
+<section class="process-section" id="process">
+    <div class="container">
+        <h2 class="section-title">Así trabajamos contigo, paso a paso</h2>
+        
+        <p class="section-intro">
+            Nuestro proceso está diseñado para acompañarte desde el primer objetivo hasta la evolución continua de tu sistema. 
+            Cada paso es claro, colaborativo y centrado en lo que realmente importa: que tu solución funcione y crezca contigo.
+        </p>
+
+        <div class="phases-container">
+            {phases.map((phase) => (
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <span class="phase-number">{phase.number}</span>
+                        <div class="phase-title-container">
+                            <h3 class="phase-title">Fase {phase.number} - {phase.title}</h3>
+                            <span class="phase-duration">{phase.duration}</span>
+                        </div>
+                    </div>
+                    <ul class="phase-milestones">
+                        {phase.milestones.map((milestone) => (
+                            <li>{milestone}</li>
+                        ))}
+                    </ul>
+                </div>
+            ))}
+        </div>
+
+        <div class="process-footer">
+            <p class="commitment-text">
+                No estás solo en esto. Nuestro compromiso va más allá de la entrega: evoluciona contigo.
+            </p>
+            <a href="#contact" class="cta-button">Hablemos de tu proyecto</a>
+        </div>
+    </div>
+</section>
+
+<style lang="scss">
+    // Variables
+    $color-magenta: #FF0066;
+    $color-purple: #6B46C1;
+    $color-navy: #1E3A8A;
+    $color-turquoise: #06B6D4;
+    $color-white: #FFFFFF;
+    $color-gray-light: #F3F4F6;
+    $color-gray-medium: #9CA3AF;
+    
+    // Fonts
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Raleway:wght@400;500&display=swap');
+    
+    .process-section {
+        padding: 5rem 1rem;
+        background: linear-gradient(135deg, rgba($color-navy, 0.02) 0%, rgba($color-purple, 0.05) 100%);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    }
+
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        color: $color-navy;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-intro {
+        font-family: 'Raleway', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto 4rem;
+        color: $color-navy;
+    }
+
+    .phases-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .phase-card {
+        background: $color-white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+    }
+
+    .phase-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .phase-number {
+        background: linear-gradient(135deg, $color-magenta, $color-purple);
+        color: $color-white;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    .phase-title-container {
+        flex: 1;
+    }
+
+    .phase-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: $color-navy;
+        margin: 0;
+    }
+
+    .phase-duration {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.9rem;
+        color: $color-gray-medium;
+    }
+
+    .phase-milestones {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-family: 'Raleway', sans-serif;
+
+        li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: $color-navy;
+
+            &:before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0.5rem;
+                width: 0.5rem;
+                height: 0.5rem;
+                background: $color-turquoise;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    .process-footer {
+        text-align: center;
+        margin-top: 4rem;
+    }
+
+    .commitment-text {
+        font-family: 'Raleway', sans-serif;
+        font-size: 1.1rem;
+        color: $color-navy;
+        margin-bottom: 2rem;
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, $color-magenta, $color-purple);
+        color: $color-white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        text-decoration: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba($color-magenta, 0.3);
+        }
+    }
+
+    // Responsive adjustments
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .phases-container {
+            grid-template-columns: 1fr;
+        }
+
+        .phase-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
