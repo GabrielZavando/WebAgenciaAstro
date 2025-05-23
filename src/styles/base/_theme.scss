@@ -25,6 +25,7 @@ h1, h2, h3, h4, h5, h6 {
 a {
     color: var(--color-link);
     transition: color 0.3s ease;
+    text-decoration: none;
 
     &:hover {
         color: var(--color-link-hover);

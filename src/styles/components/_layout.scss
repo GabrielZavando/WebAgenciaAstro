@@ -13,19 +13,10 @@
 
     // Contenedor interno con max-width
     &__container {
-        max-width: 1280px;
+        max-width: 1440px;
         margin: 0 auto;
     }
 
-    // Variante con fondo alternativo
-    &--alt {
-        background: var(--gradient-primary);
-        color: var(--color-white);
-
-        @include themed-styles {
-            background: var(--gradient-secondary);
-        }
-    }
 }
 
 // Grid básico para layouts
