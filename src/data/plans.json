@@ -1,0 +1,70 @@
+{
+  "planes": [
+    {
+      "nombre": "Plan Pro",
+      "descripcion": "Landing Page estática ideal para presentar tu negocio",
+      "precio_6_meses": 1590,
+      "precio_12_meses": 2990,
+      "caracteristicas": {
+        "✔ Diseño profesional a medida": "Personalizado según la imagen corporativa de tu marca.",
+        "✔ Landing Page funcional": "Una sola página con hasta 7 secciones bien estructuradas.",
+        "✔ Responsive design": "Sitio optimizado para celulares, tablets y escritorio.",
+        "✔ Formulario de contacto": "Permite a los visitantes enviarte mensajes directamente.",
+        "✔ Botón de WhatsApp": "Acceso directo para chatear contigo desde el sitio.",
+        "✔ Enlaces a redes sociales": "Conexión rápida a tus perfiles sociales.",
+        "✔ SEO básico": "Configuración inicial para aparecer en buscadores.",
+        "✔ Certificado SSL": "Navegación segura con HTTPS.",
+        "✔ Hosting compartido": "Alojamiento confiable incluido.",
+        "✔ Copias de seguridad mensuales": "Tu información protegida una vez al mes.",
+        "✔ Actualizaciones técnicas": "Plugins y herramientas siempre al día.",
+        "✔ Soporte con tickets": "Hasta 2 tickets mensuales para ajustes de contenido o diseño."
+      },
+      "exclusiones": {
+        "✘ Blog integrado": "No incluye sistema de blog ni contenido dinámico.",
+        "✘ Sistema de pagos": "No permite vender productos ni integrar pasarelas de pago."
+      }
+    },
+    {
+      "nombre": "Plan Plus",
+      "descripcion": "Sitio web dinámico con blog y panel de administración",
+      "precio_6_meses": 2690,
+      "precio_12_meses": 4990,
+      "caracteristicas": {
+        "✔ Todo lo del Plan Pro": "Incluye todas las funcionalidades del plan anterior.",
+        "✔ Sitio dinámico WordPress": "Hasta 10 páginas editables desde un panel de administración.",
+        "✔ Blog integrado": "Publica artículos y organiza contenido con categorías y etiquetas.",
+        "✔ Panel de administración": "Edita textos e imágenes fácilmente desde WordPress.",
+        "✔ Newsletter básico": "Formulario de suscripción inicial para captar correos.",
+        "✔ SEO avanzado": "Mejor posicionamiento mediante optimización técnica y de contenido.",
+        "✔ Capacitación inicial": "Aprende a gestionar tu sitio con una sesión personalizada.",
+        "✔ Copias de seguridad mensuales": "Respaldo completo cada mes.",
+        "✔ Actualizaciones automáticas": "Plugins y sistema actualizados de forma continua.",
+        "✔ Soporte ampliado": "Hasta 3 tickets mensuales para ajustes de contenido y diseño."
+      },
+      "exclusiones": {
+        "✘ Sistema de pagos": "No incluye funcionalidades de tienda online ni cobros digitales."
+      }
+    },
+    {
+      "nombre": "Plan Premium",
+      "descripcion": "Tienda online completa con sistema de pagos",
+      "precio_6_meses": 4290,
+      "precio_12_meses": 7990,
+      "caracteristicas": {
+        "✔ Todo lo del Plan Plus": "Incluye todas las características del Plan Plus.",
+        "✔ Tienda online WooCommerce": "Plataforma de ecommerce con carrito, pedidos y pagos.",
+        "✔ Hasta 500 productos": "Con soporte para variaciones como tallas o colores.",
+        "✔ Sistema de pagos integrado": "Compatible con WebPay Plus, Khipu, Mercado Pago y PayPal.",
+        "✔ Gestión de inventario": "Controla stock y productos destacados con alertas.",
+        "✔ Reportes de ventas y analítica": "Estadísticas de productos vendidos, visitas y carritos abandonados.",
+        "✔ Integración con envíos": "Calculadora de tarifas y seguimiento con Starken o Blue Express.",
+        "✔ Perfiles de cliente": "Cuentas de usuario con historial y lista de deseos.",
+        "✔ Backups diarios": "Respaldo completo del sitio todos los días.",
+        "✔ Soporte extendido": "Incluye carga de productos, ajustes técnicos y visuales."
+      },
+      "exclusiones": {
+        "✘ Herramientas de marketing": "No incluye campañas, chat en vivo ni CRM."
+      }
+    }
+  ]
+}

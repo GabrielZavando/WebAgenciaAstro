@@ -1,13 +1,7 @@
 ---
 const currentYear = new Date().getFullYear();
 
-interface SocialLink {
-    name: string;
-    url: string;
-    icon: string;
-}
-
-const socialLinks: SocialLink[] = [
+const socialLinks = [
     {
         name: 'LinkedIn',
         url: 'https://linkedin.com/in/gabrielzavando',
@@ -40,236 +34,198 @@ const menuItems = [
 ---
 
 <footer class="footer">
-    <div class="footer__container">
-        <div class="footer__grid">
-            <!-- Columna de Navegación -->
-            <div class="footer__column">
-                <h3 class="footer__title">Navegación</h3>
-                <nav class="footer__nav">
-                    <ul class="footer__nav-list">
-                        {menuItems.map(item => (
-                            <li class="footer__nav-item">
-                                <a href={item.href} class="footer__nav-link">
-                                    {item.text}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
-
-            <!-- Columna de Redes Sociales -->
-            <div class="footer__column">
-                <h3 class="footer__title">Conecta conmigo</h3>
-                <div class="footer__social">
-                    {socialLinks.map(link => (
-                        <a 
-                            href={link.url} 
-                            class="footer__social-link" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            title={link.name}
-                        >
-                            <img 
-                                src={link.icon} 
-                                alt={link.name} 
-                                class="footer__social-icon"
-                            />
-                        </a>
-                    ))}
-                </div>
-            </div>
-
-            <!-- Columna de Suscripción -->
-            <div class="footer__column">
-                <h3 class="footer__title">Suscríbete</h3>
-                <form class="footer__form" id="subscribeForm">
-                    <div class="footer__form-group">
-                        <input 
-                            type="email" 
-                            class="footer__form-input" 
-                            placeholder="Tu correo electrónico"
-                            required
-                        />
-                        <button type="submit" class="footer__form-button">
-                            Suscribirme
-                        </button>
-                    </div>
-                    <p class="footer__form-message" id="subscribeMessage"></p>
-                </form>
-            </div>
-        </div>
-
-        <div class="footer__bottom">
-            <p class="footer__copyright">
-                © {currentYear} Gabriel Zavando. Todos los derechos reservados.
-            </p>
-        </div>
+  <div class="footer__container">
+    <!-- Columna: Navegación -->
+    <div class="footer__section footer__section--nav">
+      <h3 class="footer__title">Navegación</h3>
+      <ul class="footer__list">
+        {menuItems.map(item => (
+          <li class="footer__item"><a href={item.href} class="footer__link">{item.text}</a></li>
+        ))}
+      </ul>
     </div>
+
+    <!-- Columna: Redes sociales -->
+    <div class="footer__section footer__section--social">
+      <h3 class="footer__title">Conecta conmigo</h3>
+      <div class="footer__social-icons">
+        <a href="https://linkedin.com/in/gabrielzavando" class="footer__icon" title="LinkedIn" aria-label="LinkedIn" target="_blank" rel="noopener">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="https://github.com/gabrielzavando" class="footer__icon" title="GitHub" aria-label="GitHub" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://instagram.com/gabrielzavando" class="footer__icon" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://youtube.com/@gabrielzavando" class="footer__icon" title="YouTube" aria-label="YouTube" target="_blank" rel="noopener">
+          <i class="fab fa-youtube"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Columna: Suscripción -->
+    <div class="footer__section footer__section--subscribe">
+      <h3 class="footer__title">Suscríbete</h3>
+      <form class="footer__form" action="/suscribirse" method="post">
+        <input type="email" class="footer__input" name="email" placeholder="Tu correo electrónico" required>
+        <button type="submit" class="footer__button">Suscribirme</button>
+        <label class="footer__checkbox">
+          <input type="checkbox" name="terms" required>
+          Acepto los <a href="/politica-de-privacidad" class="footer__link">términos y condiciones</a>
+        </label>
+      </form>
+      <p class="footer__note">Recibe tips de transformación digital sin spam.</p>
+    </div>
+  </div>
+
+  <!-- Cierre del footer -->
+  <div class="footer__bottom">
+    <p class="footer__copyright">© {currentYear} Gabriel Zavando. Todos los derechos reservados.</p>
+    <p class="footer__legal">
+      <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
+    </p>
+  </div>
 </footer>
 
 <style lang="scss">
-    // Variables
-    $color-primary: #FF0080;
-    $color-secondary: #A600FF;
-    $color-dark: #1D0033;
-    $color-white: #FFFFFF;
-    $max-width: 1200px;
-    $footer-padding: 4rem;
-    $column-gap: 2rem;
+  $color-primary: #FF0080;
+  $color-secondary: #A600FF;
+  $color-dark: #1D0033;
+  $color-white: #FFFFFF;
+  $max-width: 1200px;
+  $footer-padding: 4rem;
+  $column-gap: 2rem;
 
-    // Mixins
-    @mixin responsive($breakpoint) {
-        @if $breakpoint == tablet {
-            @media (min-width: 768px) { @content; }
-        } @else if $breakpoint == desktop {
-            @media (min-width: 1024px) { @content; }
-        }
+  .footer {
+    background-color: $color-dark;
+    color: $color-white;
+    padding: $footer-padding 1rem;
+
+    &__container {
+      max-width: $max-width;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-between;
     }
 
-    .footer {
-        background-color: $color-dark;
+    &__section {
+      flex: 1 1 250px;
+      min-width: 220px;
+      margin-bottom: 2rem;
+    }
+
+    &__title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    &__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    &__item {
+      margin-bottom: 0.75rem;
+    }
+    &__link {
+      color: $color-white;
+      text-decoration: none;
+      font-family: 'Raleway', sans-serif;
+      transition: color 0.3s ease;
+      &:hover {
+        color: $color-primary;
+      }
+    }
+
+    // Redes sociales
+    &__social-icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    &__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba($color-white, 0.08);
+      color: $color-white;
+      font-size: 1.3rem;
+      transition: all 0.3s ease;
+      &:hover {
+        background: $color-primary;
         color: $color-white;
-        padding: $footer-padding 1rem;
-
-        &__container {
-            max-width: $max-width;
-            margin: 0 auto;
-        }
-
-        &__grid {
-            display: grid;
-            gap: $column-gap;
-            margin-bottom: 3rem;
-
-            @include responsive(tablet) {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            @include responsive(desktop) {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        &__title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-
-        // Estilos de navegación
-        &__nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        &__nav-item {
-            margin-bottom: 0.75rem;
-        }
-
-        &__nav-link {
-            color: $color-white;
-            text-decoration: none;
-            font-family: 'Raleway', sans-serif;
-            transition: color 0.3s ease;
-
-            &:hover {
-                color: $color-primary;
-            }
-        }
-
-        // Estilos de redes sociales
-        &__social {
-            display: flex;
-            gap: 1rem;
-        }
-
-        &__social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba($color-white, 0.1);
-            transition: all 0.3s ease;
-
-            &:hover {
-                background: $color-primary;
-                transform: translateY(-2px);
-            }
-        }
-
-        &__social-icon {
-            width: 20px;
-            height: 20px;
-            filter: brightness(0) invert(1);
-        }
-
-        // Estilos del formulario
-        &__form-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        &__form-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 0.25rem;
-            font-family: 'Raleway', sans-serif;
-            font-size: 0.875rem;
-
-            &:focus {
-                outline: 2px solid $color-primary;
-            }
-        }
-
-        &__form-button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.25rem;
-            background: $color-primary;
-            color: $color-white;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-
-            &:hover {
-                background: $color-secondary;
-            }
-        }
-
-        &__form-message {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            font-family: 'Raleway', sans-serif;
-            
-            &.success {
-                color: #4ADE80;
-            }
-            
-            &.error {
-                color: #FF4B4B;
-            }
-        }
-
-        // Estilos del copyright
-        &__bottom {
-            border-top: 1px solid rgba($color-white, 0.1);
-            padding-top: 2rem;
-            text-align: center;
-        }
-
-        &__copyright {
-            font-family: 'Raleway', sans-serif;
-            font-size: 0.875rem;
-            color: rgba($color-white, 0.7);
-        }
+        transform: translateY(-2px);
+      }
     }
+
+    // Formulario
+    &__form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    &__input {
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      &:focus {
+        outline: 2px solid $color-primary;
+      }
+    }
+    &__button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      background: $color-primary;
+      color: $color-white;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      &:hover {
+        background: $color-secondary;
+      }
+    }
+    &__checkbox {
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+      gap: 0.5rem;
+      color: $color-white;
+      a {
+        color: $color-primary;
+        text-decoration: underline;
+      }
+    }
+    &__note {
+      font-size: 0.95rem;
+      color: rgba($color-white, 0.7);
+      margin-top: 0.5rem;
+    }
+
+    &__bottom {
+      border-top: 1px solid rgba($color-white, 0.1);
+      padding-top: 2rem;
+      text-align: center;
+    }
+    &__copyright {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.875rem;
+      color: rgba($color-white, 0.7);
+    }
+  }
 </style>
 
 <script>

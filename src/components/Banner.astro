@@ -2,15 +2,17 @@
 import { Image } from 'astro:assets';
 import banner from '@img/banner-web.jpg';
 
-const title = "Desarrollador Full Stack Especializado en Soluciones Digitales";
-const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo sitios web, aplicaciones y soluciones personalizadas que impulsan el crecimiento de tu negocio.";
+const name = "Gabriel Zavando";
+const charge = "Full Stack Developer";
+const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el siguiente paso, y yo puedo ayudarte a darlo con soluciones pensadas para escalar, adaptarse y transformar tu presente en futuro.";
 ---
 
 <section class="banner">
     <div class="banner__container">
         <div class="banner__content">
             <h1 class="banner__title">
-                {title}
+                <span class="banner__name">{name}</span>
+                <span class="banner__charge">{charge}</span>
             </h1>
             <p class="banner__subtitle">
                 {subtitle}
@@ -20,7 +22,7 @@ const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo
                     Hablemos de tu proyecto
                     <span class="banner__cta-arrow">→</span>
                 </a>
-                <a href="#servicios" class="banner__cta banner__cta--secondary">
+                <a href="#services" class="banner__cta banner__cta--secondary">
                     Ver Servicios
                 </a>
             </div>
@@ -58,7 +60,6 @@ const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo
             padding: 0 20px;
             position: relative;
             z-index: 2;
-
             @include respond-to(lg) {
                 padding: 0 40px;
             }
@@ -66,7 +67,6 @@ const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo
 
         &__content {
             max-width: 600px;
-
             @include respond-to(lg) {
                 max-width: 720px;
             }
@@ -78,8 +78,9 @@ const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo
             color: $color-white;
             margin-bottom: 1.5rem;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            @include responsive-font($text-3xl, $text-4xl, $text-5xl);
-
+            display: flex;
+            flex-direction: column;
+            @include responsive-font($text-3xl, $text-4xl, $text-5xl);      
             @include respond-to(lg) {
                 margin-bottom: 2rem;
             }
@@ -91,7 +92,6 @@ const subtitle = "Transformo ideas en experiencias digitales únicas. Desarrollo
             margin-bottom: 2rem;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             @include responsive-font($text-lg, $text-xl, $text-2xl);
-
             @include respond-to(lg) {
                 margin-bottom: 3rem;
                 max-width: 80%;

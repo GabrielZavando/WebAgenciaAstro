@@ -2,27 +2,16 @@
   "name": "landing-page",
   "version": "1.0.0",
   "description": "Landing Page para mi agencia digital",
-  "main": "src/pages/index.astro",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --open",
     "build": "astro build",
-    "start": "astro start",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.7.12"
+    "astro": "^5.8.0"
   },
-  "keywords": [
-    "landing",
-    "page",
-    "agencia",
-    "digital"
-  ],
-  "author": "Tu Nombre",
-  "license": "MIT",
   "devDependencies": {
-    "@types/node": "^22.15.18",
-    "sass": "^1.89.0",
-    "typescript": "^5.8.3"
+    "sass": "^1.89.0"
   }
 }

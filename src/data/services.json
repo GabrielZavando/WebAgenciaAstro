@@ -1,0 +1,120 @@
+{
+  "section": {
+    "title": "Servicios",
+    "description": "Descubre cómo puedo ayudarte a transformar tu negocio con soluciones digitales personalizadas. Desde el desarrollo web hasta la implementación de chatbots con inteligencia artificial, mis servicios están diseñados para optimizar tus procesos y ayudarte a alcanzar tus objetivos."
+  },
+  "services": [
+    {
+      "id": 1,
+      "icon": "⚡",
+      "title": "Sitios Web Estáticos",
+      "description": "Crea presencia en línea con sitios web rápidos, optimizados y hechos a medida para tus necesidades.",
+      "modalContent": {
+        "extendedDescription": "Desarrollo sitios web estáticos de alto rendimiento utilizando tecnologías modernas como Astro o Angular. Estos sitios son ideales para presentar tu marca, servicios o portafolio con máxima velocidad, estabilidad y eficiencia. Están pensados para empresas y profesionales que buscan una presencia rápida y sólida en línea sin requerir actualización constante del contenido.",
+        "benefits": [
+          "Velocidad excepcional y rendimiento optimizado.",
+          "Máxima seguridad al no depender de bases de datos.",
+          "SEO optimizado desde el primer día",
+          "Carga rápida en dispositivos móviles.",
+          "Experiencia de usuario fluida y profesional.",
+          "Bajo mantenimiento técnico."
+        ],
+        "implementation": [
+            "Reunión inicial para definir objetivos, estructura y plazos.",
+            "Diseño UI/UX personalizado.",
+            "Desarrollo frontend con tecnologías modernas (Astro o Angular).",
+            "Optimización de imágenes y archivos.",
+            "Despliegue en servidor y configuración de dominio.",
+            "Alojamiento + mantenimiento mensual opcional."
+        ],
+        "videoId": "próximamente",
+        "ctaText": "Solicitar Servicio"
+      }
+    },
+    {
+      "id": 2,
+      "icon": "✏️",
+      "title": "Sitios Web Auto Administrados",
+      "description": "Gestión fácil y autónoma para blogs y sitios dinámicos. Publica y edita contenido cuando lo necesites.",
+      "modalContent": {
+        "extendedDescription": "Diseño y desarrollo sitios web que puedes administrar tú mismo de forma simple e intuitiva. Son ideales si tienes un blog, una página de noticias, un proyecto educativo o cualquier espacio donde necesites actualizar contenido con frecuencia. Trabajo con herramientas como WordPress, que te dan autonomía total sin depender de un desarrollador para cada cambio.",
+        "benefits": [
+          "Publica y actualiza contenido cuando lo necesites, sin grandes conocimientos técnicos.",
+          "Sistema de usuarios y roles, ideal si trabajas con un equipo (como editores o colaboradores)",
+          "Biblioteca multimedia para subir, organizar y reutilizar imágenes, videos, audios o documentos.",
+          "Herramientas integradas para mejorar el posicionamiento en buscadores (SEO)",
+          "Plataforma flexible y escalable: puedes añadir nuevas secciones o funcionalidades cuando lo necesites, sin reconstruir todo el sitio."
+        ],
+        "implementation": [
+            "Comenzamos con una reunión. Conversamos sobre tu proyecto para entender tus objetivos, requerimientos y plazos. Con esa base, definimos las funcionalidades clave y un plan de trabajo claro.",
+            "Diseño estructural y visual. Propongo una arquitectura intuitiva y un diseño alineado con tu identidad, enfocado en la experiencia del usuario.",
+            "Desarrollo del sitio. Construyo cada sección y funcionalidad acordada, personalizando cada elemento según tus necesidades.",
+            "Configuración de usuarios. Habilito el sistema de roles para que tú y tu equipo puedan gestionar el sitio de forma segura y ordenada.",
+            "Carga y optimización del contenido. Integro tus textos, imágenes o materiales, optimizándolos para lograr un sitio rápido y eficiente.",
+            "Capacitación personalizada. Te enseño cómo administrar el sitio paso a paso, para que lo manejes con confianza.",
+            "Lanzamiento. Realizo pruebas finales, ajustamos detalles y publico el sitio bajo tu dominio.",
+            "Alojamiento y soporte técnico mensual (altamente recomendado). Incluye copias de seguridad, actualizaciones de seguridad, informes mensuales y asistencia ante imprevistos técnicos."
+        ],
+        "videoId": "próximamente",
+        "ctaText": "Solicitar Servicio"
+      }
+    },
+    {
+      "id": 3,
+      "icon": "🛍️",
+      "title": "Tiendas Online",
+      "description": "Empieza a vender en línea con tiendas online modernas, rápidas y personalizadas.",
+      "modalContent": {
+        "extendedDescription": "Diseño y desarrollo tiendas online funcionales, seguras y personalizadas, utilizando WordPress + WooCommerce. Estas plataformas permiten vender productos físicos o digitales con autonomía total. Son ideales para negocios que buscan profesionalizar su canal de ventas y gestionar su catálogo, clientes y pedidos desde un solo lugar.",
+        "benefits": [
+          "Control total sobre tus productos, inventario y pedidos.",
+          "Integración con pasarelas de pago confiables (WebPay, Flow, MercadoPago, entre otras)",
+          "Configuración de métodos de envío personalizados (por zona, por peso, retiro en tienda, etc.).",
+          "Posibilidad de aplicar cupones de descuento, promociones o productos relacionados.",
+          "Panel de estadísticas de ventas, comportamiento de usuarios y seguimiento de pedidos."
+        ],
+        "implementation": [
+            "Primera reunión estratégica. Hablamos sobre tu negocio, tus productos y objetivos de venta. Definimos juntos las funcionalidades clave y establecemos los plazos del proyecto.",
+            "Diseño visual de la tienda. Propongo un diseño centrado en la experiencia del usuario y en tu identidad visual. Cada detalle está pensado para facilitar la navegación y mejorar las conversiones.",
+            "Configuración de WooCommerce. Instalo y configuro la plataforma con métodos de pago, opciones de envío, impuestos y moneda local.",
+            "Carga inicial del catálogo. Integro tus productos (físicos o digitales), con imágenes optimizadas, descripciones claras, precios y categorías.",
+            "Implementación de funcionalidades clave. Añadimos carritos, buscador de productos, filtros, opciones de compra rápida y formularios de contacto.",
+            "Pruebas completas. Simulo compras reales, reviso flujos de pago y entregas, y me aseguro de que todo funcione correctamente.",
+            "Capacitación personalizada. Te enseño a gestionar pedidos, modificar productos, revisar reportes y mantener tu tienda activa sin depender de nadie",
+            "Publicación y seguimiento. Dejamos la tienda en línea, revisamos el rendimiento inicial y realizamos ajustes si es necesario.",
+            "Alojamiento y soporte técnico mensual (altamente recomendado). Incluye mantenimiento preventivo, copias de seguridad, actualizaciones, asistencia ante errores, informes y mejoras evolutivas."
+        ],
+        "videoId": "próximamente",
+        "ctaText": "Solicitar Servicio"
+      }
+    },
+    {
+      "id": 4,
+      "icon": "💬",
+      "title": "Chatbots con IA",
+      "description": "Mejora la experiencia de tus clientes con asistentes inteligentes que responden y gestionan consultas al instante",
+      "modalContent": {
+        "extendedDescription": "Diseño y desarrollo asistentes virtuales inteligentes que funcionan 24/7, entrenados con el contenido de tu negocio. Estos chatbots no solo responden preguntas frecuentes, sino que también pueden calificar clientes potenciales, agendar citas, guiar procesos y ayudarte a cerrar ventas. Se integran fácilmente en tu sitio web o en canales como WhatsApp o Instagram",
+        "benefits": [
+          "Atención automática y constante, sin interrupciones.",
+          "Reducción significativa de la carga operativa en tareas repetitivas.",
+          "Respuestas precisas y coherentes con tu marca.",
+          "Integración multicanal: sitio web, redes sociales y plataformas de mensajería.",
+          "Adaptación al tono y objetivos de tu negocio.",
+          "Mejora en la experiencia del cliente y en los tiempos de respuesta.",
+          "Acceso a métricas sobre comportamiento e interacciones de los usuarios."
+        ],
+        "implementation": [
+            "Primera reunión estratégica.Conversamos sobre tu negocio, el tipo de clientes que atiendes y los objetivos específicos que quieres lograr con el chatbot.",
+            "Recolección del contenido base. Reunimos información útil para entrenar al asistente: textos de tu sitio, manuales, PDFs, preguntas frecuentes, etc.",
+            "Entrenamiento del modelo. Utilizo tus textos, preguntas frecuentes y materiales relevantes para entrenar el chatbot, asegurando respuestas precisas y coherentes con tu marca.",
+            "Integración en tu sitio web o redes sociales. Configuro el chatbot para que funcione en los canales que elijas, como tu sitio web, WhatsApp o Instagram.",
+            "Pruebas funcionales. Simulo conversaciones reales para afinar respuestas y asegurar que el chatbot actúe de forma coherente y útil.",            
+            "Soporte técnico mensual. Incluye mantenimiento, mejoras continuas, revisión de métricas, entrega de informes y actualizaciones de contenido a medida que tu negocio evoluciona."
+        ],
+        "videoId": "próximamente",
+        "ctaText": "Solicitar Servicio"
+      }
+    }
+  ]
+}

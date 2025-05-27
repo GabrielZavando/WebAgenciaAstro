@@ -2,31 +2,51 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
-// Contenedor principal para secciones
+// 1. SECTIONS
+// Contenedores de nivel superior que definen áreas principales
 .section {
-    padding: 48px 20px;
     width: 100%;
-    
-    @include respond-to(md) {
-        padding: 64px 40px;
+    padding-block: var(--section-padding-y);
+
+    // Variantes de sección
+    &--hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
     }
 
-    // Contenedor interno con max-width
-    &__container {
-        max-width: 1440px;
-        margin: 0 auto;
+    &--sm {
+        padding-block: calc(var(--section-padding-y) * 0.5);
     }
 
+    &--lg {
+        padding-block: calc(var(--section-padding-y) * 1.5);
+    }
 }
 
-// Grid básico para layouts
+// 2. CONTAINERS
+// Contenedores que mantienen el contenido centrado y con márgenes
+.container {
+    width: min(95%, var(--section-content));
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+
+    // Variantes de contenedor
+    &--flex {
+        display: flex;
+        gap: var(--grid-gap);
+        
+        @include respond-to(md) {
+            flex-direction: row;
+        }
+    }
+}
+
+// 3. GRIDS
+// Sistema de grids para layouts internos
 .grid {
     display: grid;
-    gap: var(--grid-gap, 24px);
-
-    @include respond-to(md) {
-        gap: var(--grid-gap, 32px);
-    }
+    gap: var(--grid-gap);
 
     // Variantes de columnas
     &--2-cols {
@@ -41,15 +61,23 @@
         }
     }
 
-    &--4-cols {
-        @include respond-to(lg) {
-            grid-template-columns: repeat(4, 1fr);
+    // Layouts específicos
+    &--auto-fit {
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(min(100%, var(--min-column-width, 250px)), 1fr)
+        );
+    }
+
+    &--sidebar {
+        @include respond-to(md) {
+            grid-template-columns: 300px 1fr;
         }
     }
 
-    // Alineación de elementos
+    // Utilidades de alineación
     &--center {
-        align-items: center;
+        place-items: center;
     }
 
     &--start {

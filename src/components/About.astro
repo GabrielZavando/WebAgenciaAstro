@@ -1,4 +1,6 @@
 ---
+import gabriel from '@img/gabriel.jpg';
+import { Image } from 'astro:assets';
 
 ---
 
@@ -6,226 +8,184 @@
     <div class="container">
         <h2 class="section-title">Sobre Mí</h2>
         
-        <div class="about-grid">
-            <div class="about-content">
-                <h3 class="content-title">Desarrollador Full Stack Freelance</h3>
-                <p class="content-text">
-                    Con más de 5 años de experiencia en el desarrollo web, me especializo en crear soluciones digitales personalizadas que impulsan el éxito de mis clientes. Mi pasión por la tecnología y la innovación me permite mantenerme siempre actualizado con las últimas tendencias del desarrollo web.
-                </p>
-                
-                <div class="skills-section">
-                    <h4 class="skills-title">Especialidades:</h4>
-                    <ul class="skills-grid">
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            Desarrollo Frontend
-                        </li>
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            Desarrollo Backend
-                        </li>
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            Diseño Responsivo
-                        </li>
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            Optimización SEO
-                        </li>
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            APIs RESTful
-                        </li>
-                        <li class="skill-item">
-                            <span class="check-icon">✓</span>
-                            Bases de Datos
-                        </li>
-                    </ul>
-                </div>
+            <div class="about__header">
+      <h2 class="about__title">Gabriel Zavando – Full Stack Developer Freelance</h2>
+    </div>
 
-                <div class="tech-stack">
-                    <h4 class="tech-title">Tecnologías:</h4>
-                    <div class="tech-grid">
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">TypeScript</span>
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">SQL</span>
-                        <span class="tech-tag">MongoDB</span>
-                        <span class="tech-tag">AWS</span>
-                    </div>
-                </div>
-            </div>
+    <div class="about__content">
+      <div class="about__text">
+        <p class="about__paragraph">
+          Con más de 10 años de experiencia en desarrollo web y un recorrido reciente en automatización de procesos y chatbots con inteligencia artificial, acompaño a profesionales y Pymes —especialmente de la Región de Valparaíso— en su proceso de transformación digital.
+        </p>
+        <p class="about__paragraph">
+          Creo en el desarrollo de software como una forma concreta de mejorar la manera en que trabajamos. Automatizar procesos, digitalizar operaciones y construir herramientas a medida permite que las personas se concentren en lo que realmente importa: hacer crecer sus ideas. Cada solución que desarrollo nace de la realidad de mis clientes, no de plantillas.
+        </p>
+        <p class="about__paragraph">
+          Después de años viendo cómo muchas Pymes invertían en soluciones genéricas que no les resolvían nada, decidí enfocarme en crear herramientas útiles, sostenibles y hechas para durar. Mi trabajo no termina con la entrega: trabajo contigo desde el inicio hasta la implementación, asegurándome de que cada proyecto tenga sentido, impacto y evolución real.
+        </p>
+      </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h4 class="stat-number">50+</h4>
-                    <p class="stat-text">Proyectos Completados</p>
-                </div>
-                <div class="stat-card">
-                    <h4 class="stat-number">5+</h4>
-                    <p class="stat-text">Años de Experiencia</p>
-                </div>
-                <div class="stat-card">
-                    <h4 class="stat-number">40+</h4>
-                    <p class="stat-text">Clientes Satisfechos</p>
-                </div>
-                <div class="stat-card">
-                    <h4 class="stat-number">100%</h4>
-                    <p class="stat-text">Compromiso</p>
-                </div>
-            </div>
-        </div>
+      <div class="about__image">
+        <Image
+          src={gabriel}
+          alt="Gabriel Zavando - Desarrollador Full Stack"
+          width={300}
+          height={300}
+          class="about__photo"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <div class="about__specialties">
+      <h3 class="about__subtitle">Especialidades</h3>
+      <ul class="about__list">
+        <li class="about__item">Desarrollo Frontend</li>
+        <li class="about__item">Desarrollo Backend</li>
+        <li class="about__item">Diseño Responsivo</li>
+        <li class="about__item">APIs RESTful</li>
+        <li class="about__item">Software a Medida</li>
+        <li class="about__item">Chatbots con IA</li>
+      </ul>
+    </div>
+
+    <div class="about__technologies">
+      <h3 class="about__subtitle">Tecnologías</h3>
+      <ul class="about__tech-list">
+        <li class="about__tech-item">Angular</li>
+        <li class="about__tech-item">Astro</li>
+        <li class="about__tech-item">Node.js</li>
+        <li class="about__tech-item">NestJS</li>
+        <li class="about__tech-item">WordPress</li>
+        <li class="about__tech-item">PostgreSQL</li>
+        <li class="about__tech-item">MongoDB</li>
+        <li class="about__tech-item">Git</li>
+        <li class="about__tech-item">LLMs (Modelos de Lenguaje)</li>
+      </ul>
+    </div>
     </div>
 </section>
 
 <style lang="scss">
-    // Variables
-    $primary-color: #2563eb;
-    $background-color: #f8f9fa;
-    $text-color: #374151;
-    $gray-light: #f3f4f6;
-    $gray-medium: #9ca3af;
-    $white: #ffffff;
-    $transition-default: all 0.3s ease;
-    $border-radius: 0.5rem;
-    $box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  @use '../styles/abstracts/colors' as *;
+  @use '../styles/abstracts/variables' as *;
+  @use '../styles/abstracts/mixins' as *;
 
-    .about-section {
-        background-color: $background-color;
-        padding: 4rem 1rem;
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+  .about-section {
+    background: linear-gradient(135deg, var(--color-background) 60%, #f3f6fa 100%);
+    padding: 4rem 1rem 3rem 1rem;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .container {
+      width: min(95%, var(--section-content));
+      margin: 0 auto;
     }
+  }
 
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 2rem;
-        color: $text-color;
+  .about__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .about__title {
+    font-family: $font-primary;
+    font-size: $text-2xl;
+    font-weight: $weight-bold;
+    color: var(--color-heading);
+    margin-bottom: 0.5rem;
+    @include responsive-font($text-2xl, $text-3xl, $text-4xl);
+  }
+
+  .about__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    @include respond-to(md) {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 4rem;
     }
+  }
 
-    .about-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 3rem;
-        align-items: center;
-
-        @media (min-width: 768px) {
-            grid-template-columns: 1fr 1fr;
-        }
+  .about__text {
+    flex: 2;
+    color: var(--color-text);
+    font-family: $font-secondary;
+    font-size: $text-base;
+    line-height: $leading-relaxed;
+    p {
+      margin-bottom: 1.25rem;
     }
+  }
 
-    .content-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: $text-color;
+  .about__image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .about__photo {
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      width: 220px;
+      height: 220px;
+      object-fit: cover;
+      @include respond-to(md) {
+        width: 300px;
+        height: 300px;
+      }
     }
+  }
 
-    .content-text {
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-        color: $text-color;
+  .about__specialties, .about__technologies {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  .about__subtitle {
+    font-family: $font-primary;
+    font-size: $text-xl;
+    font-weight: $weight-semibold;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .about__list, .about__tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 700px;
+  }
+
+  .about__item, .about__tech-item {
+    background: var(--color-card-bg);
+    color: var(--color-text);
+    border-radius: 2rem;
+    padding: 0.5rem 1.5rem;
+    font-family: $font-secondary;
+    font-size: $text-base;
+    font-weight: $weight-medium;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid var(--color-border);
+    margin-bottom: 0.5rem;
+    &:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
     }
-
-    .skills-section {
-        margin-top: 1.5rem;
-
-        .skills-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-    }
-
-    .skills-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-        list-style: none;
-        padding: 0;
-    }
-
-    .skill-item {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem;
-        transition: $transition-default;
-        border-radius: $border-radius;
-
-        &:hover {
-            background-color: rgba($primary-color, 0.1);
-        }
-
-        .check-icon {
-            margin-right: 0.5rem;
-            color: $primary-color;
-        }
-    }
-
-    .tech-stack {
-        margin-top: 1.5rem;
-
-        .tech-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-    }
-
-    .tech-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .tech-tag {
-        padding: 0.25rem 0.75rem;
-        background-color: $gray-light;
-        border-radius: 9999px;
-        transition: $transition-default;
-        cursor: pointer;
-
-        &:hover {
-            background-color: $primary-color;
-            color: $white;
-        }
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-
-    .stat-card {
-        background-color: $white;
-        padding: 1.5rem;
-        border-radius: $border-radius;
-        box-shadow: $box-shadow;
-        text-align: center;
-        transition: $transition-default;
-
-        &:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-number {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: $primary-color;
-        }
-
-        .stat-text {
-            color: $gray-medium;
-            margin-top: 0.5rem;
-        }
-    }
+  }
 </style>
+
+
 

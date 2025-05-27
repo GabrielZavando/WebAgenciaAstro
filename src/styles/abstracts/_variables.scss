@@ -3,7 +3,12 @@ $font-primary: 'Montserrat', sans-serif;
 $font-secondary: 'Raleway', sans-serif;
 
 // Layout
-$max-width: 1400px; // Ancho máximo del contenedor
+$max-width: 1400px;
+$container-padding: 20px;
+$section-padding-y: 48px;
+$container-readable: min(90%, 800px);
+$section-content: min(95%, 1400px);
+$grid-gap: 24px;
 
 // Tamaños de fuente base (mobile first)
 $text-xs: 0.75rem;    // 12px
@@ -34,3 +39,22 @@ $breakpoint-sm: 640px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
+
+// CSS Custom Properties
+:root {
+    // Layout
+    --max-width: #{$max-width};
+    --container-padding: #{$container-padding};
+    --section-padding-y: #{$section-padding-y};
+    --grid-gap: #{$grid-gap};
+    --section-content: #{$section-content};
+    --container-readable: #{$container-readable};
+
+    // Typography
+    --font-primary: #{$font-primary};
+    --font-secondary: #{$font-secondary};
+    --text-base: #{$text-base};
+    --leading-normal: #{$leading-normal};
+    --leading-tight: #{$leading-tight};
+    --weight-bold: #{$weight-bold};
+}

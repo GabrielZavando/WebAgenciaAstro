@@ -5,7 +5,7 @@ import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Plans from "../components/Plans.astro";
-import Process from "../components/Process.astro";
+import Workflow from "../components/Workflow.astro";
 import Services from "../components/Services.astro";
 
 import "../styles/main.scss";
@@ -37,7 +37,7 @@ const { title = "Agencia Digital" } = Astro.props;
         <Banner />
         <Services />
         <About />
-        <Process />
+        <Workflow />
         <Plans />
         <Contact />
         <Footer />
@@ -45,6 +45,7 @@ const { title = "Agencia Digital" } = Astro.props;
             class="scroll-top" 
             aria-label="Volver arriba"
             data-testid="scroll-top-button"
+            id="scrollTopButton"
         >
             <i class="fas fa-chevron-up"></i>
         </button>
@@ -103,11 +104,5 @@ const { title = "Agencia Digital" } = Astro.props;
 
 </style>
 
-<script>
-    import { ScrollToTop } from '../scripts/scrollToTop';
-
-    document.addEventListener('DOMContentLoaded', () => {
-        new ScrollToTop();
-    });
-</script>
+<!-- Incluir el script compilado de scrollToTop como módulo JS -->
 

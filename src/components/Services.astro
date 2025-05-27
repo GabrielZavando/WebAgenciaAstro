@@ -1,135 +1,93 @@
 ---
-const services = [
-  {
-    id: 1,
-    icon: "🌐",
-    title: "Desarrollo Web",
-    description: "Sitios web modernos y responsivos con las últimas tecnologías",
-    modalContent: `
-      <p>Desarrollo sitios web profesionales y optimizados utilizando las tecnologías más modernas como React, Vue.js, y Astro. Cada proyecto incluye:</p>
-      <ul>
-        <li>Diseño responsive para todos los dispositivos</li>
-        <li>Optimización SEO para mejor posicionamiento</li>
-        <li>Integración con CMS headless</li>
-        <li>Alto rendimiento y velocidad de carga</li>
-        <li>Accesibilidad web (WCAG)</li>
-      </ul>
-    `
-  },
-  {
-    id: 2,
-    icon: "🤖",
-    title: "Inteligencia Artificial",
-    description: "Soluciones personalizadas con IA para optimizar tu negocio",
-    modalContent: `
-      <p>Implemento soluciones basadas en inteligencia artificial para mejorar la eficiencia de tu negocio:</p>
-      <ul>
-        <li>Chatbots inteligentes para atención al cliente</li>
-        <li>Sistemas de recomendación personalizados</li>
-        <li>Análisis predictivo de datos</li>
-        <li>Automatización de procesos con ML</li>
-        <li>Integración con APIs de IA (OpenAI, HuggingFace)</li>
-      </ul>
-    `
-  },
-  {
-    id: 3,
-    icon: "📱",
-    title: "Apps Móviles",
-    description: "Aplicaciones nativas y multiplataforma de alta calidad",
-    modalContent: `
-      <p>Desarrollo aplicaciones móviles intuitivas y eficientes para iOS y Android:</p>
-      <ul>
-        <li>Aplicaciones nativas y React Native</li>
-        <li>Integración con APIs y servicios en la nube</li>
-        <li>Notificaciones push y geolocalización</li>
-        <li>Optimización de rendimiento</li>
-        <li>Publicación en App Store y Google Play</li>
-      </ul>
-    `
-  }
-];
+import servicesData from "../data/services.json";
+import ServiceCard from "./ServiceCard.astro";
+import Modal from "./Modal.astro";
+
+const { section, services } = servicesData;
 ---
 
-<section id="servicios" class="services">
-  <h2 class="services__title">Servicios</h2>
-  <p class="services__description">
-    Descubre cómo puedo ayudarte a transformar tu negocio con soluciones digitales personalizadas. Desde el desarrollo web hasta la implementación de chatbots con inteligencia artificial, mis servicios están diseñados para optimizar tus procesos y ayudarte a alcanzar tus objetivos.
-  </p>
-  
+<section id="services" class="services">
+  <h2 class="services__title">{section.title}</h2>
+  <p class="services__description">{section.description}</p>
+
   <div class="services__grid">
-    {services.map(service => (
-      <div class="service-card">
-        <div class="service-card__icon">{service.icon}</div>
-        <h3 class="service-card__title">{service.title}</h3>
-        <p class="service-card__description">{service.description}</p>
-        <button 
-          type="button"
-          class="service-card__button"
-          data-modal={`modal-${service.id}`}
-          aria-label={`Ver más sobre ${service.title}`}
-          aria-haspopup="dialog"
-        >
-          Ver más
-        </button>
-      </div>
-    ))}
+    {
+      services.map((service) => (
+        <ServiceCard
+          id={service.id}
+          icon={service.icon}
+          title={service.title}
+          description={service.description}
+        />
+      ))
+    }
   </div>
 
   {/* Modales */}
-  {services.map(service => (
-    <div class="modal" id={`modal-${service.id}`} role="dialog" aria-modal="true">
-      <div class="modal__content">
-        <button 
-          class="modal__close" 
-          aria-label="Cerrar modal"
-        >
-          &times;
-        </button>
-        <h3 class="modal__title">{service.title}</h3>
-        <div class="modal__body">
-          {service.modalContent}
+  {
+    services.map((service) => (
+      <Modal id={`modal-${service.id}`} title={service.title}>
+        <div class="modal-content">
+          <p class="modal-content__description">
+            {service.modalContent.extendedDescription}
+          </p>
+
+          <div class="modal-content__benefits">
+            <h4>Beneficios</h4>
+            <ul>
+              {service.modalContent.benefits.map((benefit) => (
+                <li>{benefit}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="modal-content__implementation">
+            <h4>Implementación</h4>
+            <ol>
+              {service.modalContent.implementation.map((step) => (
+                <li>{step}</li>
+              ))}
+            </ol>
+          </div>
+
+          {service.modalContent.videoId !== "próximamente" && (
+            <div class="modal-content__video">
+              <iframe
+                width="100%"
+                height="315"
+                src={`https://www.youtube.com/embed/${service.modalContent.videoId}`}
+                title={`Video sobre ${service.title}`}
+                frameborder="0"
+                allow="accelerometer, autoplay, clipboard-write, encrypted-media, gyroscope, picture-in-picture"
+                allowfullscreen
+              />
+            </div>
+          )}
+
+          <button
+            class="modal-content__cta service-card__button"
+            data-modal={`modal-${service.id}`}
+            data-service={service.title}
+          >
+            {service.modalContent.ctaText}
+          </button>
         </div>
-      </div>
-    </div>
-  ))}
+      </Modal>
+    ))
+  }
 </section>
 
-<script>
-  import { initializeModals } from '../scripts/modal';
-  
-  // Inicialización inmediata si el DOM ya está listo
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    requestAnimationFrame(() => {
-      console.log('Inicializando modales inmediatamente...'); // Debug
-      initializeModals();
-    });
-  } else {
-    // Si el DOM no está listo, esperamos a que lo esté
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('Inicializando modales después de DOMContentLoaded...'); // Debug
-      initializeModals();
-    }, { once: true });
-  }
-</script>
+
 
 <style lang="scss">
-  @use '../styles/abstracts/colors' as *;
-  @use '../styles/abstracts/variables' as *;
-  @use '../styles/abstracts/mixins' as *;
+  @use "../styles/abstracts/colors" as *;
+  @use "../styles/abstracts/variables" as *;
+  @use "../styles/abstracts/mixins" as *;
 
   .services {
-    padding: 2rem;
+    padding: var(--section-padding-y);
     text-align: center;
     background-color: var(--color-background);
-    
-    @include respond-to(md) {
-        padding: 3rem;
-    }
-
-    @include respond-to(lg) {
-      padding: 4rem;
-    }
 
     &__title {
       font-family: $font-primary;
@@ -138,18 +96,10 @@ const services = [
       margin-bottom: 1.5rem;
       position: relative;
       display: inline-block;
-      font-size: $text-2xl;
-      
-      @include respond-to(md) {
-        font-size: $text-3xl;
-      }
+      @include responsive-font($text-2xl, $text-3xl, $text-4xl);
 
-      @include respond-to(lg) {
-        font-size: $text-4xl;
-      }
-      
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -0.5rem;
         left: 50%;
@@ -161,251 +111,118 @@ const services = [
     }
 
     &__description {
-      max-width: 800px;
+      max-width: var(--container-readable);
       margin: 0 auto 2rem;
       line-height: $leading-relaxed;
       color: var(--color-text);
       font-family: $font-secondary;
-      font-size: $text-base;
-      
-      @include respond-to(md) {
-        font-size: $text-lg;
-        margin-bottom: 3rem;
-      }
+      @include responsive-font($text-base, $text-lg, $text-xl);
 
-      @include respond-to(lg) {
-        font-size: $text-xl;
+      @include respond-to(md) {
+        margin-bottom: 3rem;
       }
     }
 
     &__grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
-      max-width: $max-width;
+      gap: var(--grid-gap);
+      width: min(95%, var(--section-content));
       margin: 0 auto;
-      padding: 0 1rem;
 
       @include respond-to(md) {
         grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
       }
 
       @include respond-to(lg) {
         grid-template-columns: repeat(3, 1fr);
-        gap: 2.5rem;
       }
     }
   }
 
-  .service-card {
-    padding: 2rem;
-    background: var(--color-card-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-      border-color: var(--color-primary);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    &__icon {
-      font-size: $text-3xl;
-      margin-bottom: 1rem;
-      color: var(--color-primary);
-
-      @include respond-to(md) {
-        font-size: $text-4xl;
-      }
-
-      @include respond-to(lg) {
-        font-size: $text-5xl;
-      }
-    }
-
-    &__title {
-      font-family: $font-primary;
-      font-weight: $weight-semibold;
-      color: var(--color-heading);
-      margin-bottom: 1rem;
-      font-size: $text-lg;
-
-      @include respond-to(md) {
-        font-size: $text-xl;
-      }
-
-      @include respond-to(lg) {
-        font-size: $text-2xl;
-      }
-    }
-
+  .modal-content {
     &__description {
-      color: var(--color-text);
-      margin-bottom: 1.5rem;
-      line-height: $leading-normal;
-      font-family: $font-secondary;
+      margin-bottom: 2rem;
+      line-height: $leading-relaxed;
     }
 
-    &__button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.5rem;
-      font-family: $font-primary;
-      font-weight: $weight-semibold;
-      font-size: $text-base;
+    &__benefits,
+    &__implementation {
+      margin-bottom: 2rem;
+
+      h4 {
+        font-family: $font-primary;
+        font-weight: $weight-semibold;
+        margin-bottom: 1rem;
+        color: var(--color-heading);
+      }
+    }
+
+    &__benefits ul {
+      list-style-position: inside;
+      list-style-type: disc;
+      padding: 0;
+      text-align: left;
+
+      li {
+        margin-bottom: 0.75rem;
+        padding-left: 1.75rem;
+        position: relative;
+        text-align: left;
+      }
+    }
+
+    &__implementation ol {
+      list-style-position: inside;
+      padding: 0;
+      counter-reset: implementation-counter;
+      text-align: left;
+
+      li {
+        margin-bottom: 0.75rem;
+        position: relative;
+        padding-left: 1.75rem;
+        text-align: left;
+      }
+    }
+
+    &__video {
+      margin: 2rem 0;
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+      overflow: hidden;
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &__cta {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
       background: var(--color-primary);
       color: var(--color-white);
       border: none;
       border-radius: 0.5rem;
+      font-family: $font-primary;
+      font-weight: $weight-semibold;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.2),
-          transparent
-        );
-        transition: 0.5s;
-      }
 
       &:hover {
-        transform: translateY(-2px);
         background: var(--color-primary-dark);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-
-        &::before {
-          left: 100%;
-        }
+        transform: translateY(-2px);
       }
 
       &:active {
         transform: translateY(0);
       }
-    }
-  }
-
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    
-    &.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: all;
-    }
-
-    &__content {
-      background: var(--color-background);
-      padding: 2rem;
-      border-radius: 1rem;
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      position: relative;
-      overflow-y: auto;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transform: translateY(2rem);
-      transition: transform 0.3s ease;
-      
-      .modal.active & {
-        transform: translateY(0);
-      }
-    }
-
-    &__close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: $text-2xl;
-      background: none;
-      border: none;
-      color: var(--color-text);
-      cursor: pointer;
-      padding: 0.5rem;
-      line-height: 1;
-      transition: color 0.3s ease;
-      z-index: 1001;
-
-      &:hover {
-        color: var(--color-primary);
-      }
-    }
-
-    &__title {
-      font-family: $font-primary;
-      font-weight: $weight-bold;
-      color: var(--color-heading);
-      margin-bottom: 1.5rem;
-      padding-right: 2rem;
-      font-size: $text-xl;
-
-      @include respond-to(md) {
-        font-size: $text-2xl;
-      }
-
-      @include respond-to(lg) {
-        font-size: $text-3xl;
-      }
-    }
-
-    &__body {
-      color: var(--color-text);
-      line-height: $leading-relaxed;
-      font-family: $font-secondary;
-      font-size: $text-base;
-      
-      @include respond-to(md) {
-        font-size: $text-lg;
-      }
-
-      ul {
-        list-style-type: disc;
-        padding-left: 1.5rem;
-        margin: 1rem 0;
-      }
-
-      li {
-        margin-bottom: 0.5rem;
-        line-height: $leading-normal;
-      }
-    }
-  }
-
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(1rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
     }
   }
 </style>

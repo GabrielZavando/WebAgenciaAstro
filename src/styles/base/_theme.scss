@@ -1,24 +1,20 @@
 @use '../abstracts/colors';
 
-// Reset básico
-html, body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    min-height: 100vh;
-    width: 100%;
-}
-
-// Estilos base que usan las variables de color
+// Estilos generales de la aplicación
 body {
     background-color: var(--color-background);
     color: var(--color-text);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: var(--font-primary);
+    line-height: var(--leading-normal);
+    font-size: var(--text-base);
 }
 
 // Headings
 h1, h2, h3, h4, h5, h6 {
     color: var(--color-heading);
+    font-family: var(--font-secondary);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
 }
 
 // Enlaces
