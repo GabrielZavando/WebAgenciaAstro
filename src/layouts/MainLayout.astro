@@ -1,107 +1,81 @@
 ---
-import About from "../components/About.astro";
-import Banner from "../components/Banner.astro";
-import Contact from "../components/Contact.astro";
-import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
-import Plans from "../components/Plans.astro";
-import Workflow from "../components/Workflow.astro";
-import Services from "../components/Services.astro";
-
+import Footer from "../components/Footer.astro";
 import "../styles/main.scss";
 
-
 interface Props {
-    title?: string;
+  title?: string;
 }
-
 const { title = "Agencia Digital" } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Agencia Digital - Servicios de desarrollo web y marketing digital">
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-        <link 
-            rel="stylesheet" 
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        />
-        <title>{title}</title>
-    </head>
-    <body>
-        <Header />
-        <Banner />
-        <Services />
-        <About />
-        <Workflow />
-        <Plans />
-        <Contact />
-        <Footer />
-        <button 
-            class="scroll-top" 
-            aria-label="Volver arriba"
-            data-testid="scroll-top-button"
-            id="scrollTopButton"
-        >
-            <i class="fas fa-chevron-up"></i>
-        </button>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Agencia Digital - Servicios de desarrollo web y marketing digital" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Header />
+    <slot />
+    <Footer />
+    <!-- Aquí puedes dejar el botón scroll-top y scripts globales -->
+  </body>
 </html>
 
 <style lang="scss">
-    @use '../styles/abstracts/colors' as *;
-    @use '../styles/abstracts/variables' as *;
-    @use '../styles/abstracts/mixins' as *;
+  @use '../styles/abstracts/colors' as *;
+  @use '../styles/abstracts/variables' as *;
+  @use '../styles/abstracts/mixins' as *;
 
-    .scroll-top {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: var(--color-accent);
-        color: var(--color-background);
-        width: 3rem;
-        height: 3rem;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(1rem);
-        transition: all 0.3s ease-in-out;
-        z-index: 998;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  .scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--color-accent);
+    color: var(--color-background);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(1rem);
+    transition: all 0.3s ease-in-out;
+    z-index: 998;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
-        &.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        &:hover {
-            background: var(--color-menu-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        i {
-            font-size: 1.25rem;
-            color: var(--color-background);
-            transition: all 0.3s ease;
-        }
-
-        &:hover i {
-            transform: translateY(-2px);
-        }
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
 
+    &:hover {
+      background: var(--color-menu-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
+    i {
+      font-size: 1.25rem;
+      color: var(--color-background);
+      transition: all 0.3s ease;
+    }
+
+    &:hover i {
+      transform: translateY(-2px);
+    }
+  }
 </style>
 
 <!-- Incluir el script compilado de scrollToTop como módulo JS -->

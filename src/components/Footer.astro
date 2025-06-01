@@ -49,18 +49,18 @@ const menuItems = [
     <div class="footer__section footer__section--social">
       <h3 class="footer__title">Conecta conmigo</h3>
       <div class="footer__social-icons">
-        <a href="https://linkedin.com/in/gabrielzavando" class="footer__icon" title="LinkedIn" aria-label="LinkedIn" target="_blank" rel="noopener">
-          <i class="fab fa-linkedin-in"></i>
+      {socialLinks.map(link => (
+        <a 
+        href={link.url} 
+        class="footer__icon" 
+        title={link.name} 
+        aria-label={link.name} 
+        target="_blank" 
+        rel="noopener"
+        >
+        <img src={link.icon} alt={link.name} width="24" height="24" />
         </a>
-        <a href="https://github.com/gabrielzavando" class="footer__icon" title="GitHub" aria-label="GitHub" target="_blank" rel="noopener">
-          <i class="fab fa-github"></i>
-        </a>
-        <a href="https://instagram.com/gabrielzavando" class="footer__icon" title="Instagram" aria-label="Instagram" target="_blank" rel="noopener">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://youtube.com/@gabrielzavando" class="footer__icon" title="YouTube" aria-label="YouTube" target="_blank" rel="noopener">
-          <i class="fab fa-youtube"></i>
-        </a>
+      ))}
       </div>
     </div>
 
@@ -72,7 +72,7 @@ const menuItems = [
         <button type="submit" class="footer__button">Suscribirme</button>
         <label class="footer__checkbox">
           <input type="checkbox" name="terms" required>
-          Acepto los <a href="/politica-de-privacidad" class="footer__link">términos y condiciones</a>
+          Acepto la <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
         </label>
       </form>
       <p class="footer__note">Recibe tips de transformación digital sin spam.</p>
