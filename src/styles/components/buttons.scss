@@ -1,0 +1,57 @@
+// Importación de globals
+@use '../globals' as *;
+
+// Para manejar los estilos de los distintos botones
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.5);
+  }
+}
+
+.buttons {
+  // Estilos para el botón primario
+  &__primary {
+    @extend .btn;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+
+    &:hover {
+      background-color: var(--primary-color);
+    }
+  }
+
+  // Estilos para el botón secundario
+  &__secondary {
+    @extend .btn;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: none;
+
+    &:hover {
+      background-color: var(--secondary-color);
+    }
+  }
+
+  // Estilos para el botón de alerta
+  &__alert {
+    @extend .btn;
+    background-color: var(--alert-color);
+    color: var(--text-color);
+    border: none;
+
+    &:hover {
+      background-color: var(--alert-color);
+    }
+  }
+}

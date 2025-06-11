@@ -1,81 +1,232 @@
-@use '../abstracts/variables' as *;
-@use '../abstracts/mixins' as *;
-
-// Importación de fuentes
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Raleway:wght@400;500&display=swap');
-
-// Estilos base de tipografía
-html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+// Importación de globals
+@use '../globals' as *;
 
 body {
-    font-family: $font-secondary;
-    font-weight: $weight-regular;
-    line-height: $leading-normal;
-    font-size: $text-base;
+  font-family: var(--font-primary);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
 }
 
-// Headings
-h1, .h1 {
-    font-family: $font-primary;
-    font-weight: $weight-bold;
-    line-height: $leading-tight;
-    margin-bottom: 1.5rem;
-    @include responsive-font($text-3xl, $text-4xl, $text-5xl);
-    
+// Estilos base para encabezados
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-secondary);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-heading);
+  margin-bottom: 1rem;
 }
 
-h2, .h2 {
-    font-family: $font-primary;
-    font-weight: $weight-bold;
-    line-height: $leading-tight;
-    margin-bottom: 1.25rem;
-    @include responsive-font($text-2xl, $text-3xl, $text-4xl);
-    
+h1 {
+  font-size: var(--heading-xl);
 }
 
-h3, .h3 {
-    font-family: $font-primary;
-    font-weight: $weight-semibold;
-    line-height: $leading-snug;
-    margin-bottom: 1rem;
-    @include responsive-font($text-xl, $text-2xl, $text-3xl);
-    
+h2 {
+  font-size: var(--heading-lg);
 }
 
-h4, .h4 {
-    font-family: $font-primary;
-    font-weight: $weight-semibold;
-    line-height: $leading-snug;
-    margin-bottom: 0.75rem;
-    @include responsive-font($text-lg, $text-xl, $text-2xl);
-    
+h3 {
+  font-size: var(--heading-md);
 }
 
-// Párrafos
+h4 {
+  font-size: var(--heading-sm);
+}
+
+// Clases de utilidad para títulos
+.title {
+  &-xl {
+    font-size: var(--heading-xl);
+    font-weight: var(--weight-bold);
+    @include responsive-font($heading-lg, $heading-xl, $heading-xl);
+  }
+
+  &-lg {
+    font-size: var(--heading-lg);
+    font-weight: var(--weight-bold);
+    @include responsive-font($heading-md, $heading-lg, $heading-lg);
+  }
+
+  &-md {
+    font-size: var(--heading-md);
+    font-weight: var(--weight-semibold);
+    @include responsive-font($heading-sm, $heading-md, $heading-md);
+  }
+
+  &-sm {
+    font-size: var(--heading-sm);
+    font-weight: var(--weight-semibold);
+    @include responsive-font($text-xl, $heading-sm, $heading-sm);
+  }
+
+  &-gradient {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+// Estilos para párrafos
 p {
-    margin-bottom: 1rem;
-    
-    @include respond-to(md) {
-        font-size: $text-lg;
-    }
+  margin-bottom: 1rem;
 }
 
-// Texto pequeño
-small, .text-small {
-    font-size: $text-sm;
-    line-height: $leading-normal;
+// Clases de utilidad para párrafos
+.text {
+  &-xl {
+    font-size: var(--text-xl);
+    line-height: var(--leading-relaxed);
+    @include responsive-font($text-lg, $text-xl, $text-xl);
+  }
+
+  &-lg {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    @include responsive-font($text-md, $text-lg, $text-lg);
+  }
+
+  &-md {
+    font-size: var(--text-md);
+    line-height: var(--leading-normal);
+    @include responsive-font($text-md, $text-md, $text-md);
+  }
+
+  &-sm {
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    @include responsive-font($text-sm, $text-sm, $text-sm);
+  }
+
+  &-xs {
+    font-size: var(--text-xs);
+    line-height: var(--leading-tight);
+    @include responsive-font($text-xs, $text-xs, $text-xs);
+  }
 }
 
-// Texto grande
-.text-large {
-    font-size: $text-lg;
-    line-height: $leading-relaxed;
-    
-    @include respond-to(md) {
-        font-size: $text-xl;
+// Clases de utilidad para alineación y peso
+.text {
+  &-center {
+    text-align: center;
+  }
+
+  &-right {
+    text-align: right;
+  }
+
+  &-left {
+    text-align: left;
+  }
+
+  &-justify {
+    text-align: justify;
+  }
+
+  &-bold {
+    font-weight: var(--weight-bold);
+  }
+
+  &-semibold {
+    font-weight: var(--weight-semibold);
+  }
+
+  &-medium {
+    font-weight: var(--weight-medium);
+  }
+
+  &-regular {
+    font-weight: var(--weight-regular);
+  }
+}
+
+// Estilos para citas
+blockquote {
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--color-primary);
+  background-color: rgba(var(--color-primary), 0.05);
+  font-style: italic;
+  
+  p {
+    margin-bottom: 0;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text);
+  }
+
+  cite {
+    display: block;
+    margin-top: 1rem;
+    font-size: var(--text-sm);
+    font-style: normal;
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+}
+
+// Clases de utilidad para citas
+.quote {
+  &-large {
+    font-size: var(--heading-sm);
+    line-height: var(--leading-relaxed);
+    font-weight: var(--weight-medium);
+    font-style: italic;
+    margin: 2rem 0;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '"';
+      font-size: 4rem;
+      color: var(--color-primary);
+      opacity: 0.2;
+      position: absolute;
     }
+
+    &::before {
+      top: -1rem;
+      left: 0;
+    }
+
+    &::after {
+      bottom: -2rem;
+      right: 0;
+    }
+  }
+
+  &-small {
+    font-size: var(--text-md);
+    line-height: var(--leading-normal);
+    font-style: italic;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-primary);
+    margin: 1rem 0;
+  }
+}
+
+// Clases de utilidad para listas
+.list {
+  &-styled {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &-numbered {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
 }

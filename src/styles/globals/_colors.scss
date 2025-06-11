@@ -1,0 +1,111 @@
+// Sistema de Colores Base
+$color-primary: #FF0080;
+$color-secondary: #A600FF;
+$color-dark: #1D0033;
+$color-neutral: #2F2F2F;
+$color-white: #FFFFFF;
+$color-accent: #00FFE0;
+
+@use "sass:color";
+
+// Variantes del color primario
+$color-primary-light: color.mix($color-primary, $color-white, 80%);    // 20% más claro
+$color-primary-lighter: color.mix($color-primary, $color-white, 60%);  // 40% más claro
+$color-primary-dark: color.mix($color-primary, $color-dark, 80%);      // 20% más oscuro
+$color-primary-darker: color.mix($color-primary, $color-dark, 60%);    // 40% más oscuro
+
+// Variantes del color secundario
+$color-secondary-light: color.mix($color-secondary, $color-white, 80%);    // 20% más claro
+$color-secondary-lighter: color.mix($color-secondary, $color-white, 60%);  // 40% más claro
+$color-secondary-dark: color.mix($color-secondary, $color-dark, 80%);      // 20% más oscuro
+$color-secondary-darker: color.mix($color-secondary, $color-dark, 60%);    // 40% más oscuro
+
+// Escala de grises
+$color-gray-100: color.mix($color-neutral, $color-white, 10%);   // 90% blanco
+$color-gray-200: color.mix($color-neutral, $color-white, 30%);   // 70% blanco
+$color-gray-300: color.mix($color-neutral, $color-white, 50%);   // 50% blanco
+$color-gray-400: color.mix($color-neutral, $color-white, 70%);   // 30% blanco
+$color-gray-500: $color-neutral;                                 // neutral base
+$color-gray-600: color.mix($color-neutral, $color-dark, 80%);    // 20% oscuro
+$color-gray-700: color.mix($color-neutral, $color-dark, 60%);    // 40% oscuro
+$color-gray-800: color.mix($color-neutral, $color-dark, 40%);    // 60% oscuro
+$color-gray-900: color.mix($color-neutral, $color-dark, 20%);    // 80% oscuro
+
+// Colores semánticos
+$color-success: #00C853;
+$color-warning: #FFB300;
+$color-error: #FF1744;
+$color-info: #00B0FF;
+
+// Gradientes modernos
+$gradient-primary: linear-gradient(135deg, $color-primary, $color-secondary);
+$gradient-secondary: linear-gradient(135deg, $color-secondary, $color-primary);
+$gradient-accent: linear-gradient(135deg, $color-accent, $color-primary-light);
+$gradient-dark: linear-gradient(135deg, $color-dark, $color-secondary-dark);
+$gradient-light: linear-gradient(135deg, $color-white, $color-gray-100);
+
+// Sombras
+$shadow-sm: 0 2px 4px rgba($color-dark, 0.05);
+$shadow-md: 0 4px 6px rgba($color-dark, 0.07);
+$shadow-lg: 0 10px 15px rgba($color-dark, 0.1);
+$shadow-xl: 0 20px 25px rgba($color-dark, 0.15);
+
+// Variables CSS
+:root {
+  // Colores principales
+  --color-primary: #{$color-primary};
+  --color-primary-light: #{$color-primary-light};
+  --color-primary-lighter: #{$color-primary-lighter};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-primary-darker: #{$color-primary-darker};
+
+  --color-secondary: #{$color-secondary};
+  --color-secondary-light: #{$color-secondary-light};
+  --color-secondary-lighter: #{$color-secondary-lighter};
+  --color-secondary-dark: #{$color-secondary-dark};
+  --color-secondary-darker: #{$color-secondary-darker};
+
+  // Escala de grises
+  --color-gray-100: #{$color-gray-100};
+  --color-gray-200: #{$color-gray-200};
+  --color-gray-300: #{$color-gray-300};
+  --color-gray-400: #{$color-gray-400};
+  --color-gray-500: #{$color-gray-500};
+  --color-gray-600: #{$color-gray-600};
+  --color-gray-700: #{$color-gray-700};
+  --color-gray-800: #{$color-gray-800};
+  --color-gray-900: #{$color-gray-900};
+
+  // Colores semánticos
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-error: #{$color-error};
+  --color-info: #{$color-info};
+
+  // Colores de interfaz
+  --color-background: #{$color-white};
+  --color-text: #{$color-neutral};
+  --color-heading: #{$color-dark};
+  --color-border: #{rgba($color-neutral, 0.1)};
+  --color-card-bg: #{$color-white};
+  --color-accent: #{$color-accent};
+
+  // Gradientes
+  --gradient-primary: #{$gradient-primary};
+  --gradient-secondary: #{$gradient-secondary};
+  --gradient-accent: #{$gradient-accent};
+  --gradient-dark: #{$gradient-dark};
+  --gradient-light: #{$gradient-light};
+
+  // Sombras
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
+
+  // Estados de componentes
+  --color-focus-ring: #{rgba($color-primary, 0.25)};
+  --color-hover-overlay: #{rgba($color-white, 0.1)};
+  --color-disabled: #{$color-gray-300};
+  --color-disabled-text: #{$color-gray-500};
+}

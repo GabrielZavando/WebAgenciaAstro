@@ -1,0 +1,6 @@
+// Importación de globals
+@use '../globals' as *;
+
+@forward 'containers';
+@forward 'grids';
+@forward 'sections';

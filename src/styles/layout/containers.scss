@@ -1,0 +1,94 @@
+// Importación de globals
+@use '../globals' as *;
+
+// Sistema de contenedores modular
+.container {
+    // Contenedor base
+    width: 100%;
+    margin: 0 auto;
+    padding: $spacing-4; // 16px
+    box-sizing: border-box;
+
+    // Variación fluid
+    &-fluid {
+        max-width: 100%;
+        width: 100%;
+        padding: 0;
+    }
+
+    // Variaciones de layout
+    &-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: $spacing-2; // 8px
+
+        // Variaciones de alineación
+        &--center {
+            justify-content: center;
+        }
+        &--space-between {
+            justify-content: space-between;
+        }
+        &--space-around {
+            justify-content: space-around;
+        }
+    }
+
+    &-column {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2; // 8px
+    }
+
+    // Variaciones de tamaño
+    &-small {
+        max-width: 600px;
+    }
+    &-medium {
+        max-width: 960px;
+    }
+    &-large {
+        max-width: 1200px;
+    }
+    &-xlarge {
+        max-width: 1400px;
+    }
+
+    // Responsive
+    @media (min-width: $breakpoint-sm) {
+        padding: $spacing-6; // 32px
+    }
+
+    @media (min-width: $breakpoint-md) {
+        padding: $spacing-8; // 48px
+    }
+}
+
+// Utilidades para elementos dentro de contenedores
+.container-item {
+    flex: 1;
+    width: 100%;
+
+    // Variaciones de tamaño
+    &-1of2 { flex: 0 0 50%; }
+    &-1of3 { flex: 0 0 33.3333%; }
+    &-2of3 { flex: 0 0 66.6667%; }
+    &-1of4 { flex: 0 0 25%; }
+    &-3of4 { flex: 0 0 75%; }
+    &-1of5 { flex: 0 0 20%; }
+    &-2of5 { flex: 0 0 40%; }
+    &-3of5 { flex: 0 0 60%; }
+    &-4of5 { flex: 0 0 80%; }
+
+    // Responsive
+    @media (min-width: $breakpoint-sm) {
+        padding: $spacing-2; // 8px
+    }
+
+    @media (min-width: $breakpoint-md) {
+        padding: $spacing-4; // 16px
+    }
+}

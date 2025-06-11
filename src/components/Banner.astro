@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import banner from '@img/banner-web.jpg';
+import banner from '../assets/img/banner-web.jpg';
+import "../styles/components/banner.scss";
 
 const name = "Gabriel Zavando";
 const charge = "Full Stack Developer";
@@ -8,6 +9,18 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
 ---
 
 <section class="banner">
+    <div class="banner__background">
+        <Image 
+            src={banner} 
+            alt="Gabriel Zavando - Desarrollador Full Stack"
+            width={1920}
+            height={1080}
+            class="banner__image"
+        />
+    </div>
+    
+    <div class="banner__overlay"></div>
+    
     <div class="banner__container">
         <div class="banner__content">
             <h1 class="banner__title">
@@ -28,147 +41,4 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
             </div>
         </div>
     </div>
-    
-    <div class="banner__background">
-        <Image 
-            src={banner} 
-            alt="Gabriel Zavando - Desarrollador Full Stack"
-            width={1920}
-            height={1080}
-        />
-    </div>
 </section>
-
-<style lang="scss">
-    @use '../styles/abstracts/colors' as *;
-    @use '../styles/abstracts/variables' as *;
-    @use '../styles/abstracts/mixins' as *;
-
-    .banner {
-        position: relative;
-        min-height: 100vh;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        background-color: $color-navy;
-
-        &__container {
-            width: 100%;
-            max-width: $max-width;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 2;
-            @include respond-to(lg) {
-                padding: 0 40px;
-            }
-        }
-
-        &__content {
-            max-width: 600px;
-            @include respond-to(lg) {
-                max-width: 720px;
-            }
-        }
-
-        &__title {
-            font-family: $font-primary;
-            font-weight: $weight-bold;
-            color: $color-white;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            @include responsive-font($text-3xl, $text-4xl, $text-5xl);      
-            @include respond-to(lg) {
-                margin-bottom: 2rem;
-            }
-        }
-
-        &__subtitle {
-            font-family: $font-secondary;
-            color: $color-turquoise;
-            margin-bottom: 2rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            @include responsive-font($text-lg, $text-xl, $text-2xl);
-            @include respond-to(lg) {
-                margin-bottom: 3rem;
-                max-width: 80%;
-            }
-        }
-
-        &__actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-
-            @include respond-to(lg) {
-                gap: 2rem;
-            }
-        }
-
-        &__cta {
-            display: inline-flex;
-            align-items: center;
-            padding: 1rem 2rem;
-            font-family: $font-primary;
-            font-weight: $weight-semibold;
-            transition: all 0.3s ease;
-            border-radius: 4px;
-            background: $gradient-primary;
-            color: $color-white;
-
-            @include respond-to(lg) {
-                padding: 1.2rem 2.5rem;
-            }
-
-            &:hover {
-                transform: translateY(-2px);
-                background: $gradient-secondary;
-            }
-
-            &--secondary {
-                background: transparent;
-                border: 2px solid $color-turquoise;
-                color: $color-turquoise;
-
-                &:hover {
-                    background: $color-turquoise;
-                    color: $color-navy;
-                }
-            }
-        }
-
-        &__background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                position: relative;
-            }
-
-            &::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(
-                    135deg,
-                    rgba($color-navy, 0.95) 0%,
-                    rgba($color-purple, 0.8) 100%
-                );
-                z-index: 1;
-            }
-        }
-    }
-</style>

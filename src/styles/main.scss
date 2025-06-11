@@ -1,8 +1,10 @@
-@use 'abstracts/index' as *;
-@use 'base/reset';
-@use 'base/typography';
-@use 'base/theme';
-@use 'components/forms';
-@use 'components/tooltips';
-@use 'components/cards';
-@use 'components/layout';
+
+
+// Importación de estilos base
+@use 'base' as *;
+
+// Importación de layouts
+@use 'layout' as *;
+
+// Importación de componentes
+@use 'components' as *;

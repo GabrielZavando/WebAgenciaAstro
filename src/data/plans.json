@@ -1,10 +1,10 @@
 {
   "planes": [
     {
-      "nombre": "Plan Pro",
+      "nombre": "Plan Plus",
       "descripcion": "Landing Page estática ideal para presentar tu negocio",
-      "precio_6_meses": 1590,
-      "precio_12_meses": 2990,
+      "precio_6_meses": "30.000",
+      "precio_12_meses": "25.000",
       "caracteristicas": {
         "✔ Diseño profesional a medida": "Personalizado según la imagen corporativa de tu marca.",
         "✔ Landing Page funcional": "Una sola página con hasta 7 secciones bien estructuradas.",
@@ -25,10 +25,10 @@
       }
     },
     {
-      "nombre": "Plan Plus",
+      "nombre": "Plan Pro",
       "descripcion": "Sitio web dinámico con blog y panel de administración",
-      "precio_6_meses": 2690,
-      "precio_12_meses": 4990,
+      "precio_6_meses": "60.000",
+      "precio_12_meses": "45.000",
       "caracteristicas": {
         "✔ Todo lo del Plan Pro": "Incluye todas las funcionalidades del plan anterior.",
         "✔ Sitio dinámico WordPress": "Hasta 10 páginas editables desde un panel de administración.",
@@ -48,8 +48,8 @@
     {
       "nombre": "Plan Premium",
       "descripcion": "Tienda online completa con sistema de pagos",
-      "precio_6_meses": 4290,
-      "precio_12_meses": 7990,
+      "precio_6_meses": "110.000",
+      "precio_12_meses": "90.000",
       "caracteristicas": {
         "✔ Todo lo del Plan Plus": "Incluye todas las características del Plan Plus.",
         "✔ Tienda online WooCommerce": "Plataforma de ecommerce con carrito, pedidos y pagos.",

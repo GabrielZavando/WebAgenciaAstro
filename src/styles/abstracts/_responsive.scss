@@ -1,9 +1,0 @@
-@use 'mixins' as *;
-
-:root {
-    @include respond-to(md) {
-        --section-padding-y: 64px;
-        --container-padding: 40px;
-        --grid-gap: 32px;
-    }
-}

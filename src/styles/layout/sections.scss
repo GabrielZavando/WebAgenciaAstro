@@ -1,0 +1,119 @@
+// Importación de globals
+@use '../globals' as *;
+
+// Para dar estilo a las secciones y elementos principales (body, main, aside, footer, etc.)    
+
+// Estilos para el body principal
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+// Contenedor principal
+main {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    z-index: var(--z-default);
+}
+
+// Estilos base para secciones
+section {
+    position: relative;
+    padding: var(--space-8);
+    margin: 0 auto;
+    width: 100%;
+
+    @include respond-to(sm) {
+        padding: var(--space-10);
+    }
+
+    @include respond-to(lg) {
+        padding: var(--space-12);
+    }
+
+    // Variante para secciones con fondo
+    &.section-bg {
+        background-color: var(--color-gray-100);
+    }
+
+    // Variante para secciones con gradiente
+    &.section-gradient {
+        @include gradient('primary');
+        color: var(--color-white);
+    }
+}
+
+// Estilos para aside
+aside {
+    padding: var(--space-6);
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    @include shadow('sm');
+
+    @include respond-to(md) {
+        padding: var(--space-8);
+    }
+}
+
+// Estilos para footer
+footer {
+    position: relative;
+    background-color: var(--color-dark);
+    color: var(--color-white);
+    padding: var(--space-8) 0;
+    margin-top: auto;
+
+    &.footer-gradient {
+        @include gradient('dark');
+    }
+
+    // Contenedor dentro del footer
+    .footer-container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 var(--space-4);
+        @include flex(row, space-between, flex-start);
+        flex-wrap: wrap;
+        gap: var(--space-8);
+
+        @include respond-to(sm) {
+            padding: 0 var(--space-6);
+        }
+    }
+}
+
+// Contenedor de ancho limitado
+.container{
+    max-width: var(--container-max); //1200px
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+
+    @include respond-to(sm) {
+        padding: 0 var(--space-6);
+    }   
+}
+.container-narrow {
+    max-width: var(--container-narrow); //600px
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+
+    @include respond-to(sm) {
+        padding: 0 var(--space-6);
+    }
+}
+
+// Contenedor de blog
+.container-blog {
+    max-width: var(--container-blog);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+
+    @include respond-to(sm) {
+        padding: 0 var(--space-6);
+    }
+}

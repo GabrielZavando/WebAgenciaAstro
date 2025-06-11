@@ -1,0 +1,93 @@
+// Importación de globals
+@use '../globals' as *;
+
+// Sistema de grillas modular
+.grid {
+    display: grid;
+    gap: $spacing-4; // 16px
+    
+    // Variaciones de grid
+    &-auto {
+        grid-template-columns: repeat(auto-fill, minmax($spacing-16, 1fr)); // 96px base
+    }
+    
+    &-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    &-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    &-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    // Responsive
+    @media (min-width: $breakpoint-sm) {
+        gap: $spacing-6; // 32px
+    }
+}
+
+// Items de grid
+.grid-item {
+    background-color: var(--background-color);
+    padding: $spacing-4; // 16px
+    border-radius: $spacing-2; // 8px
+    box-shadow: 0 $spacing-1 $spacing-2 rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    // Variaciones de tamaño
+    &--small {
+        grid-column: span 1;
+    }
+    
+    &--medium {
+        grid-column: span 2;
+    }
+    
+    &--large {
+        grid-column: span 3;
+    }
+    
+    // Responsive
+    @media (min-width: $breakpoint-sm) {
+        padding: $spacing-6; // 32px
+    }
+    
+    &:hover {
+        transform: translateY(-4px);
+    }
+}
+
+// Utilidades de grid
+.grid-full {
+    grid-column: 1 / -1;
+}
+
+.grid-start {
+    grid-column-start: 1;
+}
+
+.grid-end {
+    grid-column-end: -1;
+}
+
+// Variaciones de alineación
+.grid-center {
+    justify-content: center;
+    align-content: center;
+}
+
+.grid-stretch {
+    justify-content: stretch;
+    align-content: stretch;
+}
+
+.grid-space-between {
+    justify-content: space-between;
+}
+
+.grid-space-around {
+    justify-content: space-around;
+}

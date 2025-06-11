@@ -185,34 +185,3 @@
         }
     }
 </style>
-
-<script>
-    const messageTextarea = document.getElementById('message') as HTMLTextAreaElement;
-    const characterCounter = document.getElementById('currentCount') as HTMLSpanElement;
-    const MAX_CHARS = 1500;
-
-    messageTextarea?.addEventListener('input', () => {
-        const currentLength = messageTextarea.value.length;
-        
-        if (characterCounter) {
-            characterCounter.textContent = currentLength.toString();
-        }
-
-        if (currentLength > MAX_CHARS) {
-            messageTextarea.classList.add('error');
-            characterCounter?.parentElement?.classList.add('error');
-        } else {
-            messageTextarea.classList.remove('error');
-            characterCounter?.parentElement?.classList.remove('error');
-        }
-    });
-
-    // Prevenir el envío si se excede el límite
-    const form = document.getElementById('contactForm') as HTMLFormElement;
-    form?.addEventListener('submit', (e) => {
-        if (messageTextarea && messageTextarea.value.length > MAX_CHARS) {
-            e.preventDefault();
-            alert('El mensaje excede el límite de 1500 caracteres.');
-        }
-    });
-</script>

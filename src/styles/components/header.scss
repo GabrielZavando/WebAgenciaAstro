@@ -1,0 +1,163 @@
+// Importación de variables globales
+@use '../globals' as *;
+
+// Componente Header
+.header {
+    // Contenedor base
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: transparent;
+    padding: $spacing-4 $spacing-4; // Ajustar el padding top del banner para separarlo del header transparente
+    transition: background-color 0.3s ease;
+
+    // Responsive
+    @media (min-width: $breakpoint-sm) {
+        background: var(--background-color);
+        backdrop-filter: none;
+    }
+}
+
+.header__container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__logo {
+    margin: 0;
+    
+    a {
+        display: block;
+        
+        .logo {
+            width: $logo-size;
+            height: $logo-size;
+            transition: transform 0.3s ease;
+            
+            &:hover {
+                transform: scale(1.05);
+            }
+            @include respond-to(lg) {
+                width: $logo-size-full;
+                height: $logo-size-full;
+            }
+        }
+    }
+}
+
+// Botón de hamburguesa
+.nav-toggle {
+    background: none;
+    border: none;
+    padding: $spacing-2;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    &:focus {
+        outline: none;
+    }
+    
+    .hamburger {
+        width: $spacing-4;
+        height: $spacing-4;
+        position: relative;
+        
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--text-color);
+            transition: all 0.3s ease;
+            left: 0;
+        }
+        
+        &::before {
+            top: 0;
+        }
+        
+        &::after {
+            bottom: 0;
+        }
+        
+        // Estado activo
+        &.active {
+            background: transparent;
+            
+            &::before {
+                transform: rotate(45deg);
+                top: 50%;
+            }
+            
+            &::after {
+                transform: rotate(-45deg);
+                bottom: 50%;
+            }
+        }
+    }
+}
+
+// Menú de navegación
+.nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--background-color);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+    
+    &.active {
+        transform: translateX(0);
+    }
+    
+    @media (min-width: $breakpoint-sm) {
+        position: static;
+        transform: none;
+        width: auto;
+        height: auto;
+    }
+}
+
+.nav__list {
+    list-style: none;
+    margin: 0;
+    padding: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    
+    @media (min-width: $breakpoint-sm) {
+        flex-direction: row;
+        gap: $spacing-6;
+    }
+}
+
+.nav__link {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $spacing-2;
+    transition: all 0.3s ease;
+    
+    &:hover,
+    &.active {
+        background: var(--primary-color);
+        color: var(--text-color);
+    }
+    
+    @media (min-width: $breakpoint-sm) {
+        padding: $spacing-2 $spacing-3;
+    }
+}

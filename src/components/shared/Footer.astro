@@ -228,31 +228,3 @@ const menuItems = [
   }
 </style>
 
-<script>
-    const subscribeForm = document.getElementById('subscribeForm') as HTMLFormElement;
-    const subscribeMessage = document.getElementById('subscribeMessage');
-
-    if (subscribeForm && subscribeMessage) {
-        subscribeForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const emailInput = subscribeForm.querySelector('input[type="email"]') as HTMLInputElement;
-            
-            if (emailInput.value) {
-                // Aquí iría la lógica de suscripción real
-                subscribeMessage.textContent = '¡Gracias por suscribirte! Te mantendré informado.';
-                subscribeMessage.className = 'footer__form-message success';
-                emailInput.value = '';
-                
-                // Ocultar el mensaje después de 5 segundos
-                setTimeout(() => {
-                    subscribeMessage.textContent = '';
-                    subscribeMessage.className = 'footer__form-message';
-                }, 5000);
-            } else {
-                subscribeMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
-                subscribeMessage.className = 'footer__form-message error';
-            }
-        });
-    }
-</script>

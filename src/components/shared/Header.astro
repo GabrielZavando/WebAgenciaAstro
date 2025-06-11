@@ -1,0 +1,66 @@
+---
+import { Image } from "astro:assets";
+import Logo from "../../assets/img/logo-medium.png";
+import "../../styles/components/header.scss";
+const currentPath = Astro.url.pathname;
+const links = [
+    { href: "/", text: "Inicio" },
+    { href: "#servicios", text: "Servicios" },
+    { href: "#about", text: "Sobre mi" },
+    { href: "#process", text: "Metodología" },
+    { href: "#plans", text: "Planes" },
+    { href: "#contact", text: "Contacto" }
+];
+---
+
+<header class="header">
+    <div class="header__container">
+        <h1 class="header__logo">
+            <a href="/">
+                <Image
+                    src={Logo}
+                    alt="Logo de la agencia"
+                    width="150"
+                    height="150"
+                    class="logo"
+                    loading="lazy"
+                />
+            </a>
+        </h1>
+        
+        <button class="nav-toggle" aria-label="Abrir menú">
+            <span class="hamburger"></span>
+        </button>
+
+        <nav class="nav">
+            <ul class="nav__list">
+                {links.map(link => (
+                    <li>
+                        <a href={link.href}
+                           class:list={[
+                            'nav__link',
+                            { 'active': currentPath === link.href
+                             || (link.href === '/' && currentPath === '/')}
+                           ]}>
+                            {link.text}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<script>
+    import { testMessage } from "../../scripts/testScript";
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log(testMessage);
+    });
+</script>
+
+
+
+
+
+
+

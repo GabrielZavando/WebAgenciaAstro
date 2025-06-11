@@ -23,9 +23,7 @@ const { id, title } = Astro.props;
 </div>
 
 <style lang="scss">
-  @use '../styles/abstracts/colors' as *;
-  @use '../styles/abstracts/variables' as *;
-  @use '../styles/abstracts/mixins' as *;
+  @use '../styles/globals' as *;  // Actualizamos la importación
 
   .modal {
     position: fixed;
@@ -73,7 +71,7 @@ const { id, title } = Astro.props;
       position: absolute;
       top: 1rem;
       right: 1rem;
-      font-size: $text-2xl;
+      font-size: var(--heading-xs); // antes era $text-2xl
       background: none;
       border: none;
       color: var(--color-text);
@@ -89,32 +87,20 @@ const { id, title } = Astro.props;
     }
 
     &__title {
-      font-family: $font-primary;
-      font-weight: $weight-bold;
+      font-family: var(--font-primary); // antes era $font-primary
+      font-weight: var(--weight-bold); // antes era $weight-bold
       color: var(--color-heading);
       margin-bottom: 1.5rem;
       padding-right: 2rem;
-      font-size: $text-xl;
-
-      @include respond-to(md) {
-        font-size: $text-2xl;
-      }
-
-      @include respond-to(lg) {
-        font-size: $text-3xl;
-      }
+      @include responsive-font($heading-xs, $heading-sm, $heading-md); // reemplazando los font-size individuales
     }
 
     &__body {
       color: var(--color-text);
-      line-height: $leading-relaxed;
-      font-family: $font-secondary;
-      font-size: $text-base;
+      line-height: var(--leading-relaxed); // antes era $leading-relaxed
+      font-family: var(--font-secondary); // antes era $font-secondary
+      @include responsive-font($text-md, $text-lg, $text-xl); // reemplazando los font-size individuales
       
-      @include respond-to(md) {
-        font-size: $text-lg;
-      }
-
       :global(ul) {
         list-style-type: disc;
         padding-left: 1.5rem;
@@ -123,7 +109,7 @@ const { id, title } = Astro.props;
 
       :global(li) {
         margin-bottom: 0.5rem;
-        line-height: $leading-normal;
+        line-height: var(--leading-normal); // antes era $leading-normal
       }
     }
   }

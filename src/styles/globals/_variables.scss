@@ -1,0 +1,176 @@
+// Sistema de variables de diseño
+@use "sass:math";
+
+// Sistema de tamaños
+$logo-size: 80px;
+$logo-size-full: 120px;
+
+// Sistema de espaciado base
+$spacing-unit: 0.25rem;  // 4px base
+
+// Variables de espaciado
+$spacing-0: 0;
+$spacing-1: $spacing-unit;     // 4px
+$spacing-2: $spacing-unit * 2; // 8px
+$spacing-3: $spacing-unit * 3; // 12px
+$spacing-4: $spacing-unit * 4; // 16px
+$spacing-5: $spacing-unit * 6; // 24px
+$spacing-6: $spacing-unit * 8; // 32px
+$spacing-8: $spacing-unit * 12; // 48px
+$spacing-10: $spacing-unit * 16; // 64px
+$spacing-12: $spacing-unit * 20; // 80px
+$spacing-16: $spacing-unit * 24; // 96px
+
+// Configuración de contenedores
+$container-max: 75rem;     // 1200px
+$container-blog: 45rem;    // 720px
+$container-narrow: 37.5rem; // 600px
+
+// Sistema tipográfico
+// Familias de fuentes con fallbacks modernos
+$font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+$font-secondary: 'Montserrat', 'SF Pro Display', -apple-system, sans-serif;
+$font-mono: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+
+// Pesos de fuente
+$weight-regular: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+// Tamaños de texto con escala modular (ratio: 1.25)
+$text-xs: 0.75rem;      // 12px
+$text-sm: 0.875rem;     // 14px
+$text-md: 1rem;         // 16px
+$text-lg: 1.25rem;      // 20px
+$text-xl: 1.5rem;       // 24px
+
+// Tamaños de encabezados con escala modular (ratio: 1.25)
+$heading-xs: 1.375rem;    // 22px
+$heading-sm: 1.75rem;     // 28px
+$heading-md: 2.125rem;    // 34px
+$heading-lg: 2.75rem;     // 44px
+$heading-xl: 3.375rem;    // 54px
+
+// Line heights optimizados
+$leading-none: 1;        // Títulos grandes
+$leading-tight: 1.25;    // Títulos
+$leading-normal: 1.5;    // Texto general
+$leading-relaxed: 1.75;  // Texto largo
+$leading-loose: 2;       // Contenido espaciado
+
+// Bordes y Radios
+$border-width: (
+  'none': 0,
+  'thin': 1px,
+  'regular': 2px,
+  'thick': 4px
+);
+
+$radius: (
+  'none': 0,
+  'sm': 0.125rem,    // 2px
+  'md': 0.25rem,     // 4px
+  'lg': 0.5rem,      // 8px
+  'xl': 1rem,        // 16px
+  'full': 9999px
+);
+
+// Transiciones
+$transition-duration: (
+  'fast': 150ms,
+  'normal': 250ms,
+  'slow': 350ms
+);
+
+$transition-timing: (
+  'linear': linear,
+  'ease': ease,
+  'ease-in': ease-in,
+  'ease-out': ease-out,
+  'ease-in-out': ease-in-out
+);
+
+// Z-index
+$z-index: (
+  'behind': -1,
+  'default': 1,
+  'above': 10,
+  'modal': 100,
+  'tooltip': 200,
+  'overlay': 300,
+  'top': 999
+);
+
+// Variables CSS personalizadas
+:root {
+  // Espaciado
+  --spacing-unit: #{$spacing-unit};
+  --spacing-0: #{$spacing-0};
+  --spacing-1: #{$spacing-1};
+  --spacing-2: #{$spacing-2};
+  --spacing-3: #{$spacing-3};
+  --spacing-4: #{$spacing-4};
+  --spacing-5: #{$spacing-5};
+  --spacing-6: #{$spacing-6};
+  --spacing-8: #{$spacing-8};
+  --spacing-10: #{$spacing-10};
+  --spacing-12: #{$spacing-12};
+  --spacing-16: #{$spacing-16};
+
+  // Contenedores
+  --container-max: #{$container-max};
+  --container-blog: #{$container-blog};
+  --container-narrow: #{$container-narrow};
+
+  // Tipografía
+  --font-primary: #{$font-primary};
+  --font-secondary: #{$font-secondary};
+  --font-mono: #{$font-mono};
+  
+  // Pesos de fuente
+  --weight-regular: #{$weight-regular};
+  --weight-medium: #{$weight-medium};
+  --weight-semibold: #{$weight-semibold};
+  --weight-bold: #{$weight-bold};
+  
+  // Tamaños de texto
+  --text-xs: #{$text-xs};
+  --text-sm: #{$text-sm};
+  --text-md: #{$text-md};
+  --text-lg: #{$text-lg};
+  --text-xl: #{$text-xl};
+  
+  // Tamaños de encabezados
+  --heading-xs: #{$heading-xs};
+  --heading-sm: #{$heading-sm};
+  --heading-md: #{$heading-md};
+  --heading-lg: #{$heading-lg};
+  --heading-xl: #{$heading-xl};
+  
+  // Line heights
+  --leading-none: #{$leading-none};
+  --leading-tight: #{$leading-tight};
+  --leading-normal: #{$leading-normal};
+  --leading-relaxed: #{$leading-relaxed};
+  --leading-loose: #{$leading-loose};
+
+  // Bordes y Radios
+  @each $name, $value in $border-width {
+    --border-#{$name}: #{$value};
+  }
+
+  @each $name, $value in $radius {
+    --radius-#{$name}: #{$value};
+  }
+
+  // Transiciones
+  @each $name, $value in $transition-duration {
+    --transition-#{$name}: #{$value};
+  }
+
+  // Z-index
+  @each $name, $value in $z-index {
+    --z-#{$name}: #{$value};
+  }
+}

@@ -1,6 +1,6 @@
 ---
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import Header from "../components/shared/Header.astro";
+import Footer from "../components/shared/Footer.astro";
 import "../styles/main.scss";
 
 interface Props {
@@ -18,65 +18,22 @@ const { title = "Agencia Digital" } = Astro.props;
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>{title}</title>
   </head>
   <body>
     <Header />
     <slot />
     <Footer />
-    <!-- Aquí puedes dejar el botón scroll-top y scripts globales -->
+    <button id="scroll-top" class="scroll-top" aria-label="Volver arriba">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+  
+   
   </body>
 </html>
 
-<style lang="scss">
-  @use '../styles/abstracts/colors' as *;
-  @use '../styles/abstracts/variables' as *;
-  @use '../styles/abstracts/mixins' as *;
-
-  .scroll-top {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: var(--color-accent);
-    color: var(--color-background);
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(1rem);
-    transition: all 0.3s ease-in-out;
-    z-index: 998;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-
-    &.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    &:hover {
-      background: var(--color-menu-hover);
-      transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    i {
-      font-size: 1.25rem;
-      color: var(--color-background);
-      transition: all 0.3s ease;
-    }
-
-    &:hover i {
-      transform: translateY(-2px);
-    }
-  }
-</style>
-
-<!-- Incluir el script compilado de scrollToTop como módulo JS -->
 
