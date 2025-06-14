@@ -1,0 +1,151 @@
+---
+// No props necesarias por ahora
+---
+
+<div class="theme-switcher">
+  <button id="theme-toggle" aria-label="Cambiar tema">
+    <span class="theme-icon theme-icon-light">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </span>
+    <span class="theme-icon theme-icon-dark">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </span>
+  </button>
+</div>
+
+<style lang="scss">
+  @use '../../styles/globals' as *;
+
+  .theme-switcher {
+    position: relative;
+    display: inline-block;
+
+    button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: var(--color-gray-200);
+      }
+      
+      &:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+    }
+    
+    .theme-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .theme-icon-light {
+      display: none;
+      transform: rotate(30deg);
+    }
+    
+    .theme-icon-dark {
+      display: block;
+    }
+    
+    // En tema oscuro, invertimos los iconos
+    html[data-theme="dark"] & {
+      .theme-icon-light {
+        display: block;
+      }
+      
+      .theme-icon-dark {
+        display: none;
+      }
+    }
+    
+    // Aplicamos la misma lógica para preferencias del sistema
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) & {
+        .theme-icon-light {
+          display: block;
+        }
+        
+        .theme-icon-dark {
+          display: none;
+        }
+      }
+    }
+  }
+</style>
+
+<script>
+  // Función para inicializar el tema
+  function initTheme() {
+    // Verificamos si hay un tema guardado en localStorage
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+      // Aplicamos el tema guardado
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      // Si no hay tema guardado, usamos la preferencia del sistema
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (prefersDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    }
+  }
+
+  // Función para cambiar el tema
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    // Actualizamos el atributo en el HTML
+    document.documentElement.setAttribute('data-theme', newTheme);
+    
+    // Guardamos la preferencia en localStorage
+    localStorage.setItem('theme', newTheme);
+  }
+
+  // Iniciamos el tema cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    
+    // Configuramos el evento click en el botón
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+    
+    // También escuchamos cambios en la preferencia del sistema
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        // Solo aplicamos automáticamente si el usuario no ha seleccionado un tema
+        const newTheme = e.matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+      }
+    });
+  });
+</script>

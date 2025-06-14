@@ -1,0 +1,77 @@
+---
+---
+
+<section class="contact" id="contact">
+    <div class="contact__container">
+        <h2 class="contact__title">Contacto</h2>
+        <p class="contact__subtitle">¿Tienes un proyecto en mente? Cuéntame sobre él</p>
+
+        <form class="contact-form" id="contactForm" action="mailto:contacto@gabrielzavando.cl" method="post" enctype="text/plain">
+            <div class="form-group">
+                <label for="name" class="form-label">Nombre completo *</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-input"
+                    required
+                    placeholder="¿Cómo te llamas?"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Correo electrónico *</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input"
+                    required
+                    placeholder="tu@correo.com"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="form-label">Teléfono (opcional)</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input"
+                    placeholder="+56 9 XXXX XXXX"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="message" class="form-label">Mensaje *</label>
+                <textarea 
+                    id="message" 
+                    name="message" 
+                    class="form-input form-textarea"
+                    required
+                    placeholder="Cuéntame sobre tu proyecto..."
+                ></textarea>
+                <div class="character-counter">
+                    <span id="currentCount">0</span>
+                    <span>/</span>
+                    <span>1500 caracteres</span>
+                </div>
+            </div>
+
+            <button type="submit" class="form-submit">
+                Enviar mensaje
+            </button>
+        </form>
+    </div>
+</section>
+
+<style lang="scss">
+    @use '../../styles/globals' as *;
+
+    .contact__container{
+        @include container;
+        text-align: center;
+    }
+
+
+</style>

@@ -55,35 +55,6 @@ $containers: (
   }
 }
 
-// Mixin para contenedores responsive
-// Uso: @include container(md) { ... }
-@mixin container($size: 'lg') {
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
-
-  @if $size == xs {
-    max-width: 100%;
-  } @else if $size == sm {
-    @include respond-to(sm) {
-      max-width: map-get($containers, 'sm');
-    }
-  } @else if $size == md {
-    @include respond-to(md) {
-      max-width: map-get($containers, 'md');
-    }
-  } @else if $size == lg {
-    @include respond-to(lg) {
-      max-width: map-get($containers, 'lg');
-    }
-  } @else if $size == xl {
-    @include respond-to(xl) {
-      max-width: map-get($containers, 'xl');
-    }
-  }
-}
 
 // Mixin para características específicas de dispositivos
 // Uso: @include device(retina) { ... }

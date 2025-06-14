@@ -1,0 +1,72 @@
+---
+import plansData from '../../data/plans.json';
+
+const plans = plansData.planes.map(plan => ({
+  name: plan.nombre,
+  description: plan.descripcion,
+  price6: plan.precio_6_meses,
+  price12: plan.precio_12_meses,
+  features: Object.entries(plan.caracteristicas).map(([key, value]) => ({ key, value })),
+  exclusions: Object.entries(plan.exclusiones).map(([key, value]) => ({ key, value }))
+}));
+---
+
+<section class="plans" id="plans">
+  <div class="plans__container">
+    <h2 class="plans__title">Planes diseñados para tu crecimiento</h2>
+    <p class="plans__subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+
+    <div class="plans__grid">
+      {plans.map(plan => (
+        <div class="plan-card">
+          <h3 class="plan-card__title">{plan.name}</h3>
+          <p class="plan-card__description">{plan.description}</p>
+
+          <div class="plan-card__price">
+            <span class="price__amount">${plan.price6}</span>
+            <span class="price__period">/6 meses</span>
+            <span class="price__amount">${plan.price12}</span>
+            <span class="price__period">/12 meses</span>
+          </div>
+
+          <ul class="plan-card__features">
+            {plan.features.map(feature => (
+              <li class="feature feature--included">
+                <div class="feature__row">
+                  <span class="feature__icon">{feature.key.split(' ')[0]}</span>
+                  <span class="feature__name">{feature.key.replace(/^✔ |^✘ /, '')}</span>
+                </div>
+                <span class="feature__desc">{feature.value}</span>
+              </li>
+            ))}
+          </ul>
+
+          {plan.exclusions.length > 0 ? (
+            <ul class="plan-card__exclusions">
+              {plan.exclusions.map(exclusion => (
+                <li class="feature feature--excluded">
+                  <div class="feature__row">
+                    <span class="feature__icon">{exclusion.key.split(' ')[0]}</span>
+                    <span class="feature__name">{exclusion.key.replace(/^✔ |^✘ /, '')}</span>
+                  </div>
+                  <span class="feature__desc">{exclusion.value}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <button class="plan-card__cta">Contratar ahora</button>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+   @use '../../styles/globals' as *;
+
+   .plans__container {
+     @include container;
+     text-align: center;
+    }
+</style>

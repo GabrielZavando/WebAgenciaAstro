@@ -1,0 +1,81 @@
+---
+import gabriel from '../../assets/img/gabriel.jpg';
+import { Image } from 'astro:assets';
+
+---
+
+<section class="about" id="about">
+  <div class="about-content">
+    <h2 class="about-content__title">Sobre Mí</h2>
+    <div class="about-content__header">
+        <h3 class="about-content__header__title">Gabriel Zavando – Full Stack Developer Freelance</h3>
+    </div>
+
+    <div class="about-content-figure">
+      <div class="about-content-figure__text">
+        <p class="about__paragraph">
+          Con más de 10 años de experiencia en desarrollo web y un recorrido reciente en automatización de procesos y chatbots con inteligencia artificial, acompaño a profesionales y Pymes —especialmente de la Región de Valparaíso— en su proceso de transformación digital.
+        </p>
+        <p class="about__paragraph">
+          Creo en el desarrollo de software como una forma concreta de mejorar la manera en que trabajamos. Automatizar procesos, digitalizar operaciones y construir herramientas a medida permite que las personas se concentren en lo que realmente importa: hacer crecer sus ideas. Cada solución que desarrollo nace de la realidad de mis clientes, no de plantillas.
+        </p>
+        <p class="about__paragraph">
+          Después de años viendo cómo muchas Pymes invertían en soluciones genéricas que no les resolvían nada, decidí enfocarme en crear herramientas útiles, sostenibles y hechas para durar. Mi trabajo no termina con la entrega: trabajo contigo desde el inicio hasta la implementación, asegurándome de que cada proyecto tenga sentido, impacto y evolución real.
+        </p>
+      </div>
+
+      <div class="about-content-figure__image">
+        <Image
+          src={gabriel}
+          alt="Gabriel Zavando - Desarrollador Full Stack"
+          width={300}
+          height={300}
+          class="about__photo"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <div class="about-content__specialties">
+      <h3 class="about-content__specialties__subtitle">
+        Especialidades
+      </h3>
+      <ul class="about-content__specialties__list">
+        <li class="about-content__specialties__item">Desarrollo Frontend</li>
+        <li class="about-content__specialties__item">Desarrollo Backend</li>
+        <li class="about-content__specialties__item">Diseño Responsivo</li>
+        <li class="about-content__specialties__item">APIs RESTful</li>
+        <li class="about-content__specialties__item">Software a Medida</li>
+        <li class="about-content__specialties__item">Chatbots con IA</li>
+      </ul>
+    </div>
+
+    <div class="about-content__tech">
+      <h3 class="about-content__tech__subtitle">Tecnologías</h3>
+      <ul class="about-content__tech__list">
+        <li class="about-content__tech__item">Angular</li>
+        <li class="about-content__tech__item">Astro</li>
+        <li class="about-content__tech__item">Node.js</li>
+        <li class="about-content__tech__item">NestJS</li>
+        <li class="about-content__tech__item">WordPress</li>
+        <li class="about-content__tech__item">PostgreSQL</li>
+        <li class="about-content__tech__item">MongoDB</li>
+        <li class="about-content__tech__item">Git</li>
+        <li class="about-content__tech__item">LLMs (Modelos de Lenguaje)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/globals' as *;
+
+  .about-content{
+    @include container;
+  }
+
+
+</style>
+
+
+

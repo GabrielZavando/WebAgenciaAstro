@@ -1,7 +1,8 @@
 ---
 import { Image } from "astro:assets";
 import Logo from "../../assets/img/logo-medium.png";
-import "../../styles/components/header.scss";
+import ThemeSwitcher from "./ThemeSwitcher.astro";
+
 const currentPath = Astro.url.pathname;
 const links = [
     { href: "/", text: "Inicio" },
@@ -46,10 +47,44 @@ const links = [
                         </a>
                     </li>
                 ))}
+                <li class="nav__theme-toggle">
+                    <ThemeSwitcher />
+                </li>
             </ul>
         </nav>
     </div>
 </header>
+
+<style lang="scss">
+    @use '../../styles/globals' as *;
+
+    .header {
+        // Contenedor base
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: transparent;
+        padding: $spacing-4 $spacing-4; // Ajustar el padding top del banner para separarlo del header transparente
+        transition: background-color 0.3s ease, color 0.3s ease;
+        &__container{
+            @include container-flex;
+        }
+
+        // En tema oscuro
+        html[data-theme="dark"] & {
+            background-color: var(--color-nav-bg);
+        }
+
+        // Responsive
+        @media (min-width: $breakpoint-sm) {
+            background: var(--color-nav-bg);
+            backdrop-filter: none;
+        }
+    }
+    
+</style>
 
 <script>
     import { testMessage } from "../../scripts/testScript";

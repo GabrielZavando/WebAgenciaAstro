@@ -1,0 +1,99 @@
+// =========================
+// Sistema de Temas (Claro/Oscuro)
+// =========================
+
+// Variables para tema claro (default)
+@mixin light-theme {
+  // Colores base
+  --color-background: #ffffff;
+  --color-text: #222222;
+  --color-heading: #111111;
+  --color-card-bg: #f8f8f8;
+  
+  // Escala de grises
+  --color-gray-100: #f2f2f2;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #cccccc;
+  --color-gray-400: #aaaaaa;
+  --color-gray-500: #888888;
+  --color-gray-600: #666666;
+  --color-gray-700: #444444;
+  --color-gray-800: #333333;
+  --color-gray-900: #222222;
+  
+  // Colores funcionales - los mismos en ambos temas
+  --color-primary: #FF0080;
+  --color-secondary: #A600FF;
+  --color-accent: #00FFE0;
+  --color-dark: #1D0033;
+  --color-white: #FFFFFF;
+  --color-neutral: #2F2F2F;
+  
+  // Colores de componentes específicos
+  --color-nav-bg: rgba(255, 255, 255, 0.95);
+  --color-card-shadow: rgba(0, 0, 0, 0.08);
+  --color-input-bg: #ffffff;
+  --color-input-border: #e0e0e0;
+  --color-input-text: #333333;
+  --color-button-text: #ffffff;
+  --color-footer-bg: var(--color-dark);
+  --color-footer-text: var(--color-white);
+  
+  // Secciones
+  --color-section-alt-bg: #f8f8f8;
+  --color-banner-overlay: rgba(29, 0, 51, 0.7); // Color oscuro con transparencia
+  
+  // Bordes y sombras
+  --color-border: #e0e0e0;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+// Variables para tema oscuro
+@mixin dark-theme {
+  // Colores base
+  --color-background: #121212;
+  --color-text: #e0e0e0;
+  --color-heading: #ffffff;
+  --color-card-bg: #1e1e1e;
+  
+  // Escala de grises (invertida para tema oscuro)
+  --color-gray-100: #222222;
+  --color-gray-200: #333333;
+  --color-gray-300: #444444;
+  --color-gray-400: #666666;
+  --color-gray-500: #888888;
+  --color-gray-600: #aaaaaa;
+  --color-gray-700: #cccccc;
+  --color-gray-800: #e0e0e0;
+  --color-gray-900: #f2f2f2;
+  
+  // Colores funcionales - los mismos en ambos temas
+  --color-primary: #FF0080;
+  --color-secondary: #A600FF;
+  --color-accent: #00FFE0;
+  --color-dark: #1D0033;
+  --color-white: #FFFFFF;
+  --color-neutral: #2F2F2F;
+  
+  // Colores de componentes específicos
+  --color-nav-bg: rgba(18, 18, 18, 0.95);
+  --color-card-shadow: rgba(0, 0, 0, 0.3);
+  --color-input-bg: #2a2a2a;
+  --color-input-border: #444444;
+  --color-input-text: #e0e0e0;
+  --color-button-text: #ffffff;
+  --color-footer-bg: #0c0c0c;
+  --color-footer-text: var(--color-white);
+  
+  // Secciones
+  --color-section-alt-bg: #1a1a1a;
+  --color-banner-overlay: rgba(0, 0, 0, 0.75);
+  
+  // Bordes y sombras
+  --color-border: #333333;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+}

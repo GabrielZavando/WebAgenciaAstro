@@ -2,6 +2,26 @@
 @use 'variables' as *;
 @use 'breakpoints' as *;
 
+@mixin container($padding: 16px) {
+  width: 100%;
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: $padding;
+  border: 1px solid blue;
+}
+
+@mixin container-flex($padding: 16px, $direction: row, $justify: space-between, $align: center) {
+  display: flex;
+  flex-direction: $direction;
+  width: 100%;
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: $padding;
+  border: 1px solid cyan;
+  justify-content: $justify;
+  align-items: $align;
+}
+
 // Sistema de Flexbox
 @mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap, $gap: 0) {
   display: flex;

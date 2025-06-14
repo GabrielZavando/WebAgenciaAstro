@@ -1,0 +1,41 @@
+// Importación de globals
+@use '../globals' as *;
+
+// Implementación del sistema de temas
+
+// Aplicamos el tema claro por defecto
+:root {
+  // Aplicar el tema claro por defecto
+  @include light-theme;
+  
+  // Variables de transición para el cambio de tema suave
+  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+// Aplicamos el tema oscuro cuando el usuario ha elegido ese tema
+// mediante el atributo data-theme="dark" en el elemento html
+html[data-theme="dark"] {
+  @include dark-theme;
+}
+
+// Detección de preferencia del sistema (media query)
+@media (prefers-color-scheme: dark) {
+  // Solo aplicamos automáticamente si el usuario no ha seleccionado explícitamente un tema
+  html:not([data-theme="light"]) {
+    @include dark-theme;
+  }
+}
+
+// Aplicamos transiciones suaves a los elementos que cambian con el tema
+body,
+header,
+footer,
+section,
+.container,
+.card,
+button,
+input,
+textarea,
+.container-item {
+  transition: var(--theme-transition);
+}

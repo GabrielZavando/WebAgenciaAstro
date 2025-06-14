@@ -11,11 +11,16 @@
     z-index: 1000;
     background: transparent;
     padding: $spacing-4 $spacing-4; // Ajustar el padding top del banner para separarlo del header transparente
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    // En tema oscuro
+    html[data-theme="dark"] & {
+        background-color: var(--color-nav-bg);
+    }
 
     // Responsive
     @media (min-width: $breakpoint-sm) {
-        background: var(--background-color);
+        background: var(--color-nav-bg);
         backdrop-filter: none;
     }
 }
@@ -141,6 +146,17 @@
     @media (min-width: $breakpoint-sm) {
         flex-direction: row;
         gap: $spacing-6;
+    }
+    
+    // Elemento para el selector de tema
+    .nav__theme-toggle {
+        display: flex;
+        align-items: center;
+        margin-left: $spacing-2;
+        
+        @media (min-width: $breakpoint-sm) {
+            margin-left: $spacing-4;
+        }
     }
 }
 
