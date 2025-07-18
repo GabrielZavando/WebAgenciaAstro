@@ -3,10 +3,16 @@
 
 <section class="contact" id="contact">
     <div class="contact__container">
-        <h2 class="contact__title">Contacto</h2>
+        <h2 class="title-section">Contacto</h2>
         <p class="contact__subtitle">¿Tienes un proyecto en mente? Cuéntame sobre él</p>
 
-        <form class="contact-form" id="contactForm" action="mailto:contacto@gabrielzavando.cl" method="post" enctype="text/plain">
+        <form class="contact-form" id="contactForm" action="https://hook.make.com/TU_WEBHOOK_ID" method="POST">
+            <!-- INSTRUCCIONES PARA INTEGRAR CON MAKE.COM:
+                 1. Crea un escenario en https://make.com y agrega un webhook como primer módulo.
+                 2. Copia la URL del webhook y reemplaza TU_WEBHOOK_ID en el atributo action de este formulario.
+                 3. (Opcional) Ajusta los nombres de los campos si tu escenario de Make.com lo requiere.
+                 4. ¡Listo! El formulario enviará los datos directamente a Make.com.
+            -->
             <div class="form-group">
                 <label for="name" class="form-label">Nombre completo *</label>
                 <input 
@@ -58,7 +64,9 @@
                 </div>
             </div>
 
-            <button type="submit" class="form-submit">
+            <!-- Campos ocultos eliminados: Make.com no los requiere por defecto -->
+
+            <button type="submit" class="btn-cta__solid">
                 Enviar mensaje
             </button>
         </form>
@@ -66,12 +74,508 @@
 </section>
 
 <style lang="scss">
-    @use '../../styles/globals' as *;
+    @use '../../styles/config' as *;
 
-    .contact__container{
-        @include container;
+    .contact {
+        padding: var(--space-xl) 0;
+        background-color: var(--color-surface);
+    }
+
+    .contact__container {
+        // Container usando el nuevo sistema
+        width: 100%;
+        max-width: #{container(max)};
+        margin: 0 auto;
+        padding: 0 var(--padding-container);
         text-align: center;
     }
 
+    .contact__subtitle {
+        color: var(--color-text-secondary);
+        font-size: 1.125rem;
+        line-height: 1.6;
+        margin-bottom: var(--space-xl);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
+    // Formulario de contacto
+    .contact-form {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: var(--space-lg);
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-family: var(--font-headings);
+        font-weight: 600;
+        color: var(--color-text);
+        margin-bottom: var(--space-sm);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: var(--space-md);
+        border: 2px solid var(--color-border);
+        border-radius: 0; // Flat design
+        background: var(--color-white);
+        font-family: var(--font-primary);
+        font-size: 1rem;
+        color: var(--color-text);
+        transition: all var(--transition-normal) ease;
+        outline: none;
+
+        &::placeholder {
+            color: var(--color-text-muted);
+            opacity: 0.7;
+        }
+
+        &:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+        }
+
+        &:invalid:not(:placeholder-shown) {
+            border-color: var(--color-error, #dc2626);
+        }
+
+        &:valid:not(:placeholder-shown) {
+            border-color: var(--color-success, #059669);
+        }
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: var(--font-primary);
+        line-height: 1.5;
+    }
+
+    // Contador de caracteres
+    .character-counter {
+        text-align: right;
+        margin-top: var(--space-xs);
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        font-family: var(--font-primary);
+
+        #currentCount {
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        &.warning #currentCount {
+            color: var(--color-warning, #f59e0b);
+        }
+
+        &.error #currentCount {
+            color: var(--color-error, #dc2626);
+        }
+    }
+
+    // Botón de envío
+    .contact-form .btn-cta__solid {
+        width: 100%;
+        margin-top: var(--space-lg);
+        padding: var(--space-md) var(--space-lg);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        // Efecto de loading
+        &.loading {
+            color: transparent;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 20px;
+                height: 20px;
+                border: 2px solid transparent;
+                border-top: 2px solid var(--color-white);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+        }
+    }
+
+    // Animación de loading
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    // Estados de validación visual
+    .form-group.error .form-input {
+        border-color: var(--color-error, #dc2626);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .form-group.success .form-input {
+        border-color: var(--color-success, #059669);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    // Mensajes de error
+    .error-message {
+        color: var(--color-error, #dc2626);
+        font-size: 0.8rem;
+        margin-top: var(--space-xs);
+        display: block;
+        font-family: var(--font-primary);
+    }
+
+    // Responsive design
+    @media (max-width: #{container(narrow)}) {
+        .contact-form {
+            max-width: 100%;
+        }
+
+        .form-input {
+            padding: var(--space-sm);
+        }
+
+        .contact-form .btn-cta__solid {
+            padding: var(--space-sm) var(--space-md);
+            font-size: 1rem;
+        }
+    }
+
+    // Modales de éxito y error
+    .success-modal,
+    .error-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .success-modal__content,
+    .error-modal__content {
+        background: var(--color-white);
+        padding: var(--space-xl);
+        border-radius: 0;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        animation: slideIn 0.3s ease;
+    }
+
+    .success-modal__icon,
+    .error-modal__icon {
+        font-size: 3rem;
+        margin-bottom: var(--space-md);
+        display: block;
+    }
+
+    .success-modal__icon {
+        color: var(--color-success, #059669);
+    }
+
+    .error-modal__icon {
+        color: var(--color-error, #dc2626);
+    }
+
+    .success-modal h3,
+    .error-modal h3 {
+        font-family: var(--font-headings);
+        color: var(--color-text);
+        margin-bottom: var(--space-md);
+        font-size: 1.5rem;
+    }
+
+    .success-modal p,
+    .error-modal p {
+        color: var(--color-text-secondary);
+        line-height: 1.5;
+        margin-bottom: var(--space-md);
+    }
+
+    .success-modal button,
+    .error-modal button {
+        margin-top: var(--space-md);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
 </style>
+
+<script>
+    // Funcionalidad del formulario de contacto
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('contactForm') as HTMLFormElement;
+        const messageTextarea = document.getElementById('message') as HTMLTextAreaElement;
+        const currentCount = document.getElementById('currentCount');
+        const characterCounter = document.querySelector('.character-counter');
+        const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        // Contador de caracteres
+        if (messageTextarea && currentCount) {
+            const maxLength = 1500;
+
+            function updateCharacterCount() {
+                const currentLength = messageTextarea.value.length;
+                if (currentCount) {
+                    currentCount.textContent = currentLength.toString();
+                }
+
+                // Cambiar color según el progreso
+                if (characterCounter) {
+                    characterCounter.classList.remove('warning', 'error');
+                    
+                    if (currentLength > maxLength * 0.9) {
+                        characterCounter.classList.add('warning');
+                    }
+                    if (currentLength > maxLength) {
+                        characterCounter.classList.add('error');
+                    }
+                }
+            }
+
+            // Limitar caracteres
+            messageTextarea.addEventListener('input', (e) => {
+                const target = e.target as HTMLTextAreaElement;
+                if (target.value.length > maxLength) {
+                    target.value = target.value.substring(0, maxLength);
+                }
+                updateCharacterCount();
+            });
+
+            // Inicializar contador
+            updateCharacterCount();
+        }
+
+        // Validación en tiempo real
+        const inputs = form?.querySelectorAll('.form-input');
+        inputs?.forEach(input => {
+            input.addEventListener('blur', () => {
+                validateField(input as HTMLInputElement);
+            });
+
+            input.addEventListener('input', () => {
+                clearErrors(input as HTMLInputElement);
+            });
+        });
+
+        // Función de validación individual
+        function validateField(field: HTMLInputElement) {
+            const formGroup = field.closest('.form-group');
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Limpiar errores previos
+            clearErrors(field);
+
+            // Validaciones específicas
+            switch (field.type) {
+                case 'email':
+                    if (value && !isValidEmail(value)) {
+                        isValid = false;
+                        errorMessage = 'Por favor ingresa un correo electrónico válido';
+                    }
+                    break;
+                case 'tel':
+                    if (value && !isValidPhone(value)) {
+                        isValid = false;
+                        errorMessage = 'Por favor ingresa un número de teléfono válido';
+                    }
+                    break;
+            }
+
+            // Campos requeridos
+            if (field.required && !value) {
+                isValid = false;
+                errorMessage = 'Este campo es requerido';
+            }
+
+            // Aplicar estilos de validación
+            if (formGroup) {
+                if (isValid && value) {
+                    formGroup.classList.add('success');
+                    formGroup.classList.remove('error');
+                } else if (!isValid) {
+                    formGroup.classList.add('error');
+                    formGroup.classList.remove('success');
+                    showError(field, errorMessage);
+                }
+            }
+
+            return isValid;
+        }
+
+        // Mostrar mensaje de error
+        function showError(field: HTMLInputElement, message: string) {
+            const formGroup = field.closest('.form-group');
+            if (formGroup) {
+                let errorElement = formGroup.querySelector('.error-message');
+                if (!errorElement) {
+                    errorElement = document.createElement('span');
+                    errorElement.classList.add('error-message');
+                    formGroup.appendChild(errorElement);
+                }
+                errorElement.textContent = message;
+            }
+        }
+
+        // Limpiar errores
+        function clearErrors(field: HTMLInputElement) {
+            const formGroup = field.closest('.form-group');
+            if (formGroup) {
+                formGroup.classList.remove('error', 'success');
+                const errorElement = formGroup.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.remove();
+                }
+            }
+        }
+
+        // Validadores
+        function isValidEmail(email: string): boolean {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function isValidPhone(phone: string): boolean {
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]+$/;
+            return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 8;
+        }
+
+        // Manejo del envío del formulario con Formspree
+        if (form && submitButton) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Validar todos los campos
+                let isFormValid = true;
+                inputs?.forEach(input => {
+                    if (!validateField(input as HTMLInputElement)) {
+                        isFormValid = false;
+                    }
+                });
+
+                if (isFormValid) {
+                    // Mostrar estado de loading
+                    submitButton.classList.add('loading');
+                    submitButton.disabled = true;
+
+                    try {
+                        // Enviar datos a Formspree
+                        const formData = new FormData(form);
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            // Éxito
+                            showSuccessMessage();
+                            form.reset();
+                            
+                            // Limpiar estados
+                            inputs?.forEach(input => clearErrors(input as HTMLInputElement));
+                            if (currentCount) currentCount.textContent = '0';
+                            if (characterCounter) characterCounter.classList.remove('warning', 'error');
+                        } else {
+                            // Error del servidor
+                            const data = await response.json();
+                            throw new Error(data.error || 'Error en el envío');
+                        }
+                    } catch (error) {
+                        // Error de red o del servidor
+                        showErrorMessage(error instanceof Error ? error.message : 'Error desconocido');
+                    } finally {
+                        // Remover loading
+                        submitButton.classList.remove('loading');
+                        submitButton.disabled = false;
+                    }
+                }
+            });
+        }
+
+        // Función para mostrar mensaje de éxito
+        function showSuccessMessage() {
+            // Crear modal de éxito
+            const modal = document.createElement('div');
+            modal.className = 'success-modal';
+            modal.innerHTML = `
+                <div class="success-modal__content">
+                    <div class="success-modal__icon">✓</div>
+                    <h3>¡Mensaje enviado!</h3>
+                    <p>Gracias por contactarnos. Te responderemos pronto a <strong>contacto@gabrielzavando.cl</strong></p>
+                    <button class="btn-cta__solid" onclick="this.closest('.success-modal').remove()">
+                        Entendido
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Remover modal después de 5 segundos
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            }, 5000);
+        }
+
+        // Función para mostrar mensaje de error
+        function showErrorMessage(message: string) {
+            const modal = document.createElement('div');
+            modal.className = 'error-modal';
+            modal.innerHTML = `
+                <div class="error-modal__content">
+                    <div class="error-modal__icon">⚠</div>
+                    <h3>Error al enviar</h3>
+                    <p>Ha ocurrido un error: ${message}</p>
+                    <p>Por favor intenta nuevamente o contacta directamente a <strong>contacto@gabrielzavando.cl</strong></p>
+                    <button class="btn-cta__solid" onclick="this.closest('.error-modal').remove()">
+                        Entendido
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    });
+</script>

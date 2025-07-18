@@ -2,16 +2,10 @@
 import { Image } from "astro:assets";
 import Logo from "../../assets/img/logo-medium.png";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
+import menuData from "../../data/menu.json";
 
 const currentPath = Astro.url.pathname;
-const links = [
-    { href: "/", text: "Inicio" },
-    { href: "#servicios", text: "Servicios" },
-    { href: "#about", text: "Sobre mi" },
-    { href: "#process", text: "Metodología" },
-    { href: "#plans", text: "Planes" },
-    { href: "#contact", text: "Contacto" }
-];
+const { menuItems } = menuData;
 ---
 
 <header class="header">
@@ -35,15 +29,15 @@ const links = [
 
         <nav class="nav">
             <ul class="nav__list">
-                {links.map(link => (
-                    <li>
-                        <a href={link.href}
+                {menuItems.map(item => (
+                    <li class="nav__item">
+                        <a href={item.href}
                            class:list={[
-                            'nav__link',
-                            { 'active': currentPath === link.href
-                             || (link.href === '/' && currentPath === '/')}
+                            'btn-nav',
+                            { 'active': currentPath === item.href
+                             || (item.href === '/' && currentPath === '/')}
                            ]}>
-                            {link.text}
+                            {item.text}
                         </a>
                     </li>
                 ))}
@@ -55,43 +49,50 @@ const links = [
     </div>
 </header>
 
-<style lang="scss">
-    @use '../../styles/globals' as *;
-
-    .header {
-        // Contenedor base
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: transparent;
-        padding: $spacing-4 $spacing-4; // Ajustar el padding top del banner para separarlo del header transparente
-        transition: background-color 0.3s ease, color 0.3s ease;
-        &__container{
-            @include container-flex;
-        }
-
-        // En tema oscuro
-        html[data-theme="dark"] & {
-            background-color: var(--color-nav-bg);
-        }
-
-        // Responsive
-        @media (min-width: $breakpoint-sm) {
-            background: var(--color-nav-bg);
-            backdrop-filter: none;
-        }
-    }
-    
-</style>
-
 <script>
-    import { testMessage } from "../../scripts/testScript";
-    document.addEventListener("DOMContentLoaded", () => {
-        console.log(testMessage);
+    document.addEventListener('DOMContentLoaded', () => {
+        const navToggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('.nav');
+        const hamburger = document.querySelector('.hamburger');
+        const body = document.body;
+        
+        navToggle?.addEventListener('click', () => {
+            const isActive = nav?.classList.toggle('active');
+            hamburger?.classList.toggle('active');
+            
+            // Añadir/quitar clase al body para cambiar variables contextuales
+            if (isActive) {
+                body.classList.add('menu-active');
+            } else {
+                body.classList.remove('menu-active');
+            }
+        });
+        
+        // Cerrar menú al hacer click en un enlace (móvil)
+        const navLinks = document.querySelectorAll('.nav__item a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                nav?.classList.remove('active');
+                hamburger?.classList.remove('active');
+                body.classList.remove('menu-active');
+            });
+        });
+        
+        // Cambiar color del header al hacer scroll
+        const header = document.querySelector('.header');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header?.classList.add('scrolled');
+            } else {
+                header?.classList.remove('scrolled');
+            }
+        });
     });
 </script>
+
+
+
 
 
 

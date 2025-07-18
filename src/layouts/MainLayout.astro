@@ -42,9 +42,26 @@ const { title = "Agencia Digital" } = Astro.props;
     <Header />
     <slot />
     <Footer />
-    <button id="scroll-top" class="scroll-top" aria-label="Volver arriba">
+    <button id="scroll-top" class="btn-up" aria-label="Volver arriba">
       <i class="fas fa-arrow-up"></i>
     </button>   
+
+    <!-- Comportamiento scroll-top -->
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const scrollBtn = document.getElementById('scroll-top');
+        // Mostrar/ocultar según scroll
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > 200) scrollBtn.classList.add('visible');
+          else scrollBtn.classList.remove('visible');
+        });
+        // Al hacer click, scroll suave arriba y ocultar
+        scrollBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollBtn.classList.remove('visible');
+        });
+      });
+    </script>
   </body>
 </html>
 

@@ -1,14 +1,14 @@
-// Importación de globals
-@use '../globals' as *;
+// Importación del sistema de configuración
+@use '../config' as *;
 
 // Sistema de grillas modular
 .grid {
     display: grid;
-    gap: $spacing-4; // 16px
+    gap: space(md); // 16px
     
     // Variaciones de grid
     &-auto {
-        grid-template-columns: repeat(auto-fill, minmax($spacing-16, 1fr)); // 96px base
+        grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); // 96px base
     }
     
     &-2 {
@@ -24,17 +24,17 @@
     }
     
     // Responsive
-    @media (min-width: $breakpoint-sm) {
-        gap: $spacing-6; // 32px
+    @include respond-to(sm) {
+        gap: space(xl); // 32px
     }
 }
 
 // Items de grid
 .grid-item {
-    background-color: var(--background-color);
-    padding: $spacing-4; // 16px
-    border-radius: $spacing-2; // 8px
-    box-shadow: 0 $spacing-1 $spacing-2 rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface);
+    padding: space(md); // 16px
+    border-radius: space(sm); // 8px
+    box-shadow: 0 space(xs) space(sm) rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 
     // Variaciones de tamaño
@@ -51,8 +51,8 @@
     }
     
     // Responsive
-    @media (min-width: $breakpoint-sm) {
-        padding: $spacing-6; // 32px
+    @include respond-to(sm) {
+        padding: space(xl); // 32px
     }
     
     &:hover {

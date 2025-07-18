@@ -1,5 +1,8 @@
-// Importación de globals
-@use '../globals' as *;
+// =========================
+// Foundation - Reset Layer
+// =========================
+// Normalización completa para eliminar inconsistencias entre navegadores
+// y establecer las bases del sistema de diseño
 
 /* Reset box model */
 *,
@@ -54,7 +57,7 @@ h5,
 h6,
 p {
   overflow-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
 }
 
 /* Form elements */

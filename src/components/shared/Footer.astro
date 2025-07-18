@@ -1,36 +1,8 @@
 ---
+import menuData from "../../data/menu.json";
+
 const currentYear = new Date().getFullYear();
-
-const socialLinks = [
-    {
-        name: 'LinkedIn',
-        url: 'https://linkedin.com/in/gabrielzavando',
-        icon: '/src/assets/img/linkedin_icon.png'
-    },
-    {
-        name: 'GitHub',
-        url: 'https://github.com/gabrielzavando',
-        icon: '/src/assets/img/github_icon.png'
-    },
-    {
-        name: 'Instagram',
-        url: 'https://instagram.com/gabrielzavando',
-        icon: '/src/assets/img/instagram_icon.png'
-    },
-    {
-        name: 'YouTube',
-        url: 'https://youtube.com/@gabrielzavando',
-        icon: '/src/assets/img/youtube_icon.png'
-    }
-];
-
-const menuItems = [
-    { text: 'Servicios', href: '#services' },
-    { text: 'Quién Soy', href: '#about' },
-    { text: 'Metodología', href: '#process' },
-    { text: 'Planes', href: '#plans' },
-    { text: 'Contacto', href: '#contact' }
-];
+const { menuItems, socialLinks } = menuData;
 ---
 
 <footer class="footer">
@@ -58,7 +30,7 @@ const menuItems = [
         target="_blank" 
         rel="noopener"
         >
-        <img src={link.icon} alt={link.name} width="24" height="24" />
+        <i class={link.icon}></i>
         </a>
       ))}
       </div>
@@ -67,13 +39,35 @@ const menuItems = [
     <!-- Columna: Suscripción -->
     <div class="footer__section footer__section--subscribe">
       <h3 class="footer__title">Suscríbete</h3>
-      <form class="footer__form" action="/suscribirse" method="post">
-        <input type="email" class="footer__input" name="email" placeholder="Tu correo electrónico" required>
-        <button type="submit" class="footer__button">Suscribirme</button>
-        <label class="footer__checkbox">
-          <input type="checkbox" name="terms" required>
-          Acepto la <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
-        </label>
+      <form class="footer__form" id="subscribeForm" action="https://hook.make.com/TU_WEBHOOK_ID_SUSCRIPCION" method="POST">
+        <!-- INSTRUCCIONES PARA INTEGRAR CON MAKE.COM:
+             1. Crea un escenario en https://make.com y agrega un webhook como primer módulo.
+             2. Copia la URL del webhook y reemplaza TU_WEBHOOK_ID_SUSCRIPCION en el atributo action de este formulario.
+             3. (Opcional) Ajusta los nombres de los campos si tu escenario de Make.com lo requiere.
+             4. ¡Listo! El formulario enviará los datos directamente a Make.com.
+        -->
+        <div class="footer__form-group">
+          <input 
+            type="email" 
+            class="footer__input" 
+            name="email" 
+            placeholder="Tu correo electrónico" 
+            required
+            id="subscribeEmail"
+          >
+        </div>
+        <div class="footer__form-group">
+          <label class="footer__checkbox">
+            <input type="checkbox" name="terms" required id="subscribeTerms">
+            <span class="footer__checkbox-custom"></span>
+            <span class="footer__checkbox-text">
+              Acepto la <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
+            </span>
+          </label>
+        </div>
+        <button type="submit" class="btn-cta__solid footer__submit-btn">
+          Suscribirme
+        </button>
       </form>
       <p class="footer__note">Recibe tips de transformación digital sin spam.</p>
     </div>
@@ -81,18 +75,545 @@ const menuItems = [
 
   <!-- Cierre del footer -->
   <div class="footer__bottom">
-    <p class="footer__copyright">© {currentYear} Gabriel Zavando. Todos los derechos reservados.</p>
     <p class="footer__legal">
       <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
     </p>
+    <p class="footer__copyright">© {currentYear} Gabriel Zavando. Todos los derechos reservados.</p>
   </div>
 </footer>
 
 <style lang="scss">
-  @use '../../styles/globals' as *;
+  @use '../../styles/config' as *;
 
-  .footer__container, .footer__bottom {
-    @include container;
+  .footer {
+    background-color: var(--color-dark);
+    color: var(--color-white);
+    padding: #{space(2xl)} 0 #{space(lg)} 0;
+    margin-top: auto;
+
+    &__container {
+      @include container();
+      @include flex(row, space-between, flex-start, wrap, lg);
+
+      @include respond-to(md) {
+        @include flex(row, space-between, flex-start, nowrap, xl);
+      }
+    }
+
+    &__section {
+      flex: 1;
+      min-width: 250px;
+      margin-bottom: #{space(lg)};
+
+      @include respond-to(md) {
+        margin-bottom: 0;
+      }
+
+      &--nav {
+        @include respond-to(md) {
+          flex: 0 0 auto;
+          margin-right: #{space(xl)};
+        }
+      }
+
+      &--social {
+        @include respond-to(md) {
+          flex: 0 0 auto;
+          margin-right: #{space(xl)};
+        }
+      }
+
+      &--subscribe {
+        @include respond-to(md) {
+          flex: 1;
+          max-width: 350px;
+        }
+      }
+    }
+
+    &__title {
+      font-family: var(--font-headings);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-white);
+      margin-bottom: #{space(md)};
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: #{space(sm)};
+      display: inline-block;
+    }
+
+    &__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    &__item {
+      margin-bottom: #{space(sm)};
+    }
+
+    &__link {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--color-primary);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+    }
+
+    &__social-icons {
+      @include flex(row, flex-start, center, wrap, md);
+    }
+
+    &__icon {
+      @include flex(row, center, center);
+      width: 40px;
+      height: 40px;
+      background-color: transparent;
+      border-radius: 50%;
+      color: var(--color-white);
+      font-size: 1.5rem;
+      transition: all var(--transition-normal) ease;
+
+      &:hover {
+        color: var(--color-secondary);
+        transform: translateY(-2px);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+
+      i {
+        font-size: inherit;
+      }
+    }
+
+    &__form {
+      @include flex(column, flex-start, stretch, nowrap, sm);
+    }
+
+    &__form-group {
+      margin-bottom: var(--space-sm);
+    }
+
+    &__input {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border: 2px solid var(--color-border);
+      border-radius: 0; // Flat design
+      background-color: var(--color-surface);
+      color: var(--color-text);
+      font-size: 0.875rem;
+      font-family: var(--font-primary);
+      transition: all var(--transition-normal) ease;
+      outline: none;
+
+      &::placeholder {
+        color: var(--color-text-muted);
+        opacity: 0.7;
+      }
+
+      &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 255, 0, 128), 0.1);
+      }
+
+      &:invalid:not(:placeholder-shown) {
+        border-color: var(--color-error, #dc2626);
+      }
+
+      &:valid:not(:placeholder-shown) {
+        border-color: var(--color-success, #059669);
+      }
+    }
+
+    &__checkbox {
+      @include flex(row, flex-start, flex-start, nowrap, sm);
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+      cursor: pointer;
+      position: relative;
+
+      input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      &-custom {
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--color-border);
+        border-radius: 0; // Cuadrado flat
+        background-color: var(--color-surface);
+        margin-right: var(--space-sm);
+        flex-shrink: 0;
+        margin-top: 2px;
+        position: relative;
+        transition: all var(--transition-normal) ease;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 4px;
+          top: 1px;
+          width: 4px;
+          height: 8px;
+          border: solid var(--color-white);
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+          opacity: 0;
+          transition: opacity var(--transition-normal) ease;
+        }
+      }
+
+      &-text {
+        flex: 1;
+      }
+
+      input[type="checkbox"]:checked + &-custom {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+
+        &::after {
+          opacity: 1;
+        }
+      }
+
+      input[type="checkbox"]:focus + &-custom {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+
+      &:hover &-custom {
+        border-color: var(--color-primary);
+      }
+    }
+
+    &__submit-btn {
+      margin-top: var(--space-sm);
+      position: relative;
+      overflow: hidden;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      // Efecto de loading
+      &.loading {
+        color: transparent;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 16px;
+          height: 16px;
+          border: 2px solid transparent;
+          border-top: 2px solid var(--color-white);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+
+    &__note {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      line-height: 1.4;
+    }
+
+    &__bottom {
+      @include container();
+      @include flex(column, center, center, nowrap, md);
+      border-top: 1px solid var(--color-border);
+      padding-top: #{space(lg)};
+      margin-top: #{space(xl)};
+      text-align: center;
+    }
+
+    &__legal {
+      font-size: 0.9rem;
+      color: var(--color-white);
+      margin: 0 0 #{space(md)} 0;
+      font-weight: 500;
+
+      a.footer__link {
+        color: var(--color-white);
+        font-size: inherit;
+        font-weight: inherit;
+
+        &:hover {
+          color: var(--color-primary);
+        }
+      }
+    }
+
+    &__copyright {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+  }
+
+  // Estilos para el botón CTA - Flat design para toda la landing
+  .btn-cta__solid {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    padding: #{space(sm)} #{space(lg)};
+    border-radius: 0; // Flat design para toda la landing
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--color-secondary);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-white);
+      outline-offset: 2px;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // Animación de loading
+  @keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  // Estados de validación del formulario de suscripción
+  .footer__form-group.error .footer__input {
+    border-color: var(--color-error, #dc2626);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  }
+
+  .footer__form-group.success .footer__input {
+    border-color: var(--color-success, #059669);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+  }
+
+  // Mensajes de error para el formulario de suscripción
+  .footer__error-message {
+    color: var(--color-error, #dc2626);
+    font-size: 0.7rem;
+    margin-top: var(--space-xs);
+    display: block;
+    font-family: var(--font-primary);
+  }
+
+  /* En tema claro, los links de navegación del footer serán blancos */
+  :root[data-theme="light"] .footer__section--nav .footer__item .footer__link {
+    color: var(--color-footer-link-light);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-primary);
+    }
   }
 </style>
+
+<script>
+  // Funcionalidad del formulario de suscripción
+  document.addEventListener('DOMContentLoaded', () => {
+    const subscribeForm = document.getElementById('subscribeForm') as HTMLFormElement;
+    const emailInput = document.getElementById('subscribeEmail') as HTMLInputElement;
+    const termsCheckbox = document.getElementById('subscribeTerms') as HTMLInputElement;
+    const submitButton = subscribeForm?.querySelector('.footer__submit-btn') as HTMLButtonElement;
+
+    if (!subscribeForm || !emailInput || !termsCheckbox || !submitButton) return;
+
+    // Validación en tiempo real
+    emailInput.addEventListener('blur', () => {
+      validateEmail(emailInput);
+    });
+
+    emailInput.addEventListener('input', () => {
+      clearErrors(emailInput);
+    });
+
+    // Función de validación de email
+    function validateEmail(field: HTMLInputElement) {
+      const formGroup = field.closest('.footer__form-group');
+      const value = field.value.trim();
+      let isValid = true;
+      let errorMessage = '';
+
+      // Limpiar errores previos
+      clearErrors(field);
+
+      // Validar email requerido
+      if (!value) {
+        isValid = false;
+        errorMessage = 'El correo electrónico es requerido';
+      } else if (!isValidEmailFormat(value)) {
+        isValid = false;
+        errorMessage = 'Por favor ingresa un correo electrónico válido';
+      }
+
+      // Aplicar estilos de validación
+      if (formGroup) {
+        if (isValid && value) {
+          formGroup.classList.add('success');
+          formGroup.classList.remove('error');
+        } else if (!isValid) {
+          formGroup.classList.add('error');
+          formGroup.classList.remove('success');
+          showError(field, errorMessage);
+        }
+      }
+
+      return isValid;
+    }
+
+    // Mostrar mensaje de error
+    function showError(field: HTMLInputElement, message: string) {
+      const formGroup = field.closest('.footer__form-group');
+      if (formGroup) {
+        let errorElement = formGroup.querySelector('.footer__error-message');
+        if (!errorElement) {
+          errorElement = document.createElement('span');
+          errorElement.classList.add('footer__error-message');
+          formGroup.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+      }
+    }
+
+    // Limpiar errores
+    function clearErrors(field: HTMLInputElement) {
+      const formGroup = field.closest('.footer__form-group');
+      if (formGroup) {
+        formGroup.classList.remove('error', 'success');
+        const errorElement = formGroup.querySelector('.footer__error-message');
+        if (errorElement) {
+          errorElement.remove();
+        }
+      }
+    }
+
+    // Validador de formato de email
+    function isValidEmailFormat(email: string): boolean {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Manejo del envío del formulario
+    subscribeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Validar email
+      const isEmailValid = validateEmail(emailInput);
+
+      // Verificar términos y condiciones
+      if (!termsCheckbox.checked) {
+        alert('Debes aceptar la Política de privacidad para continuar.');
+        return;
+      }
+
+      if (isEmailValid) {
+        // Mostrar estado de loading
+        submitButton.classList.add('loading');
+        submitButton.disabled = true;
+
+        try {
+          // Enviar datos a Make.com
+          const formData = new FormData(subscribeForm);
+          const response = await fetch(subscribeForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            // Éxito
+            showSuccessMessage();
+            subscribeForm.reset();
+            
+            // Limpiar estados
+            clearErrors(emailInput);
+          } else {
+            // Error del servidor
+            throw new Error('Error en el envío');
+          }
+        } catch (error) {
+          // Error de red o del servidor
+          showErrorMessage(error instanceof Error ? error.message : 'Error desconocido');
+        } finally {
+          // Remover loading
+          submitButton.classList.remove('loading');
+          submitButton.disabled = false;
+        }
+      }
+    });
+
+    // Función para mostrar mensaje de éxito
+    function showSuccessMessage() {
+      const modal = document.createElement('div');
+      modal.className = 'success-modal';
+      modal.innerHTML = `
+        <div class="success-modal__content">
+          <div class="success-modal__icon">✓</div>
+          <h3>¡Suscripción exitosa!</h3>
+          <p>Te has suscrito correctamente. Recibirás nuestros tips de transformación digital sin spam.</p>
+          <button class="btn-cta__solid" onclick="this.closest('.success-modal').remove()">
+            Entendido
+          </button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Remover modal después de 5 segundos
+      setTimeout(() => {
+        if (modal.parentNode) {
+          modal.remove();
+        }
+      }, 5000);
+    }
+
+    // Función para mostrar mensaje de error
+    function showErrorMessage(message: string) {
+      const modal = document.createElement('div');
+      modal.className = 'error-modal';
+      modal.innerHTML = `
+        <div class="error-modal__content">
+          <div class="error-modal__icon">⚠</div>
+          <h3>Error en la suscripción</h3>
+          <p>Ha ocurrido un error: ${message}</p>
+          <p>Por favor intenta nuevamente.</p>
+          <button class="btn-cta__solid" onclick="this.closest('.error-modal').remove()">
+            Entendido
+          </button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+  });
+</script>
 

@@ -13,20 +13,37 @@ const plans = plansData.planes.map(plan => ({
 
 <section class="plans" id="plans">
   <div class="plans__container">
-    <h2 class="plans__title">Planes diseñados para tu crecimiento</h2>
+    <h2 class="title-section">Planes</h2>
     <p class="plans__subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
 
+    <!-- Switch para seleccionar periodo de pago -->
+    <div class="plans__switch-container">
+      <span class="switch__label switch__label--6">6 meses</span>
+      <div class="plans__switch">
+        <input type="checkbox" id="period-switch" class="switch__input" />
+        <label for="period-switch" class="switch__toggle">
+          <span class="switch__slider"></span>
+        </label>
+      </div>
+      <span class="switch__label switch__label--12">
+        12 meses
+        <span class="switch__badge">Ahorra más</span>
+      </span>
+    </div>
+
     <div class="plans__grid">
-      {plans.map(plan => (
-        <div class="plan-card">
+      {plans.map((plan, index) => (
+        <div class={`plan-card ${index === 1 ? 'plan-card--featured' : ''}`}>
+          {index === 1 && <div class="plan-card__badge">Más popular</div>}
+          
           <h3 class="plan-card__title">{plan.name}</h3>
           <p class="plan-card__description">{plan.description}</p>
 
           <div class="plan-card__price">
-            <span class="price__amount">${plan.price6}</span>
+            <span class="price__amount" data-price-6={plan.price6} data-price-12={plan.price12}>
+              ${plan.price6}
+            </span>
             <span class="price__period">/6 meses</span>
-            <span class="price__amount">${plan.price12}</span>
-            <span class="price__period">/12 meses</span>
           </div>
 
           <ul class="plan-card__features">
@@ -55,7 +72,7 @@ const plans = plansData.planes.map(plan => ({
             </ul>
           ) : null}
 
-          <button class="plan-card__cta">Contratar ahora</button>
+          <button class="btn-cta__solid">Contratar ahora</button>
         </div>
       ))}
     </div>
@@ -63,10 +80,380 @@ const plans = plansData.planes.map(plan => ({
 </section>
 
 <style lang="scss">
-   @use '../../styles/globals' as *;
+   @use '../../styles/config' as *;
+
+   .plans {
+     padding: var(--space-xl) 0;
+     background-color: var(--color-body);
+   }
 
    .plans__container {
-     @include container;
+     // Container usando el nuevo sistema
+     width: 100%;
+     max-width: #{container(max)};
+     margin: 0 auto;
+     padding: 0 var(--padding-container);
+   }
+
+   .plans__subtitle {
      text-align: center;
-    }
+     color: var(--color-text-secondary);
+     margin-bottom: var(--space-xl);
+     font-size: 1.125rem;
+     line-height: 1.6;
+   }
+
+   // Switch para seleccionar periodo
+   .plans__switch-container {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: var(--space-md);
+     margin-bottom: 20px; // Margen fijo en píxeles para asegurar espacio
+     position: relative;
+     z-index: 10; // Z-index muy alto para estar por encima de todo
+     padding: 25px 20px 20px 20px; // Más padding arriba para el badge
+   }
+
+   .switch__label {
+     font-family: var(--font-headings);
+     font-weight: 600;
+     color: var(--color-text-secondary);
+     font-size: 1rem;
+     position: relative;
+     transition: color var(--transition-normal) ease;
+
+     &--6 {
+       &.active {
+         color: var(--color-primary);
+       }
+     }
+
+     &--12 {
+       &.active {
+         color: var(--color-primary);
+       }
+     }
+   }
+
+   .switch__badge {
+     position: absolute;
+     top: -30px;
+     right: -12px;
+     background: var(--color-accent);
+     color: var(--color-white);
+     font-size: 0.7rem;
+     padding: 3px 8px;
+     border-radius: 0;
+     font-weight: 700;
+     white-space: nowrap;
+     z-index: 11; // Por encima del switch
+   }
+
+   .plans__switch {
+     position: relative;
+     display: inline-block;
+   }
+
+   .switch__input {
+     opacity: 0;
+     width: 0;
+     height: 0;
+     position: absolute;
+   }
+
+   .switch__toggle {
+     position: relative;
+     display: inline-block;
+     width: 60px;
+     height: 32px;
+     background: var(--color-border);
+     border: 2px solid var(--color-border);
+     cursor: pointer;
+     transition: all var(--transition-normal) ease;
+     border-radius: 16px; // Bordes redondeados para el switch
+
+     &:hover {
+       background: var(--color-surface-secondary);
+     }
+   }
+
+   .switch__slider {
+     position: absolute;
+     top: 2px;
+     left: 2px;
+     width: 24px;
+     height: 24px;
+     background: var(--color-white);
+     transition: all var(--transition-normal) ease;
+     border-radius: 50%; // Slider completamente redondo
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+     &::before {
+       content: '';
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 12px;
+       height: 12px;
+       background: var(--color-text-muted);
+       border-radius: 50%; // Indicador interno también redondo
+       transition: all var(--transition-normal) ease;
+     }
+   }
+
+   // Estado checked (12 meses)
+   .switch__input:checked + .switch__toggle {
+     background: var(--color-primary);
+     border-color: var(--color-primary);
+
+     .switch__slider {
+       transform: translateX(28px);
+       background: var(--color-white);
+
+       &::before {
+         background: var(--color-primary);
+       }
+     }
+   }
+
+   // Grid de planes
+   .plans__grid {
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: var(--space-lg);
+     margin-bottom: var(--space-xl);
+     padding-top: 60px; // Padding fijo para más separación
+
+     @media (min-width: #{container(narrow)}) {
+       grid-template-columns: repeat(3, 1fr);
+       gap: var(--space-md);
+       padding-top: 80px; // Más padding en pantallas grandes
+     }
+   }
+
+   // Tarjetas de planes
+   .plan-card {
+     background: var(--color-surface);
+     border: 1px solid var(--color-border);
+     border-radius: 0;
+     padding: var(--space-xl);
+     position: relative;
+     transition: all var(--transition-normal) ease;
+     display: flex;
+     flex-direction: column;
+     height: 100%;
+
+     // Card del medio ligeramente más grande
+     &--featured {
+       transform: scale(1.05);
+       border-color: var(--color-primary);
+       z-index: 3; // Menor que el switch para no taparlo
+       
+       @media (max-width: #{container(narrow)}) {
+         transform: none; // No escalar en móviles
+       }
+     }
+
+     &:hover {
+       transform: translateY(-8px) scale(1.02);
+       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+       border-color: var(--color-primary);
+       z-index: 5; // En hover también menor que el switch
+
+       &.plan-card--featured {
+         transform: translateY(-8px) scale(1.07);
+         z-index: 5; // Mismo z-index en hover
+         
+         @media (max-width: #{container(narrow)}) {
+           transform: translateY(-8px) scale(1.02);
+         }
+       }
+     }
+
+     &__badge {
+       position: absolute;
+       top: -1px;
+       left: 50%;
+       transform: translateX(-50%);
+       background: var(--color-primary);
+       color: var(--color-white);
+       padding: var(--space-xs) var(--space-md);
+       font-size: 0.8rem;
+       font-weight: 700;
+       font-family: var(--font-headings);
+       border-radius: 0;
+     }
+
+     &__title {
+       font-family: var(--font-headings);
+       font-weight: 700;
+       color: var(--color-text);
+       font-size: 1.5rem;
+       margin-bottom: var(--space-sm);
+       text-align: center;
+
+       @media (min-width: #{container(narrow)}) {
+         font-size: 1.75rem;
+       }
+     }
+
+     &__description {
+       color: var(--color-text-secondary);
+       text-align: center;
+       margin-bottom: var(--space-lg);
+       line-height: 1.5;
+     }
+
+     &__price {
+       text-align: center;
+       margin-bottom: var(--space-xl);
+       padding: var(--space-lg) 0;
+       border-top: 1px solid var(--color-border);
+       border-bottom: 1px solid var(--color-border);
+
+       .price__amount {
+         display: block;
+         font-size: 2.5rem;
+         font-weight: 700;
+         color: var(--color-primary);
+         font-family: var(--font-headings);
+         line-height: 1;
+
+         @media (min-width: #{container(narrow)}) {
+           font-size: 3rem;
+         }
+       }
+
+       .price__period {
+         color: var(--color-text-secondary);
+         font-size: 0.9rem;
+         margin-top: var(--space-xs);
+         display: block;
+       }
+     }
+
+     &__features, &__exclusions {
+       list-style: none;
+       margin-bottom: var(--space-lg);
+       flex-grow: 1;
+
+       .feature {
+         margin-bottom: var(--space-md);
+         
+         &__row {
+           display: flex;
+           align-items: flex-start;
+           gap: var(--space-sm);
+           margin-bottom: var(--space-xs);
+         }
+
+         &__icon {
+           flex-shrink: 0;
+           width: 1.25rem;
+           height: 1.25rem;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 1rem;
+           font-weight: 700;
+         }
+
+         &__name {
+           font-weight: 600;
+           color: var(--color-text);
+           line-height: 1.3;
+         }
+
+         &__desc {
+           display: block;
+           color: var(--color-text-secondary);
+           font-size: 0.9rem;
+           line-height: 1.4;
+           margin-left: calc(1.25rem + var(--space-sm));
+         }
+
+         &--included {
+           .feature__icon {
+             color: var(--color-success, #059669);
+           }
+         }
+
+         &--excluded {
+           .feature__icon {
+             color: var(--color-error, #dc2626);
+           }
+           
+           .feature__name, .feature__desc {
+             opacity: 0.7;
+           }
+         }
+       }
+     }
+
+     // Botón siempre al final
+     .btn-cta__solid {
+       margin-top: auto;
+       width: 100%;
+     }
+   }
 </style>
+
+<script>
+  // Funcionalidad del switch de precios
+  document.addEventListener('DOMContentLoaded', () => {
+    const switchInput = document.querySelector('#period-switch') as HTMLInputElement;
+    const priceAmounts = document.querySelectorAll('.price__amount');
+    const pricePeriods = document.querySelectorAll('.price__period');
+    const label6 = document.querySelector('.switch__label--6');
+    const label12 = document.querySelector('.switch__label--12');
+
+    // Función para actualizar precios
+    function updatePrices(is12Months: boolean) {
+      priceAmounts.forEach(priceElement => {
+        const price6 = priceElement.getAttribute('data-price-6');
+        const price12 = priceElement.getAttribute('data-price-12');
+        
+        if (is12Months) {
+          priceElement.textContent = `$${price12}`;
+        } else {
+          priceElement.textContent = `$${price6}`;
+        }
+      });
+
+      // Actualizar textos de periodo
+      pricePeriods.forEach(periodElement => {
+        if (is12Months) {
+          periodElement.textContent = '/12 meses';
+        } else {
+          periodElement.textContent = '/6 meses';
+        }
+      });
+
+      // Actualizar labels activos
+      if (label6 && label12) {
+        if (is12Months) {
+          label6.classList.remove('active');
+          label12.classList.add('active');
+        } else {
+          label6.classList.add('active');
+          label12.classList.remove('active');
+        }
+      }
+    }
+
+    // Inicializar estado (6 meses por defecto)
+    if (label6) {
+      label6.classList.add('active');
+    }
+
+    // Event listener para el switch
+    if (switchInput) {
+      switchInput.addEventListener('change', () => {
+        const is12Months = switchInput.checked;
+        updatePrices(is12Months);
+      });
+    }
+  });
+</script>

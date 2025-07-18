@@ -1,0 +1,32 @@
+{
+  "menuItems": [
+    { "text": "Inicio", "href": "/" },
+    { "text": "Servicios", "href": "#services" },
+    { "text": "Quién Soy", "href": "#about" },
+    { "text": "Metodología", "href": "#workflow" },
+    { "text": "Planes", "href": "#plans" },
+    { "text": "Contacto", "href": "#contact" }
+  ],
+  "socialLinks": [
+    {
+      "name": "LinkedIn",
+      "url": "https://linkedin.com/in/gabrielzavando",
+      "icon": "fab fa-linkedin"
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com/gabrielzavando",
+      "icon": "fab fa-github"
+    },
+    {
+      "name": "Instagram",
+      "url": "https://instagram.com/gabrielzavando",
+      "icon": "fab fa-instagram"
+    },
+    {
+      "name": "YouTube",
+      "url": "https://youtube.com/@gabrielzavando",
+      "icon": "fab fa-youtube"
+    }
+  ]
+}

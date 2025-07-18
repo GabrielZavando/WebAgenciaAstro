@@ -26,7 +26,7 @@
 </div>
 
 <style lang="scss">
-  @use '../../styles/globals' as *;
+  @use '../../styles/config' as *;
 
   .theme-switcher {
     position: relative;
@@ -38,14 +38,12 @@
       cursor: pointer;
       padding: 0.5rem;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex(row, center, center);
       color: var(--color-text);
       transition: all 0.3s ease;
       
       &:hover {
-        background-color: var(--color-gray-200);
+        background-color: var(--color-surface-secondary);
       }
       
       &:focus {
@@ -55,9 +53,7 @@
     }
     
     .theme-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex(row, center, center);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     
@@ -82,7 +78,7 @@
     }
     
     // Aplicamos la misma lógica para preferencias del sistema
-    @media (prefers-color-scheme: dark) {
+    @include device(dark) {
       html:not([data-theme="light"]) & {
         .theme-icon-light {
           display: block;

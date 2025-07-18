@@ -1,57 +1,417 @@
-// Importación de globals
-@use '../globals' as *;
+// Importación del sistema de configuración (solo para funciones)
+@use '../config' as *;
 
-// Para manejar los estilos de los distintos botones
-
+// Estilos base para todos los botones
 .btn {
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: bold;
+  // Layout
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  
+  // Tipografía
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
   text-align: center;
+  
+  // Espaciado
+  padding: var(--space-sm) var(--space-md);
+  
+  // Visual
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.5);
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Transiciones
+  transition: all var(--transition-normal) ease;
+  
+  // Estados de foco
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-body), 0 0 0 4px var(--color-primary);
+  }
+  
+  // Estado deshabilitado
+  &:disabled, 
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  // Tamaños
+  &.btn-sm {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.875rem;
+    border-radius: 4px;
+  }
+  
+  &.btn-md {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+  
+  &.btn-lg {
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1.125rem;
+    border-radius: 8px;
+  }
+  
+  // Iconos
+  .icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    
+    &-left {
+      margin-right: var(--space-xs);
+    }
+    
+    &-right {
+      margin-left: var(--space-xs);
+    }
   }
 }
 
-.buttons {
-  // Estilos para el botón primario
-  &__primary {
-    @extend .btn;
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    border: none;
+// Variantes de botones
 
+// Para botones que invitan a una acción (CTA)
+.btn-cta {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para CTA
+  background: var(--color-primary);
+  color: var(--color-white);
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    background: var(--color-secondary);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+  
+  // Variante con borde
+  &.outline {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    
     &:hover {
-      background-color: var(--primary-color);
+      background: var(--color-primary);
+      color: var(--color-white);
     }
   }
+}
 
-  // Estilos para el botón secundario
-  &__secondary {
-    @extend .btn;
-    background-color: var(--secondary-color);
-    color: var(--text-color);
-    border: none;
+.btn-cta__border {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para border
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-md);
+  
+  &:hover {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+  }
+}
 
-    &:hover {
-      background-color: var(--secondary-color);
+// Botón CTA sólido flat
+.btn-cta__solid {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para solid
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-md);
+  transition: background-color var(--transition-normal) ease;
+  
+  &:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+  }
+}
+
+// Para botones de menú
+.btn-menu {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para menú
+  background: transparent;
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: var(--color-surface-secondary);
+    color: var(--color-primary);
+  }
+  
+  &.active {
+    color: var(--color-primary);
+    font-weight: 700;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--color-primary);
+      border-radius: 1px;
     }
   }
+}
 
-  // Estilos para el botón de alerta
-  &__alert {
-    @extend .btn;
-    background-color: var(--alert-color);
-    color: var(--text-color);
-    border: none;
+// Para botón que lleva al inicio (scroll to top)
+.btn-up {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para btn-up
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  width: 48px;
+  height: 48px;
+  border-radius: 0; // Esquinas cuadradas
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(20px);
+  visibility: hidden;
+  z-index: 100;
+  
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+  
+  &:hover {
+    background-color: var(--color-secondary);
+    transform: translateY(-3px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
 
-    &:hover {
-      background-color: var(--alert-color);
+// Para botones de formulario
+.btn-form {
+  // Heredar estilos base
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  
+  // Específico para formularios
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: var(--color-primary);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &.loading {
+    position: relative;
+    color: transparent;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: calc(50% - 10px);
+      left: calc(50% - 10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--color-white);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
   }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Para enlaces de navegación
+.btn-nav {
+  // Layout
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  
+  // Tipografía
+  font-family: var(--font-headings);
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  
+  // Específico para enlaces de navegación
+  background: transparent;
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 1rem;
+  transition: color var(--transition-normal) ease;
+  
+  // Borde inferior animado
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-accent);
+    transition: width var(--transition-normal) ease;
+    transform-origin: left;
+  }
+  
+  &:hover {
+    &::after {
+      width: 100%;
+    }
+  }
+  
+  &.active {
+    font-weight: 700;
+    
+    &::after {
+      content: '';
+      width: 100%;
+      background-color: var(--color-accent);
+    }
+  }
+}
+
+// Utilities para grupos de botones
+.btn-group {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--space-xs);
+  
+  @media (max-width: #{container(narrow)}) {
+    flex-direction: column;
+    width: 100%;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+// Utility para ocultar texto pero mantener accesibilidad
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

@@ -8,7 +8,7 @@ const { section, services } = servicesData;
 
 <section id="services" class="services">
   <div class="services-content">
-    <h2 class="services-content__title">{section.title}</h2>
+    <h2 class="title-section">{section.title}</h2>
     <p class="services-content__description">{section.description}</p>
 
     <div class="services-content__grid">
@@ -66,7 +66,7 @@ const { section, services } = servicesData;
             )}
 
             <button
-              class="modal-content__cta service-card__button"
+              class="modal-content__cta btn-cta__solid"
               data-modal={`modal-${service.id}`}
               data-service={service.title}
             >
@@ -81,11 +81,90 @@ const { section, services } = servicesData;
 </section>
 
 <style lang="scss">
-  @use '../../styles/globals' as *;
+  @use '../../styles/config' as *;
 
-  .services-content{
-    @include container;
+  .services {
+    padding: var(--space-xl) 0;
+    background-color: var(--color-surface);
   }
 
+  .services-content {
+    // Container usando el nuevo sistema
+    width: 100%;
+    max-width: #{container(max)};
+    margin: 0 auto;
+    padding: 0 var(--padding-container);
+  }
+
+  .services-content__description {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .services-content__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+
+    @media (min-width: #{container(narrow)}) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: #{container(max)}) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  // Estilos para el contenido del modal
+  .modal-content {
+    &__description {
+      margin-bottom: var(--space-lg);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    &__benefits,
+    &__implementation {
+      margin-bottom: var(--space-lg);
+
+      h4 {
+        color: var(--color-primary);
+        font-family: var(--font-headings);
+        font-weight: 600;
+        margin-bottom: var(--space-sm);
+        font-size: 1.125rem;
+      }
+
+      ul, ol {
+        padding-left: var(--space-md);
+        
+        li {
+          margin-bottom: var(--space-xs);
+          color: var(--color-text);
+          line-height: 1.5;
+        }
+      }
+    }
+
+    &__video {
+      margin-bottom: var(--space-lg);
+      
+      iframe {
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+      }
+    }
+
+    &__cta {
+      margin-top: var(--space-lg);
+    }
+  }
 </style>
 

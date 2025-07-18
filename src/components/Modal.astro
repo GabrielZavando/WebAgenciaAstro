@@ -8,13 +8,13 @@ const { id, title } = Astro.props;
 ---
 
 <div class="modal" id={id} role="dialog" aria-modal="true">
+  <button 
+    class="modal__close" 
+    aria-label="Cerrar modal"
+  >
+    &times;
+  </button>
   <div class="modal__content">
-    <button 
-      class="modal__close" 
-      aria-label="Cerrar modal"
-    >
-      &times;
-    </button>
     <h3 class="modal__title">{title}</h3>
     <div class="modal__body">
       <slot />
@@ -23,7 +23,7 @@ const { id, title } = Astro.props;
 </div>
 
 <style lang="scss">
-  @use '../styles/globals' as *;  // Actualizamos la importación
+  @use '../styles/config' as *;
 
   .modal {
     position: fixed;
@@ -33,14 +33,14 @@ const { id, title } = Astro.props;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
-    z-index: 1000;
-    padding: 1rem;
+    z-index: var(--z-modal);
+    padding: var(--space-md);
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-normal) ease;
     pointer-events: none;
     
     &.active {
@@ -50,67 +50,165 @@ const { id, title } = Astro.props;
     }
 
     &__content {
-      background: var(--color-background);
-      padding: 2rem;
-      border-radius: 1rem;
-      width: 90%;
-      max-width: 1440px;
+      background: var(--color-surface);
+      padding: var(--space-xl);
+      border-radius: 0; // Completamente rectangular para flat design
+      width: 95%;
+      max-width: #{container(max)};
       max-height: 90vh;
       position: relative;
       overflow-y: auto;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transform: translateY(2rem);
-      transition: transform 0.3s ease;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.7) translateY(2rem);
+      transition: all var(--transition-normal) ease;
+      border: 1px solid var(--color-border); // Añadir borde flat
+      
+      @media (min-width: #{container(narrow)}) {
+        width: 90%;
+        padding: var(--space-xxl);
+      }
       
       .modal.active & {
-        transform: translateY(0);
+        transform: scale(1) translateY(0);
       }
     }
 
     &__close {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: var(--heading-xs); // antes era $text-2xl
-      background: none;
-      border: none;
+      top: var(--space-md);
+      right: var(--space-md);
+      font-size: 1.75rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
       color: var(--color-text);
       cursor: pointer;
-      padding: 0.5rem;
+      padding: var(--space-xs) var(--space-sm);
       line-height: 1;
-      transition: color 0.3s ease;
-      z-index: 1001;
+      transition: all var(--transition-normal) ease;
+      z-index: calc(var(--z-modal) + 1);
+      border-radius: 0; // Flat design
+      font-weight: 400;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
-        color: var(--color-primary);
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-color: var(--color-primary);
       }
     }
 
     &__title {
-      font-family: var(--font-primary); // antes era $font-primary
-      font-weight: var(--weight-bold); // antes era $weight-bold
-      color: var(--color-heading);
-      margin-bottom: 1.5rem;
-      padding-right: 2rem;
-      @include responsive-font($heading-xs, $heading-sm, $heading-md); // reemplazando los font-size individuales
+      font-family: var(--font-headings);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-lg);
+      font-size: 1.5rem;
+
+      @media (min-width: #{container(narrow)}) {
+        font-size: 1.875rem;
+      }
+
+      @media (min-width: #{container(max)}) {
+        font-size: 2.25rem;
+      }
     }
 
     &__body {
       color: var(--color-text);
-      line-height: var(--leading-relaxed); // antes era $leading-relaxed
-      font-family: var(--font-secondary); // antes era $font-secondary
-      @include responsive-font($text-md, $text-lg, $text-xl); // reemplazando los font-size individuales
+      line-height: 1.7;
+      font-family: var(--font-primary);
+      font-size: 1rem;
+
+      @media (min-width: #{container(narrow)}) {
+        font-size: 1.125rem;
+      }
+
+      @media (min-width: #{container(max)}) {
+        font-size: 1.25rem;
+      }
       
       :global(ul) {
         list-style-type: disc;
-        padding-left: 1.5rem;
-        margin: 1rem 0;
+        padding-left: var(--space-lg);
+        margin: var(--space-md) 0;
       }
 
       :global(li) {
-        margin-bottom: 0.5rem;
-        line-height: var(--leading-normal); // antes era $leading-normal
+        margin-bottom: var(--space-xs);
+        line-height: 1.6;
       }
     }
   }
 </style>
+
+<script>
+  // Funcionalidad del modal
+  document.addEventListener('DOMContentLoaded', () => {
+    // Función para abrir modal
+    function openModal(modalId: string) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+      }
+    }
+
+    // Función para cerrar modal
+    function closeModal(modal: HTMLElement) {
+      modal.classList.remove('active');
+      document.body.style.overflow = ''; // Restaurar scroll del body
+    }
+
+    // Función para cerrar todos los modales
+    function closeAllModals() {
+      const activeModals = document.querySelectorAll('.modal.active');
+      activeModals.forEach(modal => closeModal(modal as HTMLElement));
+    }
+
+    // Event listeners para botones "Ver más"
+    const serviceButtons = document.querySelectorAll('[data-modal]');
+    serviceButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modalId = button.getAttribute('data-modal');
+        if (modalId) {
+          openModal(modalId);
+        }
+      });
+    });
+
+    // Event listeners para botones de cerrar
+    const closeButtons = document.querySelectorAll('.modal__close');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = button.parentElement; // Ahora el botón es hijo directo del modal
+        if (modal && modal.classList.contains('modal')) {
+          closeModal(modal as HTMLElement);
+        }
+      });
+    });
+
+    // Cerrar modal al hacer click fuera del contenido (pero no en el botón de cerrar)
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        // Solo cerrar si el click es en el overlay del modal, no en el contenido ni en el botón
+        if (e.target === modal) {
+          closeModal(modal as HTMLElement);
+        }
+      });
+    });
+
+    // Cerrar modal con la tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllModals();
+      }
+    });
+  });
+</script>

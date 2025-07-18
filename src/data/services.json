@@ -6,7 +6,7 @@
   "services": [
     {
       "id": 1,
-      "icon": "⚡",
+      "icon": "<svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
       "title": "Sitios Web Estáticos",
       "description": "Crea presencia en línea con sitios web rápidos, optimizados y hechos a medida para tus necesidades.",
       "modalContent": {
@@ -33,7 +33,7 @@
     },
     {
       "id": 2,
-      "icon": "✏️",
+      "icon": "<svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
       "title": "Sitios Web Auto Administrados",
       "description": "Gestión fácil y autónoma para blogs y sitios dinámicos. Publica y edita contenido cuando lo necesites.",
       "modalContent": {
@@ -61,7 +61,7 @@
     },
     {
       "id": 3,
-      "icon": "🛍️",
+      "icon": "<svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='9' cy='21' r='1' stroke='currentColor' stroke-width='2'/><circle cx='20' cy='21' r='1' stroke='currentColor' stroke-width='2'/><path d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
       "title": "Tiendas Online",
       "description": "Empieza a vender en línea con tiendas online modernas, rápidas y personalizadas.",
       "modalContent": {
@@ -90,7 +90,7 @@
     },
     {
       "id": 4,
-      "icon": "💬",
+      "icon": "<svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/><path d='M8 9h8M8 13h6' stroke='currentColor' stroke-width='2' stroke-linecap='round' fill='none'/></svg>",
       "title": "Chatbots con IA",
       "description": "Mejora la experiencia de tus clientes con asistentes inteligentes que responden y gestionan consultas al instante",
       "modalContent": {

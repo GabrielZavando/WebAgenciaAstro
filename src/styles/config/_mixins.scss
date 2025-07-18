@@ -1,0 +1,139 @@
+// =========================
+// Mixins - Lógica reutilizable que consume tokens
+// =========================
+// Empezamos simple: solo mixins básicos que usan las funciones de tokens
+
+@use 'sass:map';
+@use 'functions' as fn;
+
+// Mixin principal para media queries responsive
+// Uso: @include respond-to(sm) { ... }
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: #{fn.token(breakpoints, xs)}) {
+      @content;
+    }
+  } @else if $breakpoint == sm {
+    @media (min-width: #{fn.token(breakpoints, sm)}) {
+      @content;
+    }
+  } @else if $breakpoint == md {
+    @media (min-width: #{fn.token(breakpoints, md)}) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @media (min-width: #{fn.token(breakpoints, lg)}) {
+      @content;
+    }
+  } @else if $breakpoint == xl {
+    @media (min-width: #{fn.token(breakpoints, xl)}) {
+      @content;
+    }
+  } @else {
+    @warn "El breakpoint '#{$breakpoint}' no existe. Usa: xs, sm, md, lg o xl";
+  }
+}
+
+// Mixin para características específicas de dispositivos
+// Uso: @include device(retina) { ... }
+@mixin device($feature) {
+  @if $feature == 'retina' {
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      @content;
+    }
+  } @else if $feature == 'touch' {
+    @media (hover: none) and (pointer: coarse) {
+      @content;
+    }
+  } @else if $feature == 'mouse' {
+    @media (hover: hover) and (pointer: fine) {
+      @content;
+    }
+  } @else if $feature == 'dark' {
+    @media (prefers-color-scheme: dark) {
+      @content;
+    }
+  } @else if $feature == 'light' {
+    @media (prefers-color-scheme: light) {
+      @content;
+    }
+  } @else if $feature == 'no-motion' {
+    @media (prefers-reduced-motion: reduce) {
+      @content;
+    }
+  }
+}
+
+// Mixin para contenedores
+@mixin container($padding: 16px) {
+  width: 100%;
+  max-width: fn.container(max);
+  margin: 0 auto;
+  padding: $padding;
+}
+
+// Sistema de Flexbox
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+  @if $gap != 0 {
+    gap: fn.space($gap);
+  }
+}
+
+// =========================
+// MIXINS PARA ESTADOS CONTEXTUALES
+// =========================
+
+// Mixin para ocultar elementos en desktop
+@mixin hide-on-desktop($breakpoint: 1024px) {
+  @media (min-width: #{$breakpoint}) {
+    display: none !important;
+  }
+}
+
+// Mixin para mostrar elementos solo en desktop  
+@mixin show-on-desktop($breakpoint: 1024px) {
+  display: none;
+  
+  @media (min-width: #{$breakpoint}) {
+    display: initial;
+  }
+}
+
+// Mixin para componentes con estados contextuales
+@mixin contextual-states($component, $states...) {
+  @each $state in $states {
+    &.#{$component}--#{$state} {
+      @content;
+    }
+  }
+}
+
+// =========================
+// Z-INDEX MANAGEMENT
+// =========================
+
+// Mixin para aplicar z-index de manera semántica
+@mixin z-layer($layer) {
+  z-index: var(--z-#{$layer});
+}
+
+// Mixin para overlay con z-index correcto
+@mixin overlay($layer: 'overlay') {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  @include z-layer($layer);
+}
+
+// Mixin para elementos flotantes
+@mixin float-above($layer: 'overlay') {
+  position: relative;
+  @include z-layer($layer);
+}
