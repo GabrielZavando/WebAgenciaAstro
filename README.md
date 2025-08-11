@@ -41,3 +41,13 @@ npm run build
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT.
+
+## Versionado
+
+El historial de cambios se mantiene en `CHANGELOG.md`. Versión actual: `v0.1.0`.
+
+Flujo para nueva release:
+1. Actualizar CHANGELOG incrementando versión (SemVer).
+2. Crear tag anotado: `git tag -a vX.Y.Z -m "Versión X.Y.Z: descripción"`.
+3. Empujar: `git push origin main --follow-tags`.
+4. Crear release en GitHub copiando la sección del changelog.
