@@ -38,6 +38,8 @@ const { id, icon, title, description } = Astro.props;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: center; // Centrar todo el contenido horizontalmente
+    text-align: center; // Centrar texto e iconos
     height: 100%; // Permite que todas las cards tengan la misma altura en el grid
 
     // Estilo flat moderno - hover con efecto de elevación
@@ -48,37 +50,28 @@ const { id, icon, title, description } = Astro.props;
       transform: scale(1.02);
       
       .service-card__icon {
-        color: var(--color-primary);
+        color: var(--color-accent); // Color de acento en hover
         transform: scale(1.05);
       }
     }
 
     &__icon {
-      width: 2rem;
-      height: 2rem;
       margin-bottom: var(--space-lg);
-      color: var(--color-text-muted);
+      color: var(--color-primary); // Color primario por defecto
       transition: all var(--transition-normal) ease;
-      display: inline-block;
-      line-height: 1;
+      font-size: 2rem; // Tamaño del icono Font Awesome
 
-      // Estilos para SVG
-      svg {
-        width: 100%;
-        height: 100%;
-        fill: currentColor;
-        stroke: currentColor;
-        stroke-width: 1.5;
+      // Estilos para iconos Font Awesome insertados con set:html
+      i {
+        color: inherit; // Hereda el color del contenedor
       }
 
       @media (min-width: #{container(narrow)}) {
-        width: 2.25rem;
-        height: 2.25rem;
+        font-size: 2.25rem;
       }
 
       @media (min-width: #{container(max)}) {
-        width: 2.5rem;
-        height: 2.5rem;
+        font-size: 2.5rem;
       }
     }
 

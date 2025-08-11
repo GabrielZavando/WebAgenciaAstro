@@ -113,12 +113,14 @@ const { section, services } = servicesData;
     gap: var(--space-lg);
     margin-bottom: var(--space-xl);
 
-    @media (min-width: #{container(narrow)}) {
+    // Desde 480px - Dos columnas
+    @include respond-to(xs) {
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (min-width: #{container(max)}) {
-      grid-template-columns: repeat(3, 1fr);
+    // Desde 1200px - Cuatro columnas (una fila horizontal)
+    @include respond-to(lg) {
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 

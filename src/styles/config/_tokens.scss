@@ -128,7 +128,7 @@ $padding: (
   btn-lg: 1rem 2rem,
   card: 1.5rem,
   section: 2rem,
-  container: 1rem
+  container: 1.5rem
 ) !default;
 
 // Contenedores
@@ -190,14 +190,16 @@ $container-narrow: 800px;
 $container-blog: 900px;
 
 // Breakpoints principales
+$breakpoint-xxs: 400px;   // Móviles muy pequeños
 $breakpoint-xs: 480px;    // Móviles pequeños
 $breakpoint-sm: 768px;    // Tablets/Móviles grandes
-$breakpoint-md: 992px;    // Tablets grandes/Laptops
+$breakpoint-md: 820px;    // Tablets grandes/Laptops
 $breakpoint-lg: 1200px;   // Desktops
 $breakpoint-xl: 1400px;   // Pantallas grandes
 
 // Mapa de breakpoints (para funciones avanzadas)
 $breakpoints: (
+  'xxs': $breakpoint-xxs,
   'xs': $breakpoint-xs,
   'sm': $breakpoint-sm,
   'md': $breakpoint-md,

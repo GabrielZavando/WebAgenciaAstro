@@ -69,6 +69,17 @@
   --nav-transition: all 0.3s ease;
   --nav-hamburger-color: var(--color-nav-hamburger-default);
   --nav-link-color: var(--color-nav-link-default);
+  
+  /* Header heights - Para scroll suave */
+  --header-height-mobile: 30px;
+  --header-height-desktop: 45px;
+  
+  /* Scroll padding para navegación suave */
+  scroll-padding-top: var(--header-height-mobile);
+  
+  @media (min-width: #{$breakpoint-md}) {
+    scroll-padding-top: var(--header-height-desktop);
+  }
 }
 
 /* Tema claro (por defecto) */
@@ -163,8 +174,8 @@ body.menu-active {
   --nav-hamburger-color: var(--color-nav-hamburger-active);
 }
 
-// Clase helper para ocultar hamburguesa en desktop
-@media (min-width: 1024px) {
+// Clase helper para ocultar hamburguesa en desktop (desde 1200px)
+@media (min-width: $breakpoint-lg) {
   .nav-toggle {
     display: none !important;
   }

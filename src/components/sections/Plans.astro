@@ -226,10 +226,17 @@ const plans = plansData.planes.map(plan => ({
      margin-bottom: var(--space-xl);
      padding-top: 60px; // Padding fijo para más separación
 
-     @media (min-width: #{container(narrow)}) {
+     @include respond-to(xs) {
+       // Desde 480px: centrar las tarjetas y limitar su ancho
+       justify-items: center;
+     }
+
+     // Desde 1200px: layout horizontal de 3 columnas
+     @media (min-width: #{$breakpoint-lg}) {
        grid-template-columns: repeat(3, 1fr);
-       gap: var(--space-md);
+       gap: var(--space-xl);
        padding-top: 80px; // Más padding en pantallas grandes
+       justify-items: stretch; // Volver al comportamiento normal en desktop
      }
    }
 
@@ -245,14 +252,36 @@ const plans = plansData.planes.map(plan => ({
      flex-direction: column;
      height: 100%;
 
+     @include respond-to(xs) {
+       padding: var(--space-lg); // Reducido de xl a lg desde 480px
+       width: 100%; // Asegurar que tome el ancho disponible
+       max-width: 75%; // Limitar el ancho máximo al 85% del contenedor desde 480px
+     }
+
+     // Desde 1200px: sin limitación de ancho y padding original
+     @media (min-width: #{$breakpoint-lg}) {
+       max-width: none; // Quitar limitación de ancho en desktop
+       padding: var(--space-xl); // Padding original en desktop
+     }
+
      // Card del medio ligeramente más grande
      &--featured {
        transform: scale(1.05);
        border-color: var(--color-primary);
        z-index: 3; // Menor que el switch para no taparlo
+       padding-top: calc(var(--space-xl) + var(--space-md)); // Más padding-top para el badge "Más popular"
+
+       @include respond-to(xs) {
+         padding-top: calc(var(--space-lg) + var(--space-md)); // Ajustado para el padding reducido desde 480px
+       }
+
+       // Desde 1200px: padding original con badge
+       @media (min-width: #{$breakpoint-lg}) {
+         padding-top: calc(var(--space-xl) + var(--space-md)); // Padding original para el badge
+       }
        
-       @media (max-width: #{container(narrow)}) {
-         transform: none; // No escalar en móviles
+       @media (max-width: #{$breakpoint-lg - 1px}) {
+         transform: none; // No escalar hasta llegar a 1200px
        }
      }
 
@@ -266,7 +295,7 @@ const plans = plansData.planes.map(plan => ({
          transform: translateY(-8px) scale(1.07);
          z-index: 5; // Mismo z-index en hover
          
-         @media (max-width: #{container(narrow)}) {
+         @media (max-width: #{$breakpoint-lg - 1px}) {
            transform: translateY(-8px) scale(1.02);
          }
        }
@@ -294,6 +323,11 @@ const plans = plansData.planes.map(plan => ({
        margin-bottom: var(--space-sm);
        text-align: center;
 
+       @include respond-to(xs) {
+         font-size: 1.5rem; // Aumentado desde 480px (era 1.25rem)
+         margin-bottom: var(--space-sm); // Volver al margen original
+       }
+
        @media (min-width: #{container(narrow)}) {
          font-size: 1.75rem;
        }
@@ -304,6 +338,11 @@ const plans = plansData.planes.map(plan => ({
        text-align: center;
        margin-bottom: var(--space-lg);
        line-height: 1.5;
+
+       @include respond-to(xs) {
+         margin-bottom: var(--space-lg); // Volver al margen original
+         font-size: 1rem; // Aumentado desde 480px (era 0.9rem)
+       }
      }
 
      &__price {
@@ -313,6 +352,11 @@ const plans = plansData.planes.map(plan => ({
        border-top: 1px solid var(--color-border);
        border-bottom: 1px solid var(--color-border);
 
+       @include respond-to(xs) {
+         margin-bottom: var(--space-lg); // Menos margen desde 480px
+         padding: var(--space-md) 0; // Menos padding desde 480px
+       }
+
        .price__amount {
          display: block;
          font-size: 2.5rem;
@@ -320,6 +364,10 @@ const plans = plansData.planes.map(plan => ({
          color: var(--color-primary);
          font-family: var(--font-headings);
          line-height: 1;
+
+         @include respond-to(xs) {
+           font-size: 2.25rem; // Aumentado desde 480px (era 2rem)
+         }
 
          @media (min-width: #{container(narrow)}) {
            font-size: 3rem;
@@ -331,6 +379,10 @@ const plans = plansData.planes.map(plan => ({
          font-size: 0.9rem;
          margin-top: var(--space-xs);
          display: block;
+
+         @include respond-to(xs) {
+           font-size: 0.875rem; // Aumentado desde 480px (era 0.8rem)
+         }
        }
      }
 
@@ -339,14 +391,26 @@ const plans = plansData.planes.map(plan => ({
        margin-bottom: var(--space-lg);
        flex-grow: 1;
 
+       @include respond-to(xs) {
+         margin-bottom: var(--space-md); // Menos margen desde 480px
+       }
+
        .feature {
          margin-bottom: var(--space-md);
+
+         @include respond-to(xs) {
+           margin-bottom: var(--space-sm); // Menos espacio entre features desde 480px
+         }
          
          &__row {
            display: flex;
            align-items: flex-start;
            gap: var(--space-sm);
            margin-bottom: var(--space-xs);
+
+           @include respond-to(xs) {
+             gap: var(--space-xs); // Menos gap desde 480px
+           }
          }
 
          &__icon {
@@ -358,12 +422,22 @@ const plans = plansData.planes.map(plan => ({
            justify-content: center;
            font-size: 1rem;
            font-weight: 700;
+
+           @include respond-to(xs) {
+             width: 1.125rem; // Aumentado desde 480px (era 1rem)
+             height: 1.125rem;
+             font-size: 0.9375rem; // Aumentado desde 480px (era 0.875rem)
+           }
          }
 
          &__name {
            font-weight: 600;
            color: var(--color-text);
            line-height: 1.3;
+
+           @include respond-to(xs) {
+             font-size: 0.9375rem; // Aumentado desde 480px (era 0.9rem)
+           }
          }
 
          &__desc {
@@ -372,6 +446,11 @@ const plans = plansData.planes.map(plan => ({
            font-size: 0.9rem;
            line-height: 1.4;
            margin-left: calc(1.25rem + var(--space-sm));
+
+           @include respond-to(xs) {
+             font-size: 0.8125rem; // Aumentado desde 480px (era 0.8rem)
+             margin-left: calc(1.125rem + var(--space-xs)); // Ajuste para ícono más grande
+           }
          }
 
          &--included {

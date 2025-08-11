@@ -36,6 +36,11 @@ section {
         padding: space(2xl) 0;
     }
 
+    // Centrar títulos de sección desde 480px
+    @include respond-to(xs) {
+        text-align: center;
+    }
+
     // Variante para secciones con fondo
     &.section-bg {
         background-color: var(--color-surface-secondary);

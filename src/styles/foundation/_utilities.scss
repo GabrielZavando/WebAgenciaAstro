@@ -3,6 +3,9 @@
 // =========================
 // Clases helper fundamentales para uso común
 
+// Importación del sistema de configuración
+@use '../config' as *;
+
 /* Accesibilidad */
 .visually-hidden {
   position: absolute !important;
@@ -90,18 +93,46 @@
     position: relative;
     display: inline-block;
     margin-bottom: 2rem;
+    text-align: left;
     
-    // Subrayado de color secundario
-    &::after {
+    // Línea decorativa usando ::before - siempre a la izquierda del texto
+    &::before {
       content: '';
       position: absolute;
       bottom: -8px;
       left: 0;
-      width: 30%;
+      width: 80px;
       height: 3px;
       background: var(--color-secondary);
       border-radius: 2px;
     }
+  }
+}
+
+/* Clase para subtítulos de sección */
+.subtitle-section {
+  font-family: var(--font-headings);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  display: inline-block;
+  text-align: left;
+
+  @include respond-to(md) {
+    font-size: 1.5rem;
+  }
+
+  // Línea decorativa debajo del subtítulo
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--color-primary);
   }
 }
 

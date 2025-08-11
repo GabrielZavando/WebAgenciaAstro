@@ -9,8 +9,12 @@
 // Mixin principal para media queries responsive
 // Uso: @include respond-to(sm) { ... }
 @mixin respond-to($breakpoint) {
-  @if $breakpoint == xs {
-    @media (max-width: #{fn.token(breakpoints, xs)}) {
+  @if $breakpoint == xxs {
+    @media (min-width: #{fn.token(breakpoints, xxs)}) {
+      @content;
+    }
+  } @else if $breakpoint == xs {
+    @media (min-width: #{fn.token(breakpoints, xs)}) {
       @content;
     }
   } @else if $breakpoint == sm {
@@ -30,7 +34,7 @@
       @content;
     }
   } @else {
-    @warn "El breakpoint '#{$breakpoint}' no existe. Usa: xs, sm, md, lg o xl";
+    @warn "El breakpoint '#{$breakpoint}' no existe. Usa: xxs, xs, sm, md, lg o xl";
   }
 }
 

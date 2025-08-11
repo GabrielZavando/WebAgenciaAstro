@@ -49,9 +49,19 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        padding-top: var(--space-xl);
+        padding-top: 5rem; // Más espacio en móviles muy pequeños
         // Asegurar que el banner esté por debajo del header
         isolation: isolate;
+
+        // Ajuste para móviles pequeños (480px en adelante)
+        @include respond-to(xs) {
+            padding-top: var(--space-2xl); // 3rem = 48px
+        }
+
+        // Ajuste para tablets y más grandes
+        @include respond-to(sm) {
+            padding-top: var(--space-xl); // 2rem = 32px (valor original)
+        }
 
         // Fondo con imagen
         &__background {
@@ -121,16 +131,63 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
             margin-bottom: var(--space-md);
             line-height: 1.2;
             
-            // Las clases title-xl y title-lg manejan toda la tipografía
+            // Nombre principal - responsivo
             .title-xl {
                 color: var(--color-white);
                 display: block;
+                font-family: var(--font-headings);
+                font-weight: 700;
+                font-size: 2.5rem; // Base para móviles muy pequeños
+                
+                // Móviles pequeños (400px+)
+                @include respond-to(xxs) {
+                    font-size: 3rem;
+                }
+                
+                // Móviles medianos (480px+)
+                @include respond-to(xs) {
+                    font-size: 3.5rem;
+                }
+                
+                // Tablets/móviles grandes (768px+)
+                @include respond-to(sm) {
+                    font-size: 4rem;
+                }
+                
+                // Desktop (992px+)
+                @include respond-to(md) {
+                    font-size: 4.5rem;
+                }
             }
             
+            // Subtítulo profesional - responsivo
             .title-md {
                 color: var(--color-accent);
                 display: block;
                 margin-top: var(--space-xs);
+                font-family: var(--font-headings);
+                font-weight: 500;
+                font-size: 1.125rem; // Base para móviles muy pequeños
+                
+                // Móviles pequeños (400px+)
+                @include respond-to(xxs) {
+                    font-size: 1.25rem;
+                }
+                
+                // Móviles medianos (480px+) - AUMENTO SIGNIFICATIVO
+                @include respond-to(xs) {
+                    font-size: 1.75rem;
+                }
+                
+                // Tablets/móviles grandes (768px+)
+                @include respond-to(sm) {
+                    font-size: 2rem;
+                }
+                
+                // Desktop (992px+)
+                @include respond-to(md) {
+                    font-size: 2.25rem;
+                }
             }
         }
 

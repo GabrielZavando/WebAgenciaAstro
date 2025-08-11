@@ -7,7 +7,7 @@ const { menuItems, socialLinks } = menuData;
 
 <footer class="footer">
   <div class="footer__container">
-    <!-- Columna: Navegación -->
+    <!-- Navegación -->
     <div class="footer__section footer__section--nav">
       <h3 class="footer__title">Navegación</h3>
       <ul class="footer__list">
@@ -17,7 +17,7 @@ const { menuItems, socialLinks } = menuData;
       </ul>
     </div>
 
-    <!-- Columna: Redes sociales -->
+    <!-- Redes sociales -->
     <div class="footer__section footer__section--social">
       <h3 class="footer__title">Conecta conmigo</h3>
       <div class="footer__social-icons">
@@ -36,7 +36,7 @@ const { menuItems, socialLinks } = menuData;
       </div>
     </div>
 
-    <!-- Columna: Suscripción -->
+    <!-- Suscripción -->
     <div class="footer__section footer__section--subscribe">
       <h3 class="footer__title">Suscríbete</h3>
       <form class="footer__form" id="subscribeForm" action="https://hook.make.com/TU_WEBHOOK_ID_SUSCRIPCION" method="POST">
@@ -93,40 +93,66 @@ const { menuItems, socialLinks } = menuData;
 
     &__container {
       @include container();
-      @include flex(row, space-between, flex-start, wrap, lg);
+      padding: 0 var(--padding-container);
+      display: grid;
+      gap: var(--space-lg);
+      align-items: start;
+      
+      // Mobile first: 1 columna, disposición vertical
+      grid-template-columns: 1fr;
+      grid-template-areas: 
+        "nav"
+        "social" 
+        "subscribe";
+
+      @include respond-to(xs) {
+        // Tablet: 2 columnas, navegación a la izquierda, social y subscribe apilados a la derecha
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+          "nav social"
+          "nav subscribe";
+      }
 
       @include respond-to(md) {
-        @include flex(row, space-between, flex-start, nowrap, xl);
+        // Desktop: 3 columnas iguales, cada sección en su propia columna
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas: "nav social subscribe";
+        gap: #{space(xl)};
       }
     }
 
     &__section {
-      flex: 1;
-      min-width: 250px;
-      margin-bottom: #{space(lg)};
-
-      @include respond-to(md) {
-        margin-bottom: 0;
-      }
+      margin-bottom: 0; // Removemos margin porque Grid maneja el spacing
 
       &--nav {
+        grid-area: nav;
+        min-width: 200px;
+
         @include respond-to(md) {
-          flex: 0 0 auto;
-          margin-right: #{space(xl)};
+          margin-right: 0; // Grid maneja el spacing
+          min-width: auto; // Sin restricción de ancho mínimo
         }
       }
 
       &--social {
+        grid-area: social;
+        
+        @include respond-to(xs) {
+          margin-bottom: var(--space-md); // Pequeño margen entre social y subscribe en 2 columnas
+        }
+
         @include respond-to(md) {
-          flex: 0 0 auto;
-          margin-right: #{space(xl)};
+          margin-bottom: 0;
+          margin-right: 0; // Grid maneja el spacing
         }
       }
 
       &--subscribe {
+        grid-area: subscribe;
+
         @include respond-to(md) {
-          flex: 1;
-          max-width: 350px;
+          max-width: none; // Sin restricción de ancho máximo
+          justify-self: start; // Alinea a la izquierda en desktop
         }
       }
     }

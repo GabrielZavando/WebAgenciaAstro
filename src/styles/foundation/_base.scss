@@ -95,3 +95,23 @@ a {
   text-decoration: none;
   transition: color 0.3s ease;
 }
+
+/* =========================
+ * NAVEGACIÓN SUAVE CON HEADER FIJO
+ * =========================
+ * Ajusta el scroll para que las secciones no queden tapadas por el header fijo
+ */
+
+/* Scroll suave global */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ajustar scroll para secciones con navegación */
+section[id] {
+  scroll-margin-top: var(--header-height-mobile);
+  
+  @media (min-width: #{$breakpoint-md}) {
+    scroll-margin-top: var(--header-height-desktop);
+  }
+}

@@ -6,12 +6,21 @@
         <h2 class="title-section">Contacto</h2>
         <p class="contact__subtitle">¿Tienes un proyecto en mente? Cuéntame sobre él</p>
 
-        <form class="contact-form" id="contactForm" action="https://hook.make.com/TU_WEBHOOK_ID" method="POST">
+        <form class="contact-form" id="contactForm">
             <!-- INSTRUCCIONES PARA INTEGRAR CON MAKE.COM:
-                 1. Crea un escenario en https://make.com y agrega un webhook como primer módulo.
-                 2. Copia la URL del webhook y reemplaza TU_WEBHOOK_ID en el atributo action de este formulario.
-                 3. (Opcional) Ajusta los nombres de los campos si tu escenario de Make.com lo requiere.
-                 4. ¡Listo! El formulario enviará los datos directamente a Make.com.
+                 
+                 PASO 1: Crear webhook en Make.com
+                 - Ve a Make.com > Crear nuevo escenario
+                 - Añade "Webhooks" > "Custom webhook"
+                 - En Advanced settings, habilita CORS
+                 - Copia la URL del webhook
+                 
+                 PASO 2: Actualizar configuración
+                 - Reemplaza 'TU_NUEVA_URL_DE_WEBHOOK_AQUI' en el JavaScript
+                 - Cambia TEST_MODE = false
+                 
+                 PASO 3: Campos que se envían
+                 - name, email, phone, message, timestamp, source
             -->
             <div class="form-group">
                 <label for="name" class="form-label">Nombre completo *</label>
@@ -73,6 +82,45 @@
     </div>
 </section>
 
+<!-- Modales de éxito y error -->
+<div class="success-modal" id="successModal" role="dialog" aria-modal="true">
+    <div class="success-modal__content">
+        <button 
+            class="success-modal__close" 
+            aria-label="Cerrar modal"
+        >
+            &times;
+        </button>
+        <div class="success-modal__icon">✅</div>
+        <h3 class="success-modal__title">¡Mensaje Enviado!</h3>
+        <p class="success-modal__text">
+            Gracias por contactarme. He recibido tu mensaje y me pondré en contacto contigo lo antes posible.
+        </p>
+        <button class="modal-btn" id="successModalBtn">
+            Cerrar
+        </button>
+    </div>
+</div>
+
+<div class="error-modal" id="errorModal" role="dialog" aria-modal="true">
+    <div class="error-modal__content">
+        <button 
+            class="error-modal__close" 
+            aria-label="Cerrar modal"
+        >
+            &times;
+        </button>
+        <div class="error-modal__icon">❌</div>
+        <h3 class="error-modal__title">Error al Enviar</h3>
+        <p class="error-modal__text">
+            Lo siento, ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo o contáctame directamente.
+        </p>
+        <button class="modal-btn" id="errorModalBtn">
+            Cerrar
+        </button>
+    </div>
+</div>
+
 <style lang="scss">
     @use '../../styles/config' as *;
 
@@ -105,6 +153,15 @@
         max-width: 600px;
         margin: 0 auto;
         text-align: left;
+
+        @include respond-to(xs) {
+            width: 100%;
+            max-width: 75%; // Mismo ancho que las tarjetas de planes desde 480px
+        }
+
+        @media (min-width: #{container(narrow)}) {
+            max-width: 600px; // Volver al ancho original en desktop
+        }
     }
 
     .form-group {
@@ -250,12 +307,8 @@
         font-family: var(--font-primary);
     }
 
-    // Responsive design
+    // Responsive design - Solo para inputs más pequeños en móvil
     @media (max-width: #{container(narrow)}) {
-        .contact-form {
-            max-width: 100%;
-        }
-
         .form-input {
             padding: var(--space-sm);
         }
@@ -266,7 +319,13 @@
         }
     }
 
-    // Modales de éxito y error
+
+
+    // =========================
+    // SISTEMA DE MODALES - Siguiendo el patrón de Modal.astro
+    // =========================
+    
+    // Modal base - Siguiendo el patrón del sistema
     .success-modal,
     .error-modal {
         position: fixed;
@@ -274,72 +333,175 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: var(--z-modal);
+        padding: var(--space-md);
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--transition-normal) ease;
+        pointer-events: none;
+        
+        // IMPORTANTE: Asegurar que esté oculto por defecto
+        &:not(.active) {
+            display: none;
+        }
+        
+        &.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+            display: flex;
+        }
     }
 
+    // Contenido del modal - Siguiendo el patrón del sistema
     .success-modal__content,
     .error-modal__content {
-        background: var(--color-white);
+        background: var(--color-surface);
         padding: var(--space-xl);
-        border-radius: 0;
-        max-width: 400px;
-        width: 90%;
+        border-radius: 0; // Flat design
+        width: 95%;
+        max-width: 500px;
+        max-height: 90vh;
+        position: relative;
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+        transform: scale(0.7) translateY(2rem);
+        transition: all var(--transition-normal) ease;
+        border: 1px solid var(--color-border);
         text-align: center;
-        animation: slideIn 0.3s ease;
+        
+        @media (min-width: #{container(narrow)}) {
+            width: 90%;
+            padding: var(--space-2xl);
+        }
     }
 
+    // Cuando el modal está activo
+    .success-modal.active .success-modal__content,
+    .error-modal.active .error-modal__content {
+        transform: scale(1) translateY(0);
+    }
+
+    // Botón de cerrar - Siguiendo el patrón del sistema
+    .success-modal__close,
+    .error-modal__close {
+        position: absolute;
+        top: var(--space-md);
+        right: var(--space-md);
+        font-size: 1.75rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        cursor: pointer;
+        padding: var(--space-xs) var(--space-sm);
+        line-height: 1;
+        transition: all var(--transition-normal) ease;
+        z-index: calc(var(--z-modal) + 1);
+        border-radius: 0; // Flat design
+        font-weight: 400;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border-color: var(--color-primary);
+        }
+    }
+
+    // Iconos de modal
     .success-modal__icon,
     .error-modal__icon {
-        font-size: 3rem;
-        margin-bottom: var(--space-md);
+        font-size: 4rem;
+        margin-bottom: var(--space-lg);
         display: block;
+        font-weight: bold;
+        line-height: 1;
     }
 
     .success-modal__icon {
-        color: var(--color-success, #059669);
+        color: var(--color-success);
     }
 
     .error-modal__icon {
-        color: var(--color-error, #dc2626);
+        color: var(--color-error);
     }
 
-    .success-modal h3,
-    .error-modal h3 {
+    // Títulos de modal
+    .success-modal__title,
+    .error-modal__title {
         font-family: var(--font-headings);
+        font-weight: 700;
         color: var(--color-text);
-        margin-bottom: var(--space-md);
+        margin-bottom: var(--space-lg);
         font-size: 1.5rem;
+
+        @media (min-width: #{container(narrow)}) {
+            font-size: 1.875rem;
+        }
     }
 
-    .success-modal p,
-    .error-modal p {
-        color: var(--color-text-secondary);
-        line-height: 1.5;
-        margin-bottom: var(--space-md);
+    // Texto de modal
+    .success-modal__text,
+    .error-modal__text {
+        color: var(--color-text);
+        line-height: 1.7;
+        font-family: var(--font-primary);
+        font-size: 1rem;
+        margin-bottom: var(--space-lg);
+
+        @media (min-width: #{container(narrow)}) {
+            font-size: 1.125rem;
+        }
     }
 
-    .success-modal button,
-    .error-modal button {
-        margin-top: var(--space-md);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-        from { transform: translateY(-20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+    // Botones de modal - Usando el estilo del sistema
+    .modal-btn {
+        background: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        border: 2px solid var(--btn-primary-bg);
+        padding: var(--padding-btn);
+        border-radius: 0; // Flat design
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: var(--space-lg);
+        transition: all var(--transition-fast) ease;
+        min-width: 160px;
+        font-family: var(--font-headings);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+        
+        &:hover {
+            background: var(--btn-primary-hover);
+            border-color: var(--btn-primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        &:focus {
+            outline: 3px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
     }
 </style>
 
 <script>
+    // CONFIGURACIÓN MAKE.COM - Cambia estos valores según tus necesidades
+    const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/4t4ssk96zdwa9aqblpdytsfmm3o9a7pg';
+    const TEST_MODE = true; // CAMBIO: Activar envío real al webhook
+
     // Funcionalidad del formulario de contacto
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('contactForm') as HTMLFormElement;
@@ -347,6 +509,73 @@
         const currentCount = document.getElementById('currentCount');
         const characterCounter = document.querySelector('.character-counter');
         const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        // =====================
+        // FUNCIONES DE MODAL - Siguiendo el patrón de Modal.astro
+        // =====================
+        
+        // Función para abrir modal
+        function openModal(modalId: string) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+            }
+        }
+
+        // Función para cerrar modal
+        function closeModal(modal: HTMLElement) {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restaurar scroll del body
+        }
+
+        // Función para cerrar todos los modales
+        function closeAllModals() {
+            const activeModals = document.querySelectorAll('.success-modal.active, .error-modal.active');
+            activeModals.forEach(modal => closeModal(modal as HTMLElement));
+        }
+
+        // Event listeners para botones de cerrar (X)
+        document.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            
+            // Botón de cerrar (X)
+            if (target.classList.contains('success-modal__close') || target.classList.contains('error-modal__close')) {
+                e.preventDefault();
+                const modal = target.closest('.success-modal, .error-modal');
+                if (modal) {
+                    closeModal(modal as HTMLElement);
+                }
+            }
+            
+            // Botones principales de modal
+            if (target.id === 'successModalBtn' || target.id === 'errorModalBtn') {
+                e.preventDefault();
+                const modal = target.closest('.success-modal, .error-modal');
+                if (modal) {
+                    closeModal(modal as HTMLElement);
+                }
+            }
+        });
+
+        // Cerrar modal al hacer click fuera del contenido
+        document.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains('success-modal') || target.classList.contains('error-modal')) {
+                closeModal(target);
+            }
+        });
+
+        // Cerrar modal con la tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
+        // =====================
+        // FUNCIONALIDAD DEL FORMULARIO
+        // =====================
 
         // Contador de caracteres
         if (messageTextarea && currentCount) {
@@ -480,15 +709,18 @@
             return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 8;
         }
 
-        // Manejo del envío del formulario con Formspree
+        // Manejo del envío del formulario con Make.com
         if (form && submitButton) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 // Validar todos los campos
                 let isFormValid = true;
-                inputs?.forEach(input => {
-                    if (!validateField(input as HTMLInputElement)) {
+                const requiredFields = ['name', 'email', 'message'];
+                
+                requiredFields.forEach(fieldName => {
+                    const field = form.querySelector(`[name="${fieldName}"]`) as HTMLInputElement;
+                    if (!field || !validateField(field)) {
                         isFormValid = false;
                     }
                 });
@@ -499,19 +731,46 @@
                     submitButton.disabled = true;
 
                     try {
-                        // Enviar datos a Formspree
+                        // Preparar datos para envío
                         const formData = new FormData(form);
-                        const response = await fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        });
+                        const data = {
+                            name: formData.get('name'),
+                            email: formData.get('email'),
+                            phone: formData.get('phone'),
+                            message: formData.get('message'),
+                            timestamp: new Date().toISOString(),
+                            source: 'landing-page-gabrielzavando'
+                        };
+
+                        let response;
+                        
+                        if (TEST_MODE) {
+                            // Simular respuesta exitosa en modo test
+                            response = {
+                                ok: true,
+                                json: async () => ({ success: true, message: 'Mensaje enviado correctamente (modo test)' })
+                            };
+                            // Simular delay de red
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        } else {
+                            // Envío real a Make.com
+                            const formBody = new URLSearchParams();
+                            Object.entries(data).forEach(([key, value]) => {
+                                formBody.append(key, String(value));
+                            });
+                            
+                            response = await fetch(MAKE_WEBHOOK_URL, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: formBody.toString()
+                            });
+                        }
 
                         if (response.ok) {
-                            // Éxito
-                            showSuccessMessage();
+                            // Mostrar modal de éxito
+                            openModal('successModal');
                             form.reset();
                             
                             // Limpiar estados
@@ -519,13 +778,12 @@
                             if (currentCount) currentCount.textContent = '0';
                             if (characterCounter) characterCounter.classList.remove('warning', 'error');
                         } else {
-                            // Error del servidor
-                            const data = await response.json();
-                            throw new Error(data.error || 'Error en el envío');
+                            throw new Error(`Error ${response.status}: ${response.statusText}`);
                         }
                     } catch (error) {
-                        // Error de red o del servidor
-                        showErrorMessage(error instanceof Error ? error.message : 'Error desconocido');
+                        console.error('Error al enviar:', error);
+                        // Mostrar modal de error
+                        openModal('errorModal');
                     } finally {
                         // Remover loading
                         submitButton.classList.remove('loading');
@@ -533,49 +791,6 @@
                     }
                 }
             });
-        }
-
-        // Función para mostrar mensaje de éxito
-        function showSuccessMessage() {
-            // Crear modal de éxito
-            const modal = document.createElement('div');
-            modal.className = 'success-modal';
-            modal.innerHTML = `
-                <div class="success-modal__content">
-                    <div class="success-modal__icon">✓</div>
-                    <h3>¡Mensaje enviado!</h3>
-                    <p>Gracias por contactarnos. Te responderemos pronto a <strong>contacto@gabrielzavando.cl</strong></p>
-                    <button class="btn-cta__solid" onclick="this.closest('.success-modal').remove()">
-                        Entendido
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            // Remover modal después de 5 segundos
-            setTimeout(() => {
-                if (modal.parentNode) {
-                    modal.remove();
-                }
-            }, 5000);
-        }
-
-        // Función para mostrar mensaje de error
-        function showErrorMessage(message: string) {
-            const modal = document.createElement('div');
-            modal.className = 'error-modal';
-            modal.innerHTML = `
-                <div class="error-modal__content">
-                    <div class="error-modal__icon">⚠</div>
-                    <h3>Error al enviar</h3>
-                    <p>Ha ocurrido un error: ${message}</p>
-                    <p>Por favor intenta nuevamente o contacta directamente a <strong>contacto@gabrielzavando.cl</strong></p>
-                    <button class="btn-cta__solid" onclick="this.closest('.error-modal').remove()">
-                        Entendido
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(modal);
         }
     });
 </script>

@@ -37,7 +37,7 @@ import { Image } from 'astro:assets';
     </div>
 
     <div class="about-content__specialties">
-      <h3 class="about-content__specialties__subtitle">
+      <h3 class="subtitle-section">
         Especialidades
       </h3>
       <ul class="about-content__specialties__list">
@@ -69,7 +69,7 @@ import { Image } from 'astro:assets';
     </div>
 
     <div class="about-content__tech">
-      <h3 class="about-content__tech__subtitle">Tecnologías</h3>
+      <h3 class="subtitle-section">Tecnologías</h3>
       <ul class="about-content__tech__list">
         <li class="about-content__tech__item">
           <i class="fab fa-angular"></i>
@@ -151,7 +151,8 @@ import { Image } from 'astro:assets';
     @include flex(column, flex-start, stretch, nowrap, xl);
     margin-bottom: var(--space-2xl);
 
-    @include respond-to(md) {
+    // Desde 480px - Imagen y texto lado a lado
+    @include respond-to(xs) {
       @include flex(row, space-between, flex-start, nowrap, xl);
       align-items: flex-start;
     }
@@ -159,7 +160,8 @@ import { Image } from 'astro:assets';
     &__text {
       flex: 1;
       
-      @include respond-to(md) {
+      // Desde 480px - Margen para separar del imagen
+      @include respond-to(xs) {
         margin-right: var(--space-xl);
         max-width: 60%;
       }
@@ -169,7 +171,8 @@ import { Image } from 'astro:assets';
       @include flex(row, center, center);
       margin-bottom: var(--space-lg);
 
-      @include respond-to(md) {
+      // Desde 480px - Sin margen inferior
+      @include respond-to(xs) {
         margin-bottom: 0;
         flex-shrink: 0;
       }
@@ -221,31 +224,6 @@ import { Image } from 'astro:assets';
     &:last-child {
       margin-bottom: 0;
     }
-
-    h3 {
-      font-family: var(--font-headings);
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--color-text);
-      margin-bottom: var(--space-lg);
-      text-align: center;
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background-color: var(--color-primary);
-      }
-
-      @include respond-to(md) {
-        font-size: 1.5rem;
-      }
-    }
   }
 
   // Listas como grid de cards
@@ -258,11 +236,13 @@ import { Image } from 'astro:assets';
     padding: 0;
     margin: 0;
 
-    @include respond-to(sm) {
+    // Desde 480px - Dos columnas
+    @include respond-to(xs) {
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @include respond-to(md) {
+    // Desde 768px - Tres columnas
+    @include respond-to(sm) {
       grid-template-columns: repeat(3, 1fr);
     }
   }
@@ -359,7 +339,7 @@ import { Image } from 'astro:assets';
   @include respond-to(lg) {
     .about-content__specialties__list,
     .about-content__tech__list {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>

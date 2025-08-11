@@ -10,20 +10,17 @@
     right: 0;
     z-index: var(--z-header);
     background: transparent;
-    padding: var(--space-xs) var(--space-md);
+    padding: var(--space-xs) var(--padding-container);
     transition: background-color var(--transition-normal) ease;
 
     &__container {
         max-width: #{container(max)};
         margin: 0 auto;
-        padding-left: var(--padding-container);
-        padding-right: var(--padding-container);
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding-top: 0;
-        padding-bottom: 0;
+        padding: 0;
     }
     
     // Estado con scroll (mayor a 100px)
@@ -149,8 +146,8 @@
         transform: translateX(0);
     }
     
-    // Desktop: navegación horizontal
-    @media (min-width: #{container(narrow)}) {
+    // Desktop: navegación horizontal (solo desde 1200px)
+    @media (min-width: #{$breakpoint-lg}) {
         position: static;
         transform: none;
         width: auto;
@@ -159,7 +156,7 @@
     }
     
     // En desktop y tema oscuro, mantener transparente siempre
-    @media (min-width: #{container(max)}) {
+    @media (min-width: #{$breakpoint-lg}) {
         html[data-theme="dark"] & {
             background: transparent;
         }
@@ -177,8 +174,8 @@
         padding: var(--space-xl);
         height: 100%;
         
-        // Desktop: lista horizontal
-        @media (min-width: #{container(narrow)}) {
+        // Desktop: lista horizontal (solo desde 1200px)
+        @media (min-width: #{$breakpoint-lg}) {
             flex-direction: row;
             justify-content: flex-start;
             gap: var(--space-md);
@@ -192,7 +189,7 @@
         width: 100%;
         text-align: center;
         
-        @media (min-width: #{container(narrow)}) {
+        @media (min-width: #{$breakpoint-lg}) {
             width: auto;
         }
         
@@ -224,7 +221,7 @@
         align-items: center;
         margin-top: var(--space-md);
         
-        @media (min-width: #{container(narrow)}) {
+        @media (min-width: #{$breakpoint-lg}) {
             margin-top: 0;
             margin-left: var(--space-md);
         }
