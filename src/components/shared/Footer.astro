@@ -1,5 +1,6 @@
 ---
 import menuData from "../../data/menu.json";
+import ModalMessage from "./ModalMessage.astro";
 
 const currentYear = new Date().getFullYear();
 const { menuItems, socialLinks } = menuData;
@@ -39,13 +40,9 @@ const { menuItems, socialLinks } = menuData;
     <!-- Suscripción -->
     <div class="footer__section footer__section--subscribe">
       <h3 class="footer__title">Suscríbete</h3>
-      <form class="footer__form" id="subscribeForm" action="https://hook.make.com/TU_WEBHOOK_ID_SUSCRIPCION" method="POST">
-        <!-- INSTRUCCIONES PARA INTEGRAR CON MAKE.COM:
-             1. Crea un escenario en https://make.com y agrega un webhook como primer módulo.
-             2. Copia la URL del webhook y reemplaza TU_WEBHOOK_ID_SUSCRIPCION en el atributo action de este formulario.
-             3. (Opcional) Ajusta los nombres de los campos si tu escenario de Make.com lo requiere.
-             4. ¡Listo! El formulario enviará los datos directamente a Make.com.
-        -->
+      <!-- BACKEND: Este formulario envía los datos a tu API NestJS (POST /forms/subscribe) con JSON { email, meta }. -->
+      <form class="footer__form" id="subscribeForm" novalidate>
+        
         <div class="footer__form-group">
           <input 
             type="email" 
@@ -56,6 +53,13 @@ const { menuItems, socialLinks } = menuData;
             id="subscribeEmail"
           >
         </div>
+
+        <!-- Honeypot anti-spam (debe permanecer vacío) -->
+        <div style="display:none;visibility:hidden;height:0;overflow:hidden;">
+          <label>Tu sitio web (no completar)</label>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
         <div class="footer__form-group">
           <label class="footer__checkbox">
             <input type="checkbox" name="terms" required id="subscribeTerms">
@@ -463,45 +467,101 @@ const { menuItems, socialLinks } = menuData;
   }
 </style>
 
-<script>
-  // Funcionalidad del formulario de suscripción
-  document.addEventListener('DOMContentLoaded', () => {
-    const subscribeForm = document.getElementById('subscribeForm') as HTMLFormElement;
-    const emailInput = document.getElementById('subscribeEmail') as HTMLInputElement;
-    const termsCheckbox = document.getElementById('subscribeTerms') as HTMLInputElement;
-    const submitButton = subscribeForm?.querySelector('.footer__submit-btn') as HTMLButtonElement;
+<!-- Modales de éxito y error (newsletter) -->
+<ModalMessage 
+  id="subscribeSuccessModal"
+  type="success"
+  title="¡Suscripción exitosa!"
+  message="Te has suscrito correctamente. Pronto recibirás consejos de transformación digital."
+/>
 
+<ModalMessage 
+  id="subscribeErrorModal"
+  type="error"
+  title="Error en la suscripción"
+  message="Ocurrió un problema al suscribirte. Intenta nuevamente más tarde."
+/>
+
+<ModalMessage 
+  id="subscribeInfoModal"
+  type="info"
+  title="Ya estás suscrito"
+  message="El correo ya está suscrito a nuestro newsletter."
+/>
+
+<script type="module">
+  // CONFIG API newsletter (similar a Contact.astro)
+  function getPublicEnv(key) {
+    try {
+      return (import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, key))
+        ? import.meta.env[key]
+        : undefined;
+    } catch (_e) {
+      return undefined;
+    }
+  }
+  const runtimeConfig = (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) || undefined;
+  const rawBase = runtimeConfig || getPublicEnv('PUBLIC_API_BASE_URL') || 'http://localhost:3000';
+  const API_BASE_URL = rawBase.replace(/\/$/, '');
+  const SUBSCRIBE_ENDPOINT = '/forms/subscribe'; // Asunción: endpoint del backend
+  const API_URL = API_BASE_URL ? `${API_BASE_URL}${SUBSCRIBE_ENDPOINT}` : SUBSCRIBE_ENDPOINT;
+  // Flag dev seguro
+  let DEV_SIMULATION = false;
+  try { if (import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, 'DEV')) DEV_SIMULATION = !!import.meta.env.DEV; } catch(_e) {}
+  const REQUEST_TIMEOUT_MS = 10000;
+  const HONEYPOT_FIELD = 'website';
+
+  function fetchWithTimeout(resource, options = {}) {
+    const { timeout = REQUEST_TIMEOUT_MS, signal } = options;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort('timeout'), timeout);
+    if (signal) signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+    return fetch(resource, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+  }
+  async function fetchWithRetry(url, options = {}, retries = 1) {
+    try { return await fetchWithTimeout(url, options); }
+    catch (err) {
+      if (retries > 0 && (err?.name === 'AbortError' || err?.message === 'Failed to fetch' || err?.message === 'timeout')) {
+        await new Promise(r => setTimeout(r, 600));
+        return fetchWithRetry(url, options, retries - 1);
+      }
+      throw err;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const subscribeForm = document.getElementById('subscribeForm');
+    const emailInput = document.getElementById('subscribeEmail');
+    const termsCheckbox = document.getElementById('subscribeTerms');
+    const submitButton = subscribeForm?.querySelector('.footer__submit-btn');
     if (!subscribeForm || !emailInput || !termsCheckbox || !submitButton) return;
 
-    // Validación en tiempo real
-    emailInput.addEventListener('blur', () => {
-      validateEmail(emailInput);
-    });
+    // Deshabilitar botón hasta tener email válido + términos
+    submitButton.disabled = true;
 
+    // Validación en tiempo real
+    emailInput.addEventListener('blur', () => validateEmail(emailInput));
     emailInput.addEventListener('input', () => {
       clearErrors(emailInput);
+      updateSubmitState();
     });
+    termsCheckbox.addEventListener('change', updateSubmitState);
 
-    // Función de validación de email
-    function validateEmail(field: HTMLInputElement) {
+    function updateSubmitState() {
+      const value = emailInput.value.trim();
+      const emailOk = !!value && isValidEmailFormat(value);
+      const termsOk = !!termsCheckbox.checked;
+      submitButton.disabled = !(emailOk && termsOk);
+    }
+
+    function validateEmail(field) {
       const formGroup = field.closest('.footer__form-group');
       const value = field.value.trim();
       let isValid = true;
       let errorMessage = '';
-
-      // Limpiar errores previos
       clearErrors(field);
-
-      // Validar email requerido
-      if (!value) {
-        isValid = false;
-        errorMessage = 'El correo electrónico es requerido';
-      } else if (!isValidEmailFormat(value)) {
-        isValid = false;
-        errorMessage = 'Por favor ingresa un correo electrónico válido';
-      }
-
-      // Aplicar estilos de validación
+      if (!value) { isValid = false; errorMessage = 'El correo electrónico es requerido'; }
+      else if (!isValidEmailFormat(value)) { isValid = false; errorMessage = 'Por favor ingresa un correo electrónico válido'; }
       if (formGroup) {
         if (isValid && value) {
           formGroup.classList.add('success');
@@ -512,12 +572,9 @@ const { menuItems, socialLinks } = menuData;
           showError(field, errorMessage);
         }
       }
-
       return isValid;
     }
-
-    // Mostrar mensaje de error
-    function showError(field: HTMLInputElement, message: string) {
+    function showError(field, message) {
       const formGroup = field.closest('.footer__form-group');
       if (formGroup) {
         let errorElement = formGroup.querySelector('.footer__error-message');
@@ -529,117 +586,134 @@ const { menuItems, socialLinks } = menuData;
         errorElement.textContent = message;
       }
     }
-
-    // Limpiar errores
-    function clearErrors(field: HTMLInputElement) {
+    function clearErrors(field) {
       const formGroup = field.closest('.footer__form-group');
       if (formGroup) {
         formGroup.classList.remove('error', 'success');
         const errorElement = formGroup.querySelector('.footer__error-message');
-        if (errorElement) {
-          errorElement.remove();
-        }
+        if (errorElement) errorElement.remove();
       }
     }
-
-    // Validador de formato de email
-    function isValidEmailFormat(email: string): boolean {
+    function isValidEmailFormat(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
     }
 
-    // Manejo del envío del formulario
+    // Modales helpers
+    function openModal(modalId) {
+      if (typeof window !== 'undefined' && window.modalHelpers) {
+        window.modalHelpers.openModal(modalId);
+      }
+    }
+    function updateModalMessage(modalId, message) {
+      if (typeof window !== 'undefined' && window.modalHelpers) {
+        window.modalHelpers.updateModalMessage(modalId, message);
+      }
+    }
+
+    // Envío
+    let inFlightController = null;
     subscribeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Validar email
-      const isEmailValid = validateEmail(emailInput);
+      // Honeypot
+      const honey = subscribeForm.querySelector(`[name="${HONEYPOT_FIELD}"]`);
+      if (honey && honey.value) return;
 
-      // Verificar términos y condiciones
-      if (!termsCheckbox.checked) {
-        alert('Debes aceptar la Política de privacidad para continuar.');
+      // Validaciones
+      const emailOk = validateEmail(emailInput);
+      const termsOk = termsCheckbox.checked;
+      if (!emailOk || !termsOk) return;
+
+      if (!navigator.onLine) {
+        updateModalMessage('subscribeErrorModal', 'Sin conexión a Internet. Revisa tu red e intenta de nuevo.');
+        openModal('subscribeErrorModal');
         return;
       }
 
-      if (isEmailValid) {
-        // Mostrar estado de loading
-        submitButton.classList.add('loading');
-        submitButton.disabled = true;
+      submitButton.classList.add('loading');
+      submitButton.disabled = true;
+      if (inFlightController) { try { inFlightController.abort('new-submit'); } catch(_) {} }
+      inFlightController = new AbortController();
 
-        try {
-          // Enviar datos a Make.com
-          const formData = new FormData(subscribeForm);
-          const response = await fetch(subscribeForm.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-
-          if (response.ok) {
-            // Éxito
-            showSuccessMessage();
-            subscribeForm.reset();
-            
-            // Limpiar estados
-            clearErrors(emailInput);
-          } else {
-            // Error del servidor
-            throw new Error('Error en el envío');
+      try {
+        const payload = {
+          email: String(emailInput.value || '').trim(),
+          meta: {
+            userAgent: navigator.userAgent,
+            referrer: document.referrer || null,
+            page: window.location.pathname,
+            ts: new Date().toISOString() // Fecha ISO 8601 válida para el backend
           }
-        } catch (error) {
-          // Error de red o del servidor
-          showErrorMessage(error instanceof Error ? error.message : 'Error desconocido');
-        } finally {
-          // Remover loading
-          submitButton.classList.remove('loading');
-          submitButton.disabled = false;
+        };
+
+        console.log('📤 Enviando suscripción a:', API_URL);
+        console.log('📋 Payload:', payload);
+
+        let response;
+        if (!API_BASE_URL && DEV_SIMULATION) {
+          console.log('🧪 Modo simulación - sin backend configurado');
+          await new Promise(r => setTimeout(r, 500));
+          response = { ok: true, status: 200, json: async () => ({ success: true, simulated: true }) };
+        } else {
+          response = await fetchWithRetry(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload),
+            timeout: REQUEST_TIMEOUT_MS,
+            signal: inFlightController.signal,
+          });
         }
+
+        console.log('📥 Respuesta HTTP status:', response.status);
+        console.log('✅ Response OK:', response.ok);
+
+        if (response.ok) {
+          try { 
+            const responseData = await response.json();
+            console.log('📋 Respuesta backend:', responseData); 
+            
+            // Verificar si el usuario ya está suscrito
+            if (responseData.alreadySubscribed) {
+              // Actualizar el modal de info con el mensaje del backend
+              updateModalMessage('subscribeInfoModal', String(responseData.message || 'El correo ya está suscrito'));
+              openModal('subscribeInfoModal');
+            } else {
+              // Usuario suscrito exitosamente
+              openModal('subscribeSuccessModal');
+            }
+            
+            subscribeForm.reset();
+            clearErrors(emailInput);
+            submitButton.disabled = true; // hasta que vuelva a ser válido
+          } catch (error) {
+            console.error('Error parsing response:', error);
+            openModal('subscribeSuccessModal'); // fallback
+          }
+        } else {
+          try {
+            const errData = await response.json();
+            console.error('📋 Error backend:', errData);
+            if (errData?.message) {
+              updateModalMessage('subscribeErrorModal', String(errData.message));
+            }
+          } catch {}
+          openModal('subscribeErrorModal');
+        }
+      } catch (err) {
+        console.error('❌ Error suscripción:', err);
+        let errorMessage = 'No se pudo completar la suscripción. Intenta nuevamente en unos segundos.';
+        if (err?.name === 'AbortError') errorMessage = 'La solicitud fue cancelada o expiró. Intenta nuevamente.';
+        else if (!navigator.onLine) errorMessage = 'Sin conexión a Internet. Revisa tu red e intenta de nuevo.';
+        
+        updateModalMessage('subscribeErrorModal', errorMessage);
+        openModal('subscribeErrorModal');
+      } finally {
+        submitButton.classList.remove('loading');
+        submitButton.disabled = false;
+        inFlightController = null;
       }
     });
-
-    // Función para mostrar mensaje de éxito
-    function showSuccessMessage() {
-      const modal = document.createElement('div');
-      modal.className = 'success-modal';
-      modal.innerHTML = `
-        <div class="success-modal__content">
-          <div class="success-modal__icon">✓</div>
-          <h3>¡Suscripción exitosa!</h3>
-          <p>Te has suscrito correctamente. Recibirás nuestros tips de transformación digital sin spam.</p>
-          <button class="btn-cta__solid" onclick="this.closest('.success-modal').remove()">
-            Entendido
-          </button>
-        </div>
-      `;
-      document.body.appendChild(modal);
-
-      // Remover modal después de 5 segundos
-      setTimeout(() => {
-        if (modal.parentNode) {
-          modal.remove();
-        }
-      }, 5000);
-    }
-
-    // Función para mostrar mensaje de error
-    function showErrorMessage(message: string) {
-      const modal = document.createElement('div');
-      modal.className = 'error-modal';
-      modal.innerHTML = `
-        <div class="error-modal__content">
-          <div class="error-modal__icon">⚠</div>
-          <h3>Error en la suscripción</h3>
-          <p>Ha ocurrido un error: ${message}</p>
-          <p>Por favor intenta nuevamente.</p>
-          <button class="btn-cta__solid" onclick="this.closest('.error-modal').remove()">
-            Entendido
-          </button>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
   });
 </script>
 

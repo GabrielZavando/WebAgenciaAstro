@@ -91,6 +91,7 @@
   --color-text: #{color(text)};
   --color-text-secondary: #{color(text-secondary)};
   --color-text-muted: #{color(text-muted)};
+  --color-input-text: #{color(input-text)};
   --color-border: #{color(border)};
   --color-border-secondary: #{color(border-secondary)};
   
@@ -133,6 +134,7 @@
   --color-text: #{color(text, dark)};
   --color-text-secondary: #{color(text-secondary, dark)};
   --color-text-muted: #{color(text-muted, dark)};
+  --color-input-text: #{color(input-text, dark)};
   --color-border: #{color(border, dark)};
   --color-border-secondary: #{color(border-secondary, dark)};
   

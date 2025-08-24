@@ -110,6 +110,28 @@
     background-color: var(--color-surface);
   }
 
+  /* Themed adjustments: step backgrounds, card and circle backgrounds, shadows */
+  :root[data-theme="light"] .workflow {
+    --step-bg-1: #ffe0f0;
+    --step-bg-2: #e9d5ff;
+    --step-bg-3: #ccfff9;
+    --step-bg-4: #eeeeee;
+    --card-bg: var(--color-white);
+    --circle-bg: var(--color-white);
+    --card-shadow: var(--shadow-md);
+  }
+
+  :root[data-theme="dark"] .workflow {
+    /* tonos suaves basados en los colores de marca, baja opacidad para no competir con el fondo */
+    --step-bg-1: rgba(255, 0, 128, 0.08);   /* primary */
+    --step-bg-2: rgba(166, 0, 255, 0.08);   /* secondary */
+    --step-bg-3: rgba(0, 255, 224, 0.06);   /* accent */
+    --step-bg-4: rgba(255, 255, 255, 0.03);
+    --card-bg: var(--color-surface);
+    --circle-bg: var(--color-surface-secondary);
+    --card-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  }
+
   .workflow-content {
     width: 100%;
     max-width: #{container(narrow)}; // Usando narrow (800px) en lugar de lg
@@ -191,13 +213,13 @@
     justify-content: center;
     width: 160px;
     height: 160px;
-    border-radius: 50%;
-    border: 3px solid var(--color-primary);
-    background-color: var(--color-white);
+  border-radius: 50%;
+  border: 3px solid var(--step-color);
+  background-color: var(--circle-bg);
     margin: 0 auto;
     padding: var(--space-md);
     gap: var(--space-sm);
-    box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.1);
+  box-shadow: var(--card-shadow);
     text-align: center;
 
     @include respond-to(sm) {
@@ -219,10 +241,9 @@
 
   // Contenidos
   .workflow-step__content {
-    background-color: var(--color-white);
-    border-radius: 0;
-    padding: var(--space-lg);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  background-color: var(--card-bg);
+  padding: var(--space-lg);
+  box-shadow: var(--card-shadow);
     transition: all var(--transition-normal) ease;
     border: 2px solid transparent;
     display: flex;
@@ -232,7 +253,7 @@
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.12);
     }
 
     @include respond-to(md) {
@@ -313,7 +334,7 @@
     font-family: var(--font-headings);
     font-size: 1.25rem;
     font-weight: 800;
-    color: var(--color-primary);
+  color: var(--step-color);
     line-height: 1;
 
     @include respond-to(md) {
@@ -323,7 +344,7 @@
 
   .workflow-step__icon {
     font-size: 1.5rem;
-    color: var(--color-primary);
+  color: var(--step-color);
     margin: var(--space-xs) 0;
 
     @include respond-to(md) {
@@ -354,13 +375,12 @@
     font-family: var(--font-primary);
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--color-primary);
-    text-transform: uppercase;
+  color: var(--step-color);
+  text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: var(--space-lg);
     padding: var(--space-xs) var(--space-sm);
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    border-radius: 20px;
+  background-color: var(--step-bg);
     display: inline-block;
     text-align: center;
     flex-shrink: 0;
@@ -387,13 +407,13 @@
         position: absolute;
         left: 0;
         top: var(--space-sm);
-        color: var(--color-primary);
-        font-weight: bold;
-        font-size: 0.75rem;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--step-color);
+  font-weight: bold;
+  font-size: 0.75rem;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--step-bg);
         display: flex;
         align-items: center;
         justify-content: center;

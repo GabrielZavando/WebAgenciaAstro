@@ -1,796 +1,746 @@
 ---
+import ModalMessage from "../shared/ModalMessage.astro";
 ---
 
 <section class="contact" id="contact">
-    <div class="contact__container">
-        <h2 class="title-section">Contacto</h2>
-        <p class="contact__subtitle">¿Tienes un proyecto en mente? Cuéntame sobre él</p>
+  <div class="contact__container">
+    <h2 class="title-section">Contacto</h2>
+    <p class="contact__subtitle">
+      ¿Tienes un proyecto en mente? Cuéntame sobre él
+    </p>
 
-        <form class="contact-form" id="contactForm">
-            <!-- INSTRUCCIONES PARA INTEGRAR CON MAKE.COM:
-                 
-                 PASO 1: Crear webhook en Make.com
-                 - Ve a Make.com > Crear nuevo escenario
-                 - Añade "Webhooks" > "Custom webhook"
-                 - En Advanced settings, habilita CORS
-                 - Copia la URL del webhook
-                 
-                 PASO 2: Actualizar configuración
-                 - Reemplaza 'TU_NUEVA_URL_DE_WEBHOOK_AQUI' en el JavaScript
-                 - Cambia TEST_MODE = false
-                 
-                 PASO 3: Campos que se envían
-                 - name, email, phone, message, timestamp, source
-            -->
-            <div class="form-group">
-                <label for="name" class="form-label">Nombre completo *</label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    class="form-input"
-                    required
-                    placeholder="¿Cómo te llamas?"
-                />
-            </div>
+    <form class="contact-form" id="contactForm" novalidate>
+      <!-- BACKEND: Este formulario envía los datos a tu API NestJS (POST /forms/contact).
+              Contrato JSON: { name, email, phone?, message, meta: { userAgent, referrer, page, ts } }
+              Recomendaciones: rate limiting, validación y sanitización server-side, y CAPTCHA opcional. -->
+      <div class="form-group">
+        <label for="name" class="form-label">Nombre completo *</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-input"
+          required
+          placeholder="¿Cómo te llamas?"
+        />
+      </div>
 
-            <div class="form-group">
-                <label for="email" class="form-label">Correo electrónico *</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input"
-                    required
-                    placeholder="tu@correo.com"
-                />
-            </div>
+      <div class="form-group">
+        <label for="email" class="form-label">Correo electrónico *</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          required
+          placeholder="tu@correo.com"
+        />
+      </div>
 
-            <div class="form-group">
-                <label for="phone" class="form-label">Teléfono (opcional)</label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    class="form-input"
-                    placeholder="+56 9 XXXX XXXX"
-                />
-            </div>
+      <div class="form-group">
+        <label for="phone" class="form-label">Teléfono (opcional)</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          class="form-input"
+          placeholder="+56 9 XXXX XXXX"
+        />
+      </div>
 
-            <div class="form-group">
-                <label for="message" class="form-label">Mensaje *</label>
-                <textarea 
-                    id="message" 
-                    name="message" 
-                    class="form-input form-textarea"
-                    required
-                    placeholder="Cuéntame sobre tu proyecto..."
-                ></textarea>
-                <div class="character-counter">
-                    <span id="currentCount">0</span>
-                    <span>/</span>
-                    <span>1500 caracteres</span>
-                </div>
-            </div>
+      <div class="form-group">
+        <label for="message" class="form-label">Mensaje *</label>
+        <textarea
+          id="message"
+          name="message"
+          class="form-input form-textarea"
+          required
+          placeholder="Cuéntame sobre tu proyecto..."></textarea>
+        <div class="character-counter">
+          <span id="currentCount">0</span>
+          <span>/</span>
+          <span>1500 caracteres</span>
+        </div>
+      </div>
 
-            <!-- Campos ocultos eliminados: Make.com no los requiere por defecto -->
+      <!-- Honeypot anti-spam (debe permanecer vacío) -->
+      <div style="display:none;visibility:hidden;height:0;overflow:hidden;">
+        <label>Tu sitio web (no completar)</label>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" />
+      </div>
 
-            <button type="submit" class="btn-cta__solid">
-                Enviar mensaje
-            </button>
-        </form>
-    </div>
+      <!-- Campos ocultos: ninguno requerido por la API actual (se mantiene solo el honeypot anti-spam) -->
+
+      <button type="submit" class="btn-cta__solid"> Enviar mensaje </button>
+    </form>
+  </div>
 </section>
 
 <!-- Modales de éxito y error -->
-<div class="success-modal" id="successModal" role="dialog" aria-modal="true">
-    <div class="success-modal__content">
-        <button 
-            class="success-modal__close" 
-            aria-label="Cerrar modal"
-        >
-            &times;
-        </button>
-        <div class="success-modal__icon">✅</div>
-        <h3 class="success-modal__title">¡Mensaje Enviado!</h3>
-        <p class="success-modal__text">
-            Gracias por contactarme. He recibido tu mensaje y me pondré en contacto contigo lo antes posible.
-        </p>
-        <button class="modal-btn" id="successModalBtn">
-            Cerrar
-        </button>
-    </div>
-</div>
+<ModalMessage
+  id="successModal"
+  type="success"
+  title="¡Mensaje Enviado!"
+  message="Gracias por contactarme. He recibido tu mensaje y me pondré en contacto contigo lo antes posible."
+/>
 
-<div class="error-modal" id="errorModal" role="dialog" aria-modal="true">
-    <div class="error-modal__content">
-        <button 
-            class="error-modal__close" 
-            aria-label="Cerrar modal"
-        >
-            &times;
-        </button>
-        <div class="error-modal__icon">❌</div>
-        <h3 class="error-modal__title">Error al Enviar</h3>
-        <p class="error-modal__text">
-            Lo siento, ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo o contáctame directamente.
-        </p>
-        <button class="modal-btn" id="errorModalBtn">
-            Cerrar
-        </button>
-    </div>
-</div>
+<ModalMessage
+  id="errorModal"
+  type="error"
+  title="Error al Enviar"
+  message="Lo siento, ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo o contáctame directamente."
+/><style lang="scss">
+  @use "../../styles/config" as *;
 
-<style lang="scss">
-    @use '../../styles/config' as *;
+  .contact {
+    padding: var(--space-2xl) 0; /* más espacio vertical según sugerencia */
+    background-color: var(--contact-bg, var(--color-surface));
+    border-top: 1px solid var(--contact-border, transparent);
+  }
 
-    .contact {
-        padding: var(--space-xl) 0;
-        background-color: var(--color-surface);
+  /* Themed variables locales para inputs, tarjetas y spinner */
+  html[data-theme="light"] .contact {
+    --card-bg: var(--color-white);
+    --input-bg: var(--color-white);
+    --input-border: var(
+      --color-secondary
+    ); /* usar color secondary en modo claro */
+    --input-text: var(--color-input-text);
+    --input-focus-shadow: rgba(var(--color-primary-rgb, 255, 0, 128), 0.1);
+    --placeholder: var(--color-text-muted);
+    --btn-spinner-color: var(--color-white);
+    --error-shadow: rgba(var(--color-error-rgb, 239, 68, 68), 0.12);
+    --success-shadow: rgba(var(--color-success-rgb, 16, 185, 129), 0.12);
+    --contact-bg: var(--color-background); /* más contraste en light */
+    --contact-border: var(--color-border);
+  }
+
+  html[data-theme="dark"] .contact {
+    --card-bg: var(--color-surface);
+    --input-bg: var(--color-surface-secondary);
+    --input-border: var(--color-border-secondary);
+    --input-text: var(
+      --color-text
+    ); /* texto claro en inputs para mejor contraste en dark */
+    --input-focus-shadow: rgba(var(--color-primary-rgb, 255, 0, 128), 0.14);
+    --placeholder: rgba(var(--color-text, 249, 250, 251), 0.56);
+    --btn-spinner-color: var(--color-surface);
+    --error-shadow: rgba(var(--color-error-rgb, 239, 68, 68), 0.18);
+    --success-shadow: rgba(var(--color-success-rgb, 16, 185, 129), 0.18);
+    --contact-bg: var(--color-background);
+    --contact-border: var(--color-border-secondary);
+  }
+
+  .contact__container {
+    // Container usando el nuevo sistema
+    width: 100%;
+    max-width: #{container(max)};
+    margin: 0 auto;
+    padding: 0 var(--padding-container);
+    text-align: center;
+  }
+
+  .contact__subtitle {
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-xl);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Formulario de contacto
+  .contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+
+    @include respond-to(xs) {
+      width: 100%;
+      max-width: 75%; // Mismo ancho que las tarjetas de planes desde 480px
     }
 
-    .contact__container {
-        // Container usando el nuevo sistema
-        width: 100%;
-        max-width: #{container(max)};
-        margin: 0 auto;
-        padding: 0 var(--padding-container);
-        text-align: center;
+    @media (min-width: #{container(narrow)}) {
+      max-width: 600px; // Volver al ancho original en desktop
+    }
+  }
+
+  .form-group {
+    margin-bottom: var(--space-lg);
+    position: relative;
+  }
+
+  .form-label {
+    display: block;
+    font-family: var(--font-headings);
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--input-border);
+    border-radius: 0; // Flat design
+    background: var(--input-bg);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    color: var(--input-text, var(--color-input-text));
+    transition: all var(--transition-normal) ease;
+    outline: none;
+
+    &::placeholder {
+      color: var(--placeholder);
+      opacity: 0.9;
     }
 
-    .contact__subtitle {
-        color: var(--color-text-secondary);
-        font-size: 1.125rem;
-        line-height: 1.6;
-        margin-bottom: var(--space-xl);
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--input-focus-shadow);
     }
 
-    // Formulario de contacto
-    .contact-form {
-        max-width: 600px;
-        margin: 0 auto;
-        text-align: left;
-
-        @include respond-to(xs) {
-            width: 100%;
-            max-width: 75%; // Mismo ancho que las tarjetas de planes desde 480px
-        }
-
-        @media (min-width: #{container(narrow)}) {
-            max-width: 600px; // Volver al ancho original en desktop
-        }
+    &:invalid:not(:placeholder-shown) {
+      border-color: var(--color-error, #dc2626);
     }
 
-    .form-group {
-        margin-bottom: var(--space-lg);
-        position: relative;
+    &:valid:not(:placeholder-shown) {
+      border-color: var(--color-success, #059669);
+    }
+  }
+
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: var(--font-primary);
+    line-height: 1.5;
+  }
+
+  // Contador de caracteres
+  .character-counter {
+    text-align: right;
+    margin-top: var(--space-xs);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-family: var(--font-primary);
+
+    #currentCount {
+      font-weight: 600;
+      color: var(--color-text-secondary);
     }
 
-    .form-label {
-        display: block;
-        font-family: var(--font-headings);
-        font-weight: 600;
-        color: var(--color-text);
-        margin-bottom: var(--space-sm);
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    &.warning #currentCount {
+      color: var(--color-warning, #f59e0b);
     }
 
-    .form-input {
-        width: 100%;
-        padding: var(--space-md);
-        border: 2px solid var(--color-border);
-        border-radius: 0; // Flat design
-        background: var(--color-white);
-        font-family: var(--font-primary);
-        font-size: 1rem;
-        color: var(--color-text);
-        transition: all var(--transition-normal) ease;
-        outline: none;
+    &.error #currentCount {
+      color: var(--color-error, #dc2626);
+    }
+  }
 
-        &::placeholder {
-            color: var(--color-text-muted);
-            opacity: 0.7;
-        }
+  // Botón de envío
+  .contact-form .btn-cta__solid {
+    width: 100%;
+    margin-top: var(--space-2xl); /* mayor separación antes del botón */
+    padding: var(--space-md) var(--space-lg);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
 
-        &:focus {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
-        }
-
-        &:invalid:not(:placeholder-shown) {
-            border-color: var(--color-error, #dc2626);
-        }
-
-        &:valid:not(:placeholder-shown) {
-            border-color: var(--color-success, #059669);
-        }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
     }
 
-    .form-textarea {
-        min-height: 120px;
-        resize: vertical;
-        font-family: var(--font-primary);
-        line-height: 1.5;
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
     }
 
-    // Contador de caracteres
-    .character-counter {
-        text-align: right;
-        margin-top: var(--space-xs);
-        font-size: 0.8rem;
-        color: var(--color-text-muted);
-        font-family: var(--font-primary);
+    // Efecto de loading
+    &.loading {
+      color: transparent;
 
-        #currentCount {
-            font-weight: 600;
-            color: var(--color-text-secondary);
-        }
-
-        &.warning #currentCount {
-            color: var(--color-warning, #f59e0b);
-        }
-
-        &.error #currentCount {
-            color: var(--color-error, #dc2626);
-        }
-    }
-
-    // Botón de envío
-    .contact-form .btn-cta__solid {
-        width: 100%;
-        margin-top: var(--space-lg);
-        padding: var(--space-md) var(--space-lg);
-        font-size: 1.1rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        &:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        // Efecto de loading
-        &.loading {
-            color: transparent;
-
-            &::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 20px;
-                height: 20px;
-                border: 2px solid transparent;
-                border-top: 2px solid var(--color-white);
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-        }
-    }
-
-    // Animación de loading
-    @keyframes spin {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    // Estados de validación visual
-    .form-group.error .form-input {
-        border-color: var(--color-error, #dc2626);
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-    }
-
-    .form-group.success .form-input {
-        border-color: var(--color-success, #059669);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-    // Mensajes de error
-    .error-message {
-        color: var(--color-error, #dc2626);
-        font-size: 0.8rem;
-        margin-top: var(--space-xs);
-        display: block;
-        font-family: var(--font-primary);
-    }
-
-    // Responsive design - Solo para inputs más pequeños en móvil
-    @media (max-width: #{container(narrow)}) {
-        .form-input {
-            padding: var(--space-sm);
-        }
-
-        .contact-form .btn-cta__solid {
-            padding: var(--space-sm) var(--space-md);
-            font-size: 1rem;
-        }
-    }
-
-
-
-    // =========================
-    // SISTEMA DE MODALES - Siguiendo el patrón de Modal.astro
-    // =========================
-    
-    // Modal base - Siguiendo el patrón del sistema
-    .success-modal,
-    .error-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(4px);
-        z-index: var(--z-modal);
-        padding: var(--space-md);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity var(--transition-normal) ease;
-        pointer-events: none;
-        
-        // IMPORTANTE: Asegurar que esté oculto por defecto
-        &:not(.active) {
-            display: none;
-        }
-        
-        &.active {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: all;
-            display: flex;
-        }
-    }
-
-    // Contenido del modal - Siguiendo el patrón del sistema
-    .success-modal__content,
-    .error-modal__content {
-        background: var(--color-surface);
-        padding: var(--space-xl);
-        border-radius: 0; // Flat design
-        width: 95%;
-        max-width: 500px;
-        max-height: 90vh;
-        position: relative;
-        overflow-y: auto;
-        box-shadow: var(--shadow-xl);
-        transform: scale(0.7) translateY(2rem);
-        transition: all var(--transition-normal) ease;
-        border: 1px solid var(--color-border);
-        text-align: center;
-        
-        @media (min-width: #{container(narrow)}) {
-            width: 90%;
-            padding: var(--space-2xl);
-        }
-    }
-
-    // Cuando el modal está activo
-    .success-modal.active .success-modal__content,
-    .error-modal.active .error-modal__content {
-        transform: scale(1) translateY(0);
-    }
-
-    // Botón de cerrar - Siguiendo el patrón del sistema
-    .success-modal__close,
-    .error-modal__close {
+      &::after {
+        content: "";
         position: absolute;
-        top: var(--space-md);
-        right: var(--space-md);
-        font-size: 1.75rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        color: var(--color-text);
-        cursor: pointer;
-        padding: var(--space-xs) var(--space-sm);
-        line-height: 1;
-        transition: all var(--transition-normal) ease;
-        z-index: calc(var(--z-modal) + 1);
-        border-radius: 0; // Flat design
-        font-weight: 400;
-        width: 2.5rem;
-        height: 2.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid var(--btn-spinner-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
 
-        &:hover {
-            background: var(--color-primary);
-            color: var(--color-white);
-            border-color: var(--color-primary);
-        }
+  // Animación de loading
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  // Estados de validación visual
+  .form-group.error .form-input {
+    border-color: var(--color-error, #dc2626);
+    box-shadow: 0 0 0 3px var(--error-shadow);
+  }
+
+  .form-group.success .form-input {
+    border-color: var(--color-success, #059669);
+    box-shadow: 0 0 0 3px var(--success-shadow);
+  }
+
+  // Mensajes de error
+  span.error-message {
+    border: 1px solid #ef4444 !important;
+    font-size: 0.8rem;
+    margin-top: var(--space-xs);
+    display: block;
+    font-family: var(--font-primary);
+  }
+
+  // Responsive design - Solo para inputs más pequeños en móvil
+  @media (max-width: #{container(narrow)}) {
+    .form-input {
+      padding: var(--space-sm);
     }
 
-    // Iconos de modal
-    .success-modal__icon,
-    .error-modal__icon {
-        font-size: 4rem;
-        margin-bottom: var(--space-lg);
-        display: block;
-        font-weight: bold;
-        line-height: 1;
+    .contact-form .btn-cta__solid {
+      padding: var(--space-sm) var(--space-md);
+      font-size: 1rem;
     }
-
-    .success-modal__icon {
-        color: var(--color-success);
-    }
-
-    .error-modal__icon {
-        color: var(--color-error);
-    }
-
-    // Títulos de modal
-    .success-modal__title,
-    .error-modal__title {
-        font-family: var(--font-headings);
-        font-weight: 700;
-        color: var(--color-text);
-        margin-bottom: var(--space-lg);
-        font-size: 1.5rem;
-
-        @media (min-width: #{container(narrow)}) {
-            font-size: 1.875rem;
-        }
-    }
-
-    // Texto de modal
-    .success-modal__text,
-    .error-modal__text {
-        color: var(--color-text);
-        line-height: 1.7;
-        font-family: var(--font-primary);
-        font-size: 1rem;
-        margin-bottom: var(--space-lg);
-
-        @media (min-width: #{container(narrow)}) {
-            font-size: 1.125rem;
-        }
-    }
-
-    // Botones de modal - Usando el estilo del sistema
-    .modal-btn {
-        background: var(--btn-primary-bg);
-        color: var(--btn-primary-text);
-        border: 2px solid var(--btn-primary-bg);
-        padding: var(--padding-btn);
-        border-radius: 0; // Flat design
-        cursor: pointer;
-        font-weight: 600;
-        margin-top: var(--space-lg);
-        transition: all var(--transition-fast) ease;
-        min-width: 160px;
-        font-family: var(--font-headings);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.9rem;
-        
-        &:hover {
-            background: var(--btn-primary-hover);
-            border-color: var(--btn-primary-hover);
-            transform: translateY(-2px);
-        }
-        
-        &:focus {
-            outline: 3px solid var(--color-accent);
-            outline-offset: 2px;
-        }
-        
-        &:active {
-            transform: translateY(0);
-        }
-    }
+  }
 </style>
 
-<script>
-    // CONFIGURACIÓN MAKE.COM - Cambia estos valores según tus necesidades
-    const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/4t4ssk96zdwa9aqblpdytsfmm3o9a7pg';
-    const TEST_MODE = true; // CAMBIO: Activar envío real al webhook
+<script type="module">
+  // CONFIG API (reemplaza PUBLIC_API_BASE_URL en tu entorno .env con la URL del backend NestJS)
+  // Obtención segura de variable pública (evita errores si import.meta/env no están definidos en runtime)
+  // Obtención segura de variable pública dentro de un módulo ES
+  function getPublicEnv(key) {
+    try {
+      return import.meta &&
+        import.meta.env &&
+        Object.prototype.hasOwnProperty.call(import.meta.env, key)
+        ? import.meta.env[key]
+        : undefined;
+    } catch (_e) {
+      return undefined;
+    }
+  }
 
-    // Funcionalidad del formulario de contacto
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('contactForm') as HTMLFormElement;
-        const messageTextarea = document.getElementById('message') as HTMLTextAreaElement;
-        const currentCount = document.getElementById('currentCount');
-        const characterCounter = document.querySelector('.character-counter');
-        const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  // Override opcional vía window.__APP_CONFIG.PUBLIC_API_BASE_URL (inyectado antes del script si se despliega estático)
+  const runtimeConfig =
+    (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) ||
+    undefined;
+  const rawBase =
+    runtimeConfig ||
+    getPublicEnv("PUBLIC_API_BASE_URL") ||
+    "http://localhost:3000";
+  const API_BASE_URL = rawBase.replace(/\/$/, "");
+  const CONTACT_ENDPOINT = "/forms/contact";
+  const API_URL = API_BASE_URL
+    ? `${API_BASE_URL}${CONTACT_ENDPOINT}`
+    : CONTACT_ENDPOINT; // Permite proxy interno
+  // Flag de desarrollo (seguro incluso si import.meta.env es undefined en runtime)
+  let DEV_SIMULATION = false;
+  try {
+    if (
+      import.meta &&
+      import.meta.env &&
+      Object.prototype.hasOwnProperty.call(import.meta.env, "DEV")
+    ) {
+      DEV_SIMULATION = Boolean(import.meta.env.DEV);
+    }
+  } catch (_e) {
+    /* noop */
+  }
+  // Simula respuesta en modo desarrollo si no hay backend
+  const REQUEST_TIMEOUT_MS = 10000;
+  const HONEYPOT_FIELD = "website";
 
-        // =====================
-        // FUNCIONES DE MODAL - Siguiendo el patrón de Modal.astro
-        // =====================
-        
-        // Función para abrir modal
-        function openModal(modalId: string) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
-            }
+  // Utilidad timeout fetch con soporte AbortController
+  function fetchWithTimeout(resource, options = {}) {
+    const { timeout = REQUEST_TIMEOUT_MS, signal } = options;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort("timeout"), timeout);
+    // Permitir señal externa además del timeout interno
+    if (signal) {
+      signal.addEventListener("abort", () => controller.abort(signal.reason), {
+        once: true,
+      });
+    }
+    return fetch(resource, { ...options, signal: controller.signal }).finally(
+      () => clearTimeout(timeoutId)
+    );
+  }
+
+  // Retry con backoff exponencial básico (1 reintento)
+  async function fetchWithRetry(url, options = {}, retries = 1) {
+    try {
+      return await fetchWithTimeout(url, options);
+    } catch (err) {
+      if (
+        retries > 0 &&
+        (err?.name === "AbortError" ||
+          err?.message === "Failed to fetch" ||
+          err?.message === "timeout")
+      ) {
+        await new Promise((r) => setTimeout(r, 600));
+        return fetchWithRetry(url, options, retries - 1);
+      }
+      throw err;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("contactForm");
+    const messageTextarea = document.getElementById("message");
+    const currentCount = document.getElementById("currentCount");
+    const characterCounter = document.querySelector(".character-counter");
+    const submitButton = form?.querySelector('button[type="submit"]');
+    const DEBUG =
+      typeof window !== "undefined" &&
+      window.location.search.includes("debug=1");
+    let inFlightController = null;
+
+    // =====================
+    // FUNCIONES DE MODAL - Usando window.modalHelpers del componente ModalMessage
+    // =====================
+
+    // Funciones helper que usan window.modalHelpers global
+    function openModal(modalId) {
+      if (typeof window !== "undefined" && window.modalHelpers) {
+        window.modalHelpers.openModal(modalId);
+      }
+    }
+
+    function updateModalMessage(modalId, newMessage) {
+      if (typeof window !== "undefined" && window.modalHelpers) {
+        window.modalHelpers.updateModalMessage(modalId, newMessage);
+      }
+    }
+
+    // =====================
+    // FUNCIONALIDAD DEL FORMULARIO
+    // =====================
+
+    // Autoresize y contador de caracteres
+    if (messageTextarea && currentCount) {
+      const maxLength = 1500;
+
+      function updateCharacterCount() {
+        const currentLength = messageTextarea.value.length;
+        if (currentCount) {
+          currentCount.textContent = currentLength.toString();
         }
+        // Autoresize
+        messageTextarea.style.height = "auto";
+        messageTextarea.style.height =
+          Math.min(messageTextarea.scrollHeight, 600) + "px";
 
-        // Función para cerrar modal
-        function closeModal(modal: HTMLElement) {
-            modal.classList.remove('active');
-            document.body.style.overflow = ''; // Restaurar scroll del body
+        // Cambiar color según el progreso
+        if (characterCounter) {
+          characterCounter.classList.remove("warning", "error");
+
+          if (currentLength > maxLength * 0.9) {
+            characterCounter.classList.add("warning");
+          }
+          if (currentLength > maxLength) {
+            characterCounter.classList.add("error");
+          }
         }
+      }
 
-        // Función para cerrar todos los modales
-        function closeAllModals() {
-            const activeModals = document.querySelectorAll('.success-modal.active, .error-modal.active');
-            activeModals.forEach(modal => closeModal(modal as HTMLElement));
+      // Limitar caracteres
+      messageTextarea.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target.value.length > maxLength) {
+          target.value = target.value.substring(0, maxLength);
         }
+        updateCharacterCount();
+      });
 
-        // Event listeners para botones de cerrar (X)
-        document.addEventListener('click', (e) => {
-            const target = e.target as HTMLElement;
-            
-            // Botón de cerrar (X)
-            if (target.classList.contains('success-modal__close') || target.classList.contains('error-modal__close')) {
-                e.preventDefault();
-                const modal = target.closest('.success-modal, .error-modal');
-                if (modal) {
-                    closeModal(modal as HTMLElement);
-                }
-            }
-            
-            // Botones principales de modal
-            if (target.id === 'successModalBtn' || target.id === 'errorModalBtn') {
-                e.preventDefault();
-                const modal = target.closest('.success-modal, .error-modal');
-                if (modal) {
-                    closeModal(modal as HTMLElement);
-                }
-            }
-        });
+      // Inicializar contador
+      updateCharacterCount();
+    }
 
-        // Cerrar modal al hacer click fuera del contenido
-        document.addEventListener('click', (e) => {
-            const target = e.target as HTMLElement;
-            if (target.classList.contains('success-modal') || target.classList.contains('error-modal')) {
-                closeModal(target);
-            }
-        });
+    // Validación en tiempo real
+    const inputs = form?.querySelectorAll(".form-input");
+    inputs?.forEach((input) => {
+      input.addEventListener("blur", () => {
+        validateField(input);
+      });
 
-        // Cerrar modal con la tecla Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeAllModals();
-            }
-        });
-
-        // =====================
-        // FUNCIONALIDAD DEL FORMULARIO
-        // =====================
-
-        // Contador de caracteres
-        if (messageTextarea && currentCount) {
-            const maxLength = 1500;
-
-            function updateCharacterCount() {
-                const currentLength = messageTextarea.value.length;
-                if (currentCount) {
-                    currentCount.textContent = currentLength.toString();
-                }
-
-                // Cambiar color según el progreso
-                if (characterCounter) {
-                    characterCounter.classList.remove('warning', 'error');
-                    
-                    if (currentLength > maxLength * 0.9) {
-                        characterCounter.classList.add('warning');
-                    }
-                    if (currentLength > maxLength) {
-                        characterCounter.classList.add('error');
-                    }
-                }
-            }
-
-            // Limitar caracteres
-            messageTextarea.addEventListener('input', (e) => {
-                const target = e.target as HTMLTextAreaElement;
-                if (target.value.length > maxLength) {
-                    target.value = target.value.substring(0, maxLength);
-                }
-                updateCharacterCount();
-            });
-
-            // Inicializar contador
-            updateCharacterCount();
+      input.addEventListener("input", () => {
+        clearErrors(input);
+        // Activar/desactivar botón según validez mínima
+        if (submitButton && form) {
+          const nameOk = !!form.querySelector('[name="name"]').value.trim();
+          const emailEl = form.querySelector('[name="email"]').value.trim();
+          const emailOk = !!emailEl && isValidEmail(emailEl);
+          const msgOk = !!form.querySelector('[name="message"]').value.trim();
+          submitButton.disabled = !(nameOk && emailOk && msgOk);
         }
-
-        // Validación en tiempo real
-        const inputs = form?.querySelectorAll('.form-input');
-        inputs?.forEach(input => {
-            input.addEventListener('blur', () => {
-                validateField(input as HTMLInputElement);
-            });
-
-            input.addEventListener('input', () => {
-                clearErrors(input as HTMLInputElement);
-            });
-        });
-
-        // Función de validación individual
-        function validateField(field: HTMLInputElement) {
-            const formGroup = field.closest('.form-group');
-            const value = field.value.trim();
-            let isValid = true;
-            let errorMessage = '';
-
-            // Limpiar errores previos
-            clearErrors(field);
-
-            // Validaciones específicas
-            switch (field.type) {
-                case 'email':
-                    if (value && !isValidEmail(value)) {
-                        isValid = false;
-                        errorMessage = 'Por favor ingresa un correo electrónico válido';
-                    }
-                    break;
-                case 'tel':
-                    if (value && !isValidPhone(value)) {
-                        isValid = false;
-                        errorMessage = 'Por favor ingresa un número de teléfono válido';
-                    }
-                    break;
-            }
-
-            // Campos requeridos
-            if (field.required && !value) {
-                isValid = false;
-                errorMessage = 'Este campo es requerido';
-            }
-
-            // Aplicar estilos de validación
-            if (formGroup) {
-                if (isValid && value) {
-                    formGroup.classList.add('success');
-                    formGroup.classList.remove('error');
-                } else if (!isValid) {
-                    formGroup.classList.add('error');
-                    formGroup.classList.remove('success');
-                    showError(field, errorMessage);
-                }
-            }
-
-            return isValid;
-        }
-
-        // Mostrar mensaje de error
-        function showError(field: HTMLInputElement, message: string) {
-            const formGroup = field.closest('.form-group');
-            if (formGroup) {
-                let errorElement = formGroup.querySelector('.error-message');
-                if (!errorElement) {
-                    errorElement = document.createElement('span');
-                    errorElement.classList.add('error-message');
-                    formGroup.appendChild(errorElement);
-                }
-                errorElement.textContent = message;
-            }
-        }
-
-        // Limpiar errores
-        function clearErrors(field: HTMLInputElement) {
-            const formGroup = field.closest('.form-group');
-            if (formGroup) {
-                formGroup.classList.remove('error', 'success');
-                const errorElement = formGroup.querySelector('.error-message');
-                if (errorElement) {
-                    errorElement.remove();
-                }
-            }
-        }
-
-        // Validadores
-        function isValidEmail(email: string): boolean {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        function isValidPhone(phone: string): boolean {
-            const phoneRegex = /^[\+]?[0-9\s\-\(\)]+$/;
-            return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 8;
-        }
-
-        // Manejo del envío del formulario con Make.com
-        if (form && submitButton) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                // Validar todos los campos
-                let isFormValid = true;
-                const requiredFields = ['name', 'email', 'message'];
-                
-                requiredFields.forEach(fieldName => {
-                    const field = form.querySelector(`[name="${fieldName}"]`) as HTMLInputElement;
-                    if (!field || !validateField(field)) {
-                        isFormValid = false;
-                    }
-                });
-
-                if (isFormValid) {
-                    // Mostrar estado de loading
-                    submitButton.classList.add('loading');
-                    submitButton.disabled = true;
-
-                    try {
-                        // Preparar datos para envío
-                        const formData = new FormData(form);
-                        const data = {
-                            name: formData.get('name'),
-                            email: formData.get('email'),
-                            phone: formData.get('phone'),
-                            message: formData.get('message'),
-                            timestamp: new Date().toISOString(),
-                            source: 'landing-page-gabrielzavando'
-                        };
-
-                        let response;
-                        
-                        if (TEST_MODE) {
-                            // Simular respuesta exitosa en modo test
-                            response = {
-                                ok: true,
-                                json: async () => ({ success: true, message: 'Mensaje enviado correctamente (modo test)' })
-                            };
-                            // Simular delay de red
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        } else {
-                            // Envío real a Make.com
-                            const formBody = new URLSearchParams();
-                            Object.entries(data).forEach(([key, value]) => {
-                                formBody.append(key, String(value));
-                            });
-                            
-                            response = await fetch(MAKE_WEBHOOK_URL, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
-                                body: formBody.toString()
-                            });
-                        }
-
-                        if (response.ok) {
-                            // Mostrar modal de éxito
-                            openModal('successModal');
-                            form.reset();
-                            
-                            // Limpiar estados
-                            inputs?.forEach(input => clearErrors(input as HTMLInputElement));
-                            if (currentCount) currentCount.textContent = '0';
-                            if (characterCounter) characterCounter.classList.remove('warning', 'error');
-                        } else {
-                            throw new Error(`Error ${response.status}: ${response.statusText}`);
-                        }
-                    } catch (error) {
-                        console.error('Error al enviar:', error);
-                        // Mostrar modal de error
-                        openModal('errorModal');
-                    } finally {
-                        // Remover loading
-                        submitButton.classList.remove('loading');
-                        submitButton.disabled = false;
-                    }
-                }
-            });
-        }
+      });
     });
+
+    // Inicialmente deshabilitar hasta que sea válido (mejor UX)
+    if (submitButton) submitButton.disabled = true;
+
+    // Función de validación individual
+    function validateField(field) {
+      const formGroup = field.closest(".form-group");
+      const value = field.value.trim();
+      let isValid = true;
+      let errorMessage = "";
+
+      // Limpiar errores previos
+      clearErrors(field);
+
+      // Validaciones específicas
+      switch (field.type) {
+        case "email":
+          if (value && !isValidEmail(value)) {
+            isValid = false;
+            errorMessage = "Por favor ingresa un correo electrónico válido";
+          }
+          break;
+        case "tel":
+          if (value && !isValidPhone(value)) {
+            isValid = false;
+            errorMessage = "Por favor ingresa un número de teléfono válido";
+          }
+          break;
+      }
+
+      // Campos requeridos
+      if (field.required && !value) {
+        isValid = false;
+        errorMessage = "Este campo es requerido";
+      }
+
+      // Aplicar estilos de validación
+      if (formGroup) {
+        if (isValid && value) {
+          formGroup.classList.add("success");
+          formGroup.classList.remove("error");
+        } else if (!isValid) {
+          formGroup.classList.add("error");
+          formGroup.classList.remove("success");
+          showError(field, errorMessage);
+        }
+      }
+
+      return isValid;
+    }
+
+    // Mostrar mensaje de error
+    function showError(field, message) {
+      const formGroup = field.closest(".form-group");
+      if (formGroup) {
+        let errorElement = formGroup.querySelector(".error-message");
+        if (!errorElement) {
+          errorElement = document.createElement("span");
+          errorElement.classList.add("error-message");
+          // Añadimos inline style para forzar visibilidad si la cascada CSS lo sobreescribe
+          errorElement.style.color = '#ef4444';
+          formGroup.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+      }
+    }
+
+    // Limpiar errores
+    function clearErrors(field) {
+      const formGroup = field.closest(".form-group");
+      if (formGroup) {
+        formGroup.classList.remove("error", "success");
+        const errorElement = formGroup.querySelector(".error-message");
+        if (errorElement) {
+          errorElement.remove();
+        }
+      }
+    }
+
+    // Validadores
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    function isValidPhone(phone) {
+      const phoneRegex = /^[\+]?[0-9\s\-\(\)]+$/;
+      return phoneRegex.test(phone) && phone.replace(/\D/g, "").length >= 8;
+    }
+
+    // Manejo del envío del formulario hacia la API NestJS
+    if (form && submitButton) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!navigator.onLine) {
+          console.warn("Sin conexión a Internet.");
+          openModal("errorModal");
+          return;
+        }
+
+        // Honeypot
+        const honey = form.querySelector(`[name="${HONEYPOT_FIELD}"]`);
+        if (honey && honey.value) {
+          // Bot sospechoso: abortar silenciosamente
+          return;
+        }
+
+        // Validación campos requeridos
+        let isFormValid = true;
+        const requiredFields = ["name", "email", "message"];
+        requiredFields.forEach((fieldName) => {
+          const field = form.querySelector(`[name="${fieldName}"]`);
+          if (!field || !validateField(field)) {
+            isFormValid = false;
+          }
+        });
+        if (!isFormValid) return;
+
+        submitButton.classList.add("loading");
+        submitButton.disabled = true;
+
+        // Cancelar petición previa si hubiera
+        if (inFlightController) {
+          try {
+            inFlightController.abort("new-submit");
+          } catch (_) {}
+        }
+        inFlightController = new AbortController();
+
+        try {
+          const formData = new FormData(form);
+          const payload = {
+            name: String(formData.get("name") || "").trim(),
+            email: String(formData.get("email") || "").trim(),
+            phone: String(formData.get("phone") || "").trim() || null,
+            message: String(formData.get("message") || "").trim(),
+            meta: {
+              userAgent: navigator.userAgent,
+              referrer: document.referrer || null,
+              page: window.location.pathname,
+              ts: new Date().toISOString(),
+            },
+          };
+
+          // LOG: Mostrar payload que se envía
+          console.log("📤 Enviando formulario a:", API_URL);
+          console.log("📋 Payload:", payload);
+
+          let response;
+          if (!API_BASE_URL && DEV_SIMULATION) {
+            // Simulación local sin backend
+            console.log("🧪 Modo simulación - sin backend configurado");
+            await new Promise((r) => setTimeout(r, 800));
+            response = {
+              ok: true,
+              status: 200,
+              json: async () => ({ success: true, simulated: true }),
+            };
+          } else {
+            response = await fetchWithRetry(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify(payload),
+              timeout: REQUEST_TIMEOUT_MS,
+              signal: inFlightController.signal,
+            });
+          }
+
+          // LOG: Mostrar respuesta del backend
+          console.log("📥 Respuesta HTTP status:", response.status);
+          console.log("✅ Response OK:", response.ok);
+
+          if (response.ok) {
+            // Intentar leer la respuesta JSON
+            try {
+              const responseData = await response.json();
+              console.log("📋 Respuesta del backend:", responseData);
+            } catch (jsonError) {
+              console.log(
+                "⚠️ No se pudo parsear respuesta como JSON:",
+                jsonError
+              );
+            }
+            openModal("successModal");
+            form.reset();
+            inputs?.forEach((input) => clearErrors(input));
+            if (currentCount) currentCount.textContent = "0";
+            if (characterCounter)
+              characterCounter.classList.remove("warning", "error");
+            if (submitButton) submitButton.disabled = true; // hasta que se vuelva a llenar
+          } else {
+            console.error("❌ Error status:", response.status);
+            // Intentar leer mensaje de error del backend
+            try {
+              const errorData = await response.json();
+              console.error("📋 Error del backend:", errorData);
+              if (errorData?.message) {
+                updateModalMessage("errorModal", String(errorData.message));
+              }
+            } catch (jsonError) {
+              console.error(
+                "⚠️ No se pudo parsear error como JSON:",
+                jsonError
+              );
+            }
+            openModal("errorModal");
+          }
+        } catch (err) {
+          console.error("❌ Error enviando formulario:", err);
+          console.error("🔍 Detalles del error:", {
+            message: err.message,
+            stack: err.stack,
+            apiUrl: API_URL,
+            apiBaseUrl: API_BASE_URL,
+          });
+          // Mensaje de error más específico
+          if (err?.name === "AbortError") {
+            updateModalMessage(
+              "errorModal",
+              "La solicitud fue cancelada o expiró. Intenta nuevamente."
+            );
+          } else if (!navigator.onLine) {
+            updateModalMessage(
+              "errorModal",
+              "Sin conexión a Internet. Revisa tu red e intenta de nuevo."
+            );
+          } else {
+            updateModalMessage(
+              "errorModal",
+              "No se pudo enviar el formulario. Inténtalo nuevamente en unos segundos."
+            );
+          }
+          openModal("errorModal");
+        } finally {
+          submitButton.classList.remove("loading");
+          submitButton.disabled = false;
+          inFlightController = null;
+        }
+      });
+    }
+  });
 </script>

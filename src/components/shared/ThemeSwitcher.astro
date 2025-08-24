@@ -37,18 +37,24 @@
       border: none;
       cursor: pointer;
       padding: 0.5rem;
-      border-radius: 50%;
       @include flex(row, center, center);
+      transition: color var(--transition-normal) ease;
+      
+      // En móvil: usar color de texto normal (mismo que los enlaces)
       color: var(--color-text);
-      transition: all 0.3s ease;
       
-      &:hover {
-        background-color: var(--color-surface-secondary);
-      }
-      
+      // En desktop: usar la misma variable contextual que los enlaces del nav
+      @include respond-to(sm) {
+        color: var(--nav-link-color);
+        
+        &:hover {
+          color: var(--color-accent);
+        }
+      }      
+      // Quitar cualquier background en hover/focus
+      &:hover,
       &:focus {
-        outline: 2px solid var(--color-primary);
-        outline-offset: 2px;
+        background: transparent;
       }
     }
     
