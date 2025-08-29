@@ -71,12 +71,8 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
             right: 0;
             bottom: 0;
             z-index: var(--z-background);
-            // Fallback si la imagen no carga
-            background: linear-gradient(
-                135deg,
-                var(--color-dark),
-                var(--color-neutral)
-            );
+            // Fallback si la imagen no carga (usar variables del sistema de diseño)
+            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
             
             .banner__image {
                 width: 100%;
@@ -97,11 +93,7 @@ const subtitle = "Tu negocio tiene todo para crecer. La digitalización es el si
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(29, 0, 51, 0.8),
-                rgba(47, 47, 47, 0.8)
-            );
+            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
             z-index: var(--z-base);
         }
 

@@ -60,6 +60,10 @@ $colors-light: (
   nav-bg: #ffffff,
   background: #f9fafb,
   secondary-dark: #1f2937
+  ,
+  // Overlay del banner
+  banner-overlay-start: rgba(29, 0, 51, 0.95),
+  banner-overlay-end: rgba(166, 0, 255, 0.8)
 ) !default;
 
 // Colores tema oscuro
@@ -115,6 +119,10 @@ $colors-dark: (
   nav-bg: #1f2937,
   background: #111827,
   secondary-dark: #374151
+  ,
+  // Overlay del banner (tema oscuro) - más cercano al negro con un matiz púrpura
+  banner-overlay-start: rgba(0, 0, 0, 0.9),
+  banner-overlay-end: rgba(10, 5, 30, 0.75)
 ) !default;
 
 // Espaciado

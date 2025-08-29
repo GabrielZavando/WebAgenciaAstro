@@ -2,6 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versión siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.0.1] - 2025-08-29
+### Cambiado
+- Ajustes en `Banner.astro` y mejoras en estilos base (`_tokens.scss`, `_root.scss`).
+
+### Eliminado
+- Limpieza de iconos y SVG no utilizados en `src/assets/img`.
+
+### Nota
+- Realineación de versionado: se continúa desde `1.0.0` definido en `package.json`.
+
 ## [0.1.0] - 2025-08-11
 ### Añadido
 - Nuevo breakpoint `xxs (400px)` para mejorar tipografía y escalado en móviles muy pequeños.
@@ -26,4 +36,5 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ---
 
+[1.0.1]: https://github.com/GabrielZavando/WebAgenciaAstro/releases/tag/v1.0.1
 [0.1.0]: https://github.com/GabrielZavando/WebAgenciaAstro/releases/tag/v0.1.0

@@ -114,6 +114,9 @@
   --color-nav-bg: #{color(nav-bg)};
   --color-background: #{color(background)};
   --color-secondary-dark: #{color(secondary-dark)};
+  /* Banner overlay */
+  --banner-overlay-start: #{color(banner-overlay-start)};
+  --banner-overlay-end: #{color(banner-overlay-end)};
   
   /* Variables contextuales navegación - tema claro */
   --color-nav-hamburger-default: #{color(nav-hamburger-default)};
@@ -151,6 +154,9 @@
   --color-nav-bg: #{color(nav-bg, dark)};
   --color-background: #{color(background, dark)};
   --color-secondary-dark: #{color(secondary-dark, dark)};
+  /* Banner overlay (tema oscuro) */
+  --banner-overlay-start: #{color(banner-overlay-start, dark)};
+  --banner-overlay-end: #{color(banner-overlay-end, dark)};
   
   /* Variables contextuales navegación - tema oscuro */
   --color-nav-hamburger-default: #{color(nav-hamburger-default, dark)};
