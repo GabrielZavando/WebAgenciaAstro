@@ -1,5 +1,8 @@
 ---
 import ModalMessage from "../shared/ModalMessage.astro";
+
+// Leer la variable de entorno en el servidor (frontmatter)
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia-201828783555.southamerica-west1.run.app";
 ---
 
 <section class="contact" id="contact">
@@ -75,6 +78,14 @@ import ModalMessage from "../shared/ModalMessage.astro";
     </form>
   </div>
 </section>
+
+<!-- Inyectar configuración del servidor al cliente -->
+<script define:vars={{ apiBaseUrl: API_BASE_URL }}>
+  // Hacer disponible la configuración globalmente
+  window.__CONTACT_CONFIG = {
+    API_BASE_URL: apiBaseUrl
+  };
+</script>
 
 <!-- Modales de éxito y error -->
 <ModalMessage
@@ -328,47 +339,30 @@ import ModalMessage from "../shared/ModalMessage.astro";
 </style>
 
 <script type="module">
-  // CONFIG API (reemplaza PUBLIC_API_BASE_URL en tu entorno .env con la URL del backend NestJS)
-  // Obtención segura de variable pública (evita errores si import.meta/env no están definidos en runtime)
-  // Obtención segura de variable pública dentro de un módulo ES
-  function getPublicEnv(key) {
-    try {
-      return import.meta &&
-        import.meta.env &&
-        Object.prototype.hasOwnProperty.call(import.meta.env, key)
-        ? import.meta.env[key]
-        : undefined;
-    } catch (_e) {
-      return undefined;
+  // CONFIG API - Usar configuración inyectada desde el servidor
+  function getAPIBaseURL() {
+    // 1. Configuración inyectada desde Astro (frontmatter)
+    if (window.__CONTACT_CONFIG && window.__CONTACT_CONFIG.API_BASE_URL) {
+      return window.__CONTACT_CONFIG.API_BASE_URL;
     }
+    
+    // 2. Runtime config (para deploys estáticos)
+    if (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) {
+      return window.__APP_CONFIG.PUBLIC_API_BASE_URL;
+    }
+    
+    // 3. Fallback
+    return "https://api-agencia-201828783555.southamerica-west1.run.app";
   }
 
-  // Override opcional vía window.__APP_CONFIG.PUBLIC_API_BASE_URL (inyectado antes del script si se despliega estático)
-  const runtimeConfig =
-    (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) ||
-    undefined;
-  const rawBase =
-    runtimeConfig ||
-    getPublicEnv("PUBLIC_API_BASE_URL") ||
-    "http://localhost:3000";
-  const API_BASE_URL = rawBase.replace(/\/$/, "");
+  const API_BASE_URL = getAPIBaseURL().replace(/\/$/, "");
   const CONTACT_ENDPOINT = "/forms/contact";
-  const API_URL = API_BASE_URL
-    ? `${API_BASE_URL}${CONTACT_ENDPOINT}`
-    : CONTACT_ENDPOINT; // Permite proxy interno
-  // Flag de desarrollo (seguro incluso si import.meta.env es undefined en runtime)
-  let DEV_SIMULATION = false;
-  try {
-    if (
-      import.meta &&
-      import.meta.env &&
-      Object.prototype.hasOwnProperty.call(import.meta.env, "DEV")
-    ) {
-      DEV_SIMULATION = Boolean(import.meta.env.DEV);
-    }
-  } catch (_e) {
-    /* noop */
-  }
+  const API_URL = `${API_BASE_URL}${CONTACT_ENDPOINT}`;
+
+
+  // Flag de desarrollo para simulación
+  const DEV_SIMULATION = API_BASE_URL.includes("localhost");
+  
   // Simula respuesta en modo desarrollo si no hay backend
   const REQUEST_TIMEOUT_MS = 10000;
   const HONEYPOT_FIELD = "website";
@@ -643,14 +637,10 @@ import ModalMessage from "../shared/ModalMessage.astro";
             },
           };
 
-          // LOG: Mostrar payload que se envía
-          console.log("📤 Enviando formulario a:", API_URL);
-          console.log("📋 Payload:", payload);
 
           let response;
           if (!API_BASE_URL && DEV_SIMULATION) {
             // Simulación local sin backend
-            console.log("🧪 Modo simulación - sin backend configurado");
             await new Promise((r) => setTimeout(r, 800));
             response = {
               ok: true,
@@ -671,19 +661,13 @@ import ModalMessage from "../shared/ModalMessage.astro";
           }
 
           // LOG: Mostrar respuesta del backend
-          console.log("📥 Respuesta HTTP status:", response.status);
-          console.log("✅ Response OK:", response.ok);
 
           if (response.ok) {
             // Intentar leer la respuesta JSON
             try {
-              const responseData = await response.json();
-              console.log("📋 Respuesta del backend:", responseData);
+              await response.json();
             } catch (jsonError) {
-              console.log(
-                "⚠️ No se pudo parsear respuesta como JSON:",
-                jsonError
-              );
+              /* noop */
             }
             openModal("successModal");
             form.reset();
@@ -693,47 +677,33 @@ import ModalMessage from "../shared/ModalMessage.astro";
               characterCounter.classList.remove("warning", "error");
             if (submitButton) submitButton.disabled = true; // hasta que se vuelva a llenar
           } else {
-            console.error("❌ Error status:", response.status);
             // Intentar leer mensaje de error del backend
             try {
               const errorData = await response.json();
-              console.error("📋 Error del backend:", errorData);
               if (errorData?.message) {
                 updateModalMessage("errorModal", String(errorData.message));
               }
             } catch (jsonError) {
-              console.error(
-                "⚠️ No se pudo parsear error como JSON:",
-                jsonError
-              );
+              /* noop */
             }
             openModal("errorModal");
           }
         } catch (err) {
-          console.error("❌ Error enviando formulario:", err);
-          console.error("🔍 Detalles del error:", {
-            message: err.message,
-            stack: err.stack,
-            apiUrl: API_URL,
-            apiBaseUrl: API_BASE_URL,
-          });
+          
           // Mensaje de error más específico
+          let errorMessage = "No se pudo enviar el formulario. Inténtalo nuevamente en unos segundos.";
+          
           if (err?.name === "AbortError") {
-            updateModalMessage(
-              "errorModal",
-              "La solicitud fue cancelada o expiró. Intenta nuevamente."
-            );
+            errorMessage = "La solicitud fue cancelada o expiró. Intenta nuevamente.";
           } else if (!navigator.onLine) {
-            updateModalMessage(
-              "errorModal",
-              "Sin conexión a Internet. Revisa tu red e intenta de nuevo."
-            );
-          } else {
-            updateModalMessage(
-              "errorModal",
-              "No se pudo enviar el formulario. Inténtalo nuevamente en unos segundos."
-            );
+            errorMessage = "Sin conexión a Internet. Revisa tu red e intenta de nuevo.";
+          } else if (err?.name === "TypeError" && err?.message?.includes("Failed to fetch")) {
+            errorMessage = "Error de conexión. Verifica que la API esté disponible y que no hay problemas de CORS.";
+          } else if (err?.message) {
+            errorMessage = `Error: ${err.message}`;
           }
+          
+          updateModalMessage("errorModal", errorMessage);
           openModal("errorModal");
         } finally {
           submitButton.classList.remove("loading");

@@ -4,6 +4,9 @@ import ModalMessage from "./ModalMessage.astro";
 
 const currentYear = new Date().getFullYear();
 const { menuItems, socialLinks } = menuData;
+
+// Leer la variable de entorno en el servidor (frontmatter)
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia-201828783555.southamerica-west1.run.app";
 ---
 
 <footer class="footer">
@@ -467,6 +470,14 @@ const { menuItems, socialLinks } = menuData;
   }
 </style>
 
+<!-- Inyectar configuración del servidor al cliente -->
+<script define:vars={{ apiBaseUrl: API_BASE_URL }}>
+  // Hacer disponible la configuración globalmente
+  window.__SUBSCRIBE_CONFIG = {
+    API_BASE_URL: apiBaseUrl
+  };
+</script>
+
 <!-- Modales de éxito y error (newsletter) -->
 <ModalMessage 
   id="subscribeSuccessModal"
@@ -490,24 +501,29 @@ const { menuItems, socialLinks } = menuData;
 />
 
 <script type="module">
-  // CONFIG API newsletter (similar a Contact.astro)
-  function getPublicEnv(key) {
-    try {
-      return (import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, key))
-        ? import.meta.env[key]
-        : undefined;
-    } catch (_e) {
-      return undefined;
+  // CONFIG API - Usar configuración inyectada desde el servidor
+  function getAPIBaseURL() {
+    // 1. Configuración inyectada desde Astro (frontmatter)
+    if (window.__SUBSCRIBE_CONFIG && window.__SUBSCRIBE_CONFIG.API_BASE_URL) {
+      return window.__SUBSCRIBE_CONFIG.API_BASE_URL;
     }
+    
+    // 2. Runtime config (para deploys estáticos)
+    if (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) {
+      return window.__APP_CONFIG.PUBLIC_API_BASE_URL;
+    }
+    
+    // 3. Fallback
+    return "https://api-agencia-201828783555.southamerica-west1.run.app";
   }
-  const runtimeConfig = (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) || undefined;
-  const rawBase = runtimeConfig || getPublicEnv('PUBLIC_API_BASE_URL') || 'http://localhost:3000';
-  const API_BASE_URL = rawBase.replace(/\/$/, '');
-  const SUBSCRIBE_ENDPOINT = '/forms/subscribe'; // Asunción: endpoint del backend
-  const API_URL = API_BASE_URL ? `${API_BASE_URL}${SUBSCRIBE_ENDPOINT}` : SUBSCRIBE_ENDPOINT;
-  // Flag dev seguro
-  let DEV_SIMULATION = false;
-  try { if (import.meta && import.meta.env && Object.prototype.hasOwnProperty.call(import.meta.env, 'DEV')) DEV_SIMULATION = !!import.meta.env.DEV; } catch(_e) {}
+
+  const API_BASE_URL = getAPIBaseURL().replace(/\/$/, "");
+  const SUBSCRIBE_ENDPOINT = "/forms/subscribe";
+  const API_URL = `${API_BASE_URL}${SUBSCRIBE_ENDPOINT}`;
+
+
+  // Flag de desarrollo para simulación
+  const DEV_SIMULATION = API_BASE_URL.includes("localhost");
   const REQUEST_TIMEOUT_MS = 10000;
   const HONEYPOT_FIELD = 'website';
 
@@ -647,8 +663,6 @@ const { menuItems, socialLinks } = menuData;
           }
         };
 
-        console.log('📤 Enviando suscripción a:', API_URL);
-        console.log('📋 Payload:', payload);
 
         let response;
         if (!API_BASE_URL && DEV_SIMULATION) {
