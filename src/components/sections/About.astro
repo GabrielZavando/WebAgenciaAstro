@@ -1,67 +1,63 @@
 ---
-import gabriel from '../../assets/img/gabriel.jpg';
+import gabriel from '../../assets/img/gabriel.jpeg';
 import { Image } from 'astro:assets';
 
 ---
 
-<section class="about" id="about">
+ <section class="about" id="about">
   <div class="about-content">
-    <h2 class="title-section">Sobre Mí</h2>
+    <h2 class="title-section fade-in">Sobre Mí</h2>
     <div class="about-content__header">
-        <h3 class="about-content__header__title">Gabriel Zavando – Full Stack Developer Freelance</h3>
+        <h3 class="about-content__header__title fade-in fade-in-delay-1">Gabriel Zavando – Full Stack Developer Freelance</h3>
     </div>
 
     <div class="about-content-figure">
       <div class="about-content-figure__text">
-        <p class="about__paragraph">
-          Con más de 10 años de experiencia en desarrollo web y un recorrido reciente en automatización de procesos y chatbots con inteligencia artificial, acompaño a profesionales y Pymes —especialmente de la Región de Valparaíso— en su proceso de transformación digital.
+        <p class="about__paragraph fade-in fade-in-delay-2">
+          Con más de 10 años de experiencia, creo firmemente que el desarrollo de software es una forma concreta de mejorar la manera en que trabajamos. Mi foco es construir herramientas a medida para automatizar procesos y digitalizar operaciones
         </p>
-        <p class="about__paragraph">
-          Creo en el desarrollo de software como una forma concreta de mejorar la manera en que trabajamos. Automatizar procesos, digitalizar operaciones y construir herramientas a medida permite que las personas se concentren en lo que realmente importa: hacer crecer sus ideas. Cada solución que desarrollo nace de la realidad de mis clientes, no de plantillas.
+        <p class="about__paragraph fade-in fade-in-delay-3">
+          He visto cómo muchas Pymes invertían en soluciones genéricas que no resolvían sus desafíos. Por eso, cada proyecto que desarrollo nace de tu realidad, no de plantillas. Mi trabajo es un acompañamiento que va más allá de la entrega: trabajamos juntos desde el inicio hasta la implementación, asegurándome de que tu proyecto tenga un impacto y una evolución real y continua.
         </p>
-        <p class="about__paragraph">
-          Después de años viendo cómo muchas Pymes invertían en soluciones genéricas que no les resolvían nada, decidí enfocarme en crear herramientas útiles, sostenibles y hechas para durar. Mi trabajo no termina con la entrega: trabajo contigo desde el inicio hasta la implementación, asegurándome de que cada proyecto tenga sentido, impacto y evolución real.
-        </p>
+  
       </div>
 
       <div class="about-content-figure__image">
         <Image
           src={gabriel}
           alt="Gabriel Zavando - Desarrollador Full Stack"
-          width={300}
-          height={300}
-          class="about__photo"
+            width={300}
+            height={375}
+          class="about__photo fade-in fade-in-delay-5"
           loading="lazy"
         />
       </div>
     </div>
 
     <div class="about-content__specialties">
-      <h3 class="subtitle-section">
-        Especialidades
-      </h3>
+      <h3 class="subtitle-section fade-in">Especialidades</h3>
       <ul class="about-content__specialties__list">
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-1">
           <i class="fas fa-laptop-code"></i>
           <span>Desarrollo Frontend</span>
         </li>
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-2">
           <i class="fas fa-server"></i>
           <span>Desarrollo Backend</span>
         </li>
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-3">
           <i class="fas fa-mobile-alt"></i>
           <span>Diseño Responsivo</span>
         </li>
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-4">
           <i class="fas fa-exchange-alt"></i>
           <span>APIs RESTful</span>
         </li>
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-5">
           <i class="fas fa-cogs"></i>
           <span>Software a Medida</span>
         </li>
-        <li class="about-content__specialties__item">
+        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-6">
           <i class="fas fa-robot"></i>
           <span>Chatbots con IA</span>
         </li>
@@ -69,41 +65,41 @@ import { Image } from 'astro:assets';
     </div>
 
     <div class="about-content__tech">
-      <h3 class="subtitle-section">Tecnologías</h3>
+      <h3 class="subtitle-section fade-in">Tecnologías</h3>
       <ul class="about-content__tech__list">
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-1">
           <i class="fab fa-angular"></i>
           <span>Angular</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-2">
           <i class="fas fa-rocket"></i>
           <span>Astro</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-3">
           <i class="fab fa-node-js"></i>
           <span>Node.js</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-4">
           <i class="fas fa-cube"></i>
           <span>NestJS</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-5">
           <i class="fab fa-wordpress"></i>
           <span>WordPress</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-6">
           <i class="fas fa-database"></i>
           <span>PostgreSQL</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-7">
           <i class="fas fa-leaf"></i>
           <span>MongoDB</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-8">
           <i class="fab fa-git-alt"></i>
           <span>Git</span>
         </li>
-        <li class="about-content__tech__item">
+        <li class="about-content__tech__item tech-item fade-in fade-in-delay-9">
           <i class="fas fa-brain"></i>
           <span>LLMs (Modelos de Lenguaje)</span>
         </li>
@@ -199,15 +195,15 @@ import { Image } from 'astro:assets';
   // Estilos para la imagen
   .about__photo {
     border-radius: 0; // Flat design
-    width: 250px;
-    height: 250px;
+    width: 240px;
+    height: 300px;
     object-fit: cover;
     border: 3px solid var(--color-primary);
     transition: all var(--transition-normal) ease;
 
     @include respond-to(md) {
-      width: 300px;
-      height: 300px;
+      width: 320px;
+      height: 400px;
     }
 
     &:hover {

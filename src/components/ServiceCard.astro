@@ -4,12 +4,13 @@ interface Props {
   icon: string;
   title: string;
   description: string;
+  class?: string;
 }
 
-const { id, icon, title, description } = Astro.props;
+const { id, icon, title, description, class: className = '' } = Astro.props;
 ---
 
-<div class="service-card">
+<div class={`service-card ${className}`}>
   <div class="service-card__icon" set:html={icon}></div>
   <h3 class="service-card__title">{title}</h3>
   <p class="service-card__description">{description}</p>

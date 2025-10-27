@@ -8,17 +8,18 @@ const { section, services } = servicesData;
 
 <section id="services" class="services">
   <div class="services-content">
-    <h2 class="title-section">{section.title}</h2>
-    <p class="services-content__description">{section.description}</p>
+    <h2 class="title-section fade-in">{section.title}</h2>
+    <p class="services-content__description fade-in fade-in-delay-1">{section.description}</p>
 
     <div class="services-content__grid">
         {
-          services.map((service) => (
+          services.map((service, index) => (
             <ServiceCard
             id={service.id}
             icon={service.icon}
             title={service.title}
             description={service.description}
+            class={`fade-in fade-in-delay-${index + 2}`}
           />
         ))
       }

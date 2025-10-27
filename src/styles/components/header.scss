@@ -9,9 +9,27 @@
     left: 0;
     right: 0;
     z-index: var(--z-header);
-    background: transparent;
+    background: rgba(255, 255, 255, 0);
     padding: var(--space-xs) var(--padding-container);
-    transition: background-color var(--transition-normal) ease;
+    
+    // Animación de entrada desde arriba
+    &.fade-in-down {
+        opacity: 0;
+        transform: translateY(-100%);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        
+        &.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    // Transición para scroll SOLO después de la animación inicial
+    &.animate {
+        transition: background 0.5s ease-in-out, 
+                   box-shadow 0.5s ease-in-out, 
+                   backdrop-filter 0.5s ease-in-out !important;
+    }
 
     &__container {
         max-width: #{container(max)};
@@ -25,12 +43,17 @@
     
     // Estado con scroll (mayor a 100px)
     &.scrolled {
-        background-color: var(--color-white);
-        box-shadow: var(--shadow-md);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        
+        // Variables de colores para navegación
+        --nav-hamburger-color: var(--color-nav-hamburger-scrolled);
+        --nav-link-color: var(--color-nav-link-scrolled);
         
         // En tema oscuro
         html[data-theme="dark"] & {
-            background-color: var(--color-nav-bg);
+            background: rgba(31, 41, 55, 0.95);
         }
     }
 }

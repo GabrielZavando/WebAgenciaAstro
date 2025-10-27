@@ -8,7 +8,7 @@ const currentPath = Astro.url.pathname;
 const { menuItems } = menuData;
 ---
 
-<header class="header">
+<header class="header fade-in-down">
     <div class="header__container">
         <h1 class="header__logo">
             <a href="/">
@@ -78,9 +78,16 @@ const { menuItems } = menuData;
             });
         });
         
-        // Cambiar color del header al hacer scroll
+        // Animación de entrada del header
         const header = document.querySelector('.header');
+        if (header) {
+            // Activar animación inmediatamente
+            setTimeout(() => {
+                header.classList.add('animate');
+            }, 100);
+        }
         
+        // Cambiar color del header al hacer scroll
         window.addEventListener('scroll', () => {
             if (window.scrollY > 100) {
                 header?.classList.add('scrolled');

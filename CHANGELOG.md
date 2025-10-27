@@ -2,6 +2,20 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versión siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.0.2] - 2025-10-27
+### Añadido
+- Nueva imagen de perfil `src/assets/img/gabriel.jpeg`.
+- Documentación interna para IA en `.github/copilot-instructions.md` (no afecta al runtime).
+
+### Cambiado
+- Actualizaciones de contenido en `src/data/services.json` y `src/data/plans.json`.
+- Mejoras y ajustes en secciones: `About.astro`, `Banner.astro`, `Contact.astro`, `Plans.astro`, `Services.astro`, `Workflow.astro`.
+- Ajustes de componentes: `Modal.astro`, `ServiceCard.astro` y `shared/Header.astro`.
+- Refinamientos de estilos en `styles/components/header.scss` y variables/transiciones en `styles/foundation/_root.scss`.
+
+### Nota
+- Se mantiene la arquitectura SCSS de 5 capas y el sistema unificado de animaciones mediante `IntersectionObserver`.
+
 ## [1.0.1] - 2025-08-29
 ### Cambiado
 - Ajustes en `Banner.astro` y mejoras en estilos base (`_tokens.scss`, `_root.scss`).
@@ -37,4 +51,5 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 ---
 
 [1.0.1]: https://github.com/GabrielZavando/WebAgenciaAstro/releases/tag/v1.0.1
+[1.0.2]: https://github.com/GabrielZavando/WebAgenciaAstro/releases/tag/v1.0.2
 [0.1.0]: https://github.com/GabrielZavando/WebAgenciaAstro/releases/tag/v0.1.0

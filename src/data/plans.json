@@ -30,16 +30,18 @@
       "precio_6_meses": "60.000",
       "precio_12_meses": "45.000",
       "caracteristicas": {
-        "✔ Todo lo del Plan Pro": "Incluye todas las funcionalidades del plan anterior.",
+        "✔ Todo lo del Plan Plus": "Incluye todas las funcionalidades del plan anterior.",
         "✔ Sitio dinámico WordPress": "Hasta 10 páginas editables desde un panel de administración.",
         "✔ Blog integrado": "Publica artículos y organiza contenido con categorías y etiquetas.",
         "✔ Panel de administración": "Edita textos e imágenes fácilmente desde WordPress.",
         "✔ Newsletter básico": "Formulario de suscripción inicial para captar correos.",
-        "✔ SEO avanzado": "Mejor posicionamiento mediante optimización técnica y de contenido.",
-        "✔ Capacitación inicial": "Aprende a gestionar tu sitio con una sesión personalizada.",
+        "✔ SEO avanzado": "Mejoramos tu posicionamiento mediante optimización técnica y de contenido para afrontar los desafíos de búsqueda",
+        "✔ Capacitación inicial": "Te guío con una sesión personalizada para que aprendas a gestionar tu sitio con confianza.",
         "✔ Copias de seguridad mensuales": "Respaldo completo cada mes.",
         "✔ Actualizaciones automáticas": "Plugins y sistema actualizados de forma continua.",
-        "✔ Soporte ampliado": "Hasta 3 tickets mensuales para ajustes de contenido y diseño."
+        "✔ Soporte ampliado": "Hasta 3 tickets mensuales para ajustes de contenido y diseño.",
+        "✔ Google Analytics configurado": "Seguimiento de visitantes y comportamiento web.",
+        "✔ Optimización de velocidad": "Sitio web optimizado para carga rápida."
       },
       "exclusiones": {
         "✘ Sistema de pagos": "No incluye funcionalidades de tienda online ni cobros digitales."
@@ -51,7 +53,7 @@
       "precio_6_meses": "110.000",
       "precio_12_meses": "90.000",
       "caracteristicas": {
-        "✔ Todo lo del Plan Plus": "Incluye todas las características del Plan Plus.",
+        "✔ Todo lo del Plan Pro": "Incluye todas las características del Plan Pro (que incluye Plus).",
         "✔ Tienda online WooCommerce": "Plataforma de ecommerce con carrito, pedidos y pagos.",
         "✔ Hasta 500 productos": "Con soporte para variaciones como tallas o colores.",
         "✔ Sistema de pagos integrado": "Compatible con WebPay Plus, Khipu, Mercado Pago y PayPal.",
@@ -60,7 +62,9 @@
         "✔ Integración con envíos": "Calculadora de tarifas y seguimiento con Starken o Blue Express.",
         "✔ Perfiles de cliente": "Cuentas de usuario con historial y lista de deseos.",
         "✔ Backups diarios": "Respaldo completo del sitio todos los días.",
-        "✔ Soporte extendido": "Incluye carga de productos, ajustes técnicos y visuales."
+        "✔ Soporte extendido": "Hasta 5 tickets mensuales incluyendo carga de productos, ajustes técnicos y visuales.",
+        "✔ Certificado SSL Premium": "Seguridad avanzada para transacciones online.",
+        "✔ CDN incluido": "Red de distribución de contenido para carga ultra-rápida global."
       },
       "exclusiones": {
         "✘ Herramientas de marketing": "No incluye campañas, chat en vivo ni CRM."

@@ -5,8 +5,10 @@ import "../styles/main.scss";
 
 interface Props {
   title?: string;
+  description?: string;
 }
-const { title = "Agencia Digital" } = Astro.props;
+const { title = "Desarrollador Freelance | Sitios Web, E-commerce y Chatbots con IA" } = Astro.props;
+const { description = "Construyo sitios web a medida, tiendas online y chatbots con IA. Desarrollo freelance con experiencia, claridad y soporte cercano para tu proyecto digital." } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -14,7 +16,7 @@ const { title = "Agencia Digital" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Agencia Digital - Servicios de desarrollo web y marketing digital" />
+    <meta name="description" content={description} />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -46,19 +48,45 @@ const { title = "Agencia Digital" } = Astro.props;
       <i class="fas fa-arrow-up"></i>
     </button>   
 
-    <!-- Comportamiento scroll-top -->
-    <script is:inline>
+    <!-- Scripts -->
+    <script>
+      // @ts-nocheck
       document.addEventListener('DOMContentLoaded', () => {
+        // Scroll top button
         const scrollBtn = document.getElementById('scroll-top');
-        // Mostrar/ocultar según scroll
-        window.addEventListener('scroll', () => {
-          if (window.scrollY > 200) scrollBtn.classList.add('visible');
-          else scrollBtn.classList.remove('visible');
-        });
-        // Al hacer click, scroll suave arriba y ocultar
-        scrollBtn.addEventListener('click', () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          scrollBtn.classList.remove('visible');
+        if (scrollBtn) {
+          window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) scrollBtn.classList.add('visible');
+            else scrollBtn.classList.remove('visible');
+          });
+          scrollBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollBtn.classList.remove('visible');
+          });
+        }
+
+        // Sistema unificado de animaciones fade-in
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate');
+            }
+          });
+        }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
+
+        // Observar todos los elementos con fade-in
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach((el) => {
+          observer.observe(el);
+          
+          // Si está visible al cargar, animar inmediatamente respetando delays
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            // Forzar un pequeño delay para que CSS transitions funcionen
+            setTimeout(() => {
+              el.classList.add('animate');
+            }, 50);
+          }
         });
       });
     </script>

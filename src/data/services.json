@@ -1,7 +1,7 @@
 {
   "section": {
     "title": "Servicios",
-    "description": "Descubre cómo puedo ayudarte a transformar tu negocio con soluciones digitales personalizadas. Desde el desarrollo web hasta la implementación de chatbots con inteligencia artificial, mis servicios están diseñados para optimizar tus procesos y ayudarte a alcanzar tus objetivos."
+    "description": "Descubre cómo te acompaño a transformar tu negocio. Mis servicios son soluciones digitales pensadas para optimizar tus procesos. Desde el desarrollo web a medida hasta la implementación de Agentes inteligentes, te ayudo a automatizar lo repetitivo para que tú y tu equipo se concentren en hacer crecer sus ideas"
   },
   "services": [
     {
@@ -10,7 +10,7 @@
       "title": "Sitios Web Estáticos",
       "description": "Crea presencia en línea con sitios web rápidos, optimizados y hechos a medida para tus necesidades.",
       "modalContent": {
-        "extendedDescription": "Desarrollo sitios web estáticos de alto rendimiento utilizando tecnologías modernas como Astro o Angular. Estos sitios son ideales para presentar tu marca, servicios o portafolio con máxima velocidad, estabilidad y eficiencia. Están pensados para empresas y profesionales que buscan una presencia rápida y sólida en línea sin requerir actualización constante del contenido.",
+        "extendedDescription": "Desarrollo sitios web estáticos de alto rendimiento utilizando tecnologías modernas como Astro o Angular. Estos sitios son la base ideal para presentar tu marca, servicios o portafolio con la máxima estabilidad y eficiencia. Están pensados para profesionales y empresas que buscan una presencia sólida en línea sin la necesidad de una actualización constante de contenido.",
         "benefits": [
           "Velocidad excepcional y rendimiento optimizado.",
           "Máxima seguridad al no depender de bases de datos.",
@@ -65,7 +65,7 @@
       "title": "Tiendas Online",
       "description": "Empieza a vender en línea con tiendas online modernas, rápidas y personalizadas.",
       "modalContent": {
-        "extendedDescription": "Diseño y desarrollo tiendas online funcionales, seguras y personalizadas, utilizando WordPress + WooCommerce. Estas plataformas permiten vender productos físicos o digitales con autonomía total. Son ideales para negocios que buscan profesionalizar su canal de ventas y gestionar su catálogo, clientes y pedidos desde un solo lugar.",
+        "extendedDescription": "Diseño y desarrollo plataformas de venta funcionales y personalizadas, construidas con WordPress + WooCommerce. Esta solución es para negocios que buscan profesionalizar y centralizar la gestión de su catálogo, clientes y pedidos. Te doy autonomía total para vender productos físicos o digitales, integrando métodos de pago confiables como WebPay, Flow o MercadoPago.",
         "benefits": [
           "Control total sobre tus productos, inventario y pedidos.",
           "Integración con pasarelas de pago confiables (WebPay, Flow, MercadoPago, entre otras)",
@@ -91,10 +91,10 @@
     {
       "id": 4,
       "icon": "<i class='fas fa-robot'></i>",
-      "title": "Chatbots con IA",
-      "description": "Mejora la experiencia de tus clientes con asistentes inteligentes que responden y gestionan consultas al instante",
+      "title": "Agentes con IA",
+      "description": "Mejora la experiencia de tus clientes con Agentes inteligentes que responden y gestionan consultas al instante",
       "modalContent": {
-        "extendedDescription": "Diseño y desarrollo asistentes virtuales inteligentes que funcionan 24/7, entrenados con el contenido de tu negocio. Estos chatbots no solo responden preguntas frecuentes, sino que también pueden calificar clientes potenciales, agendar citas, guiar procesos y ayudarte a cerrar ventas. Se integran fácilmente en tu sitio web o en canales como WhatsApp o Instagram",
+        "extendedDescription": "Diseño y desarrollo Agentes virtuales entrenados a partir del contenido real de tu negocio. Esta herramienta te permite una reducción significativa de la carga operativa en tareas repetitivas. Tu Agente no solo responderá preguntas frecuentes, sino que también podrá calificar clientes, agendar citas o guiar procesos. Estos Agentes se integran fácilmente en tu sitio web o en canales estratégicos como WhatsApp o Instagram, liberando a tu equipo para concentrarse en sus ideas.",
         "benefits": [
           "Atención automática y constante, sin interrupciones.",
           "Reducción significativa de la carga operativa en tareas repetitivas.",
@@ -105,11 +105,11 @@
           "Acceso a métricas sobre comportamiento e interacciones de los usuarios."
         ],
         "implementation": [
-            "Primera reunión estratégica.Conversamos sobre tu negocio, el tipo de clientes que atiendes y los objetivos específicos que quieres lograr con el chatbot.",
+            "Primera reunión estratégica.Conversamos sobre tu negocio, el tipo de clientes que atiendes y los objetivos específicos que quieres lograr con el Agente.",
             "Recolección del contenido base. Reunimos información útil para entrenar al asistente: textos de tu sitio, manuales, PDFs, preguntas frecuentes, etc.",
-            "Entrenamiento del modelo. Utilizo tus textos, preguntas frecuentes y materiales relevantes para entrenar el chatbot, asegurando respuestas precisas y coherentes con tu marca.",
-            "Integración en tu sitio web o redes sociales. Configuro el chatbot para que funcione en los canales que elijas, como tu sitio web, WhatsApp o Instagram.",
-            "Pruebas funcionales. Simulo conversaciones reales para afinar respuestas y asegurar que el chatbot actúe de forma coherente y útil.",            
+            "Entrenamiento del modelo. Utilizo tus textos, preguntas frecuentes y materiales relevantes para entrenar el Agente, asegurando respuestas precisas y coherentes con tu marca.",
+            "Integración en tu sitio web o redes sociales. Configuro el Agente para que funcione en los canales que elijas, como tu sitio web, WhatsApp o Instagram.",
+            "Pruebas funcionales. Simulo conversaciones reales para afinar respuestas y asegurar que el Agente actúe de forma coherente y útil.",
             "Soporte técnico mensual. Incluye mantenimiento, mejoras continuas, revisión de métricas, entrega de informes y actualizaciones de contenido a medida que tu negocio evoluciona."
         ],
         "videoId": "próximamente",

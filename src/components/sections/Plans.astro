@@ -13,11 +13,11 @@ const plans = plansData.planes.map(plan => ({
 
 <section class="plans" id="plans">
   <div class="plans__container">
-    <h2 class="title-section">Planes</h2>
-    <p class="plans__subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+    <h2 class="title-section fade-in">Planes</h2>
+    <p class="plans__subtitle fade-in fade-in-delay-1">Elige el plan que mejor se adapte a tus necesidades</p>
 
     <!-- Switch para seleccionar periodo de pago -->
-    <div class="plans__switch-container">
+    <div class="plans__switch-container fade-in fade-in-delay-2">
       <span class="switch__label switch__label--6">6 meses</span>
       <div class="plans__switch">
         <input type="checkbox" id="period-switch" class="switch__input" />
@@ -33,7 +33,7 @@ const plans = plansData.planes.map(plan => ({
 
     <div class="plans__grid">
       {plans.map((plan, index) => (
-        <div class={`plan-card ${index === 1 ? 'plan-card--featured' : ''}`}>
+        <div class={`plan-card plan-item ${index === 1 ? 'plan-card--featured' : ''} fade-in fade-in-delay-${index + 3}`}>
           {index === 1 && <div class="plan-card__badge">Más popular</div>}
           
           <h3 class="plan-card__title">{plan.name}</h3>
@@ -247,7 +247,9 @@ const plans = plansData.planes.map(plan => ({
      border-radius: 0;
      padding: var(--space-xl);
      position: relative;
-     transition: all var(--transition-normal) ease;
+     transition: transform 0.6s ease-out,
+                 box-shadow 0.4s ease-out,
+                 border-color 0.4s ease-out;
      display: flex;
      flex-direction: column;
      height: 100%;
@@ -266,7 +268,6 @@ const plans = plansData.planes.map(plan => ({
 
      // Card del medio ligeramente más grande
      &--featured {
-       transform: scale(1.05);
        border-color: var(--color-primary);
        z-index: 3; // Menor que el switch para no taparlo
        padding-top: calc(var(--space-xl) + var(--space-md)); // Más padding-top para el badge "Más popular"
@@ -275,9 +276,10 @@ const plans = plansData.planes.map(plan => ({
          padding-top: calc(var(--space-lg) + var(--space-md)); // Ajustado para el padding reducido desde 480px
        }
 
-       // Desde 1200px: padding original con badge
+       // Desde 1200px: padding original con badge y escala mayor
        @media (min-width: #{$breakpoint-lg}) {
          padding-top: calc(var(--space-xl) + var(--space-md)); // Padding original para el badge
+         transform: scale3d(1.05, 1.05, 1);
        }
        
        @media (max-width: #{$breakpoint-lg - 1px}) {
@@ -285,19 +287,21 @@ const plans = plansData.planes.map(plan => ({
        }
      }
 
+     // Hover debe tener mayor especificidad y solo aplicarse después de la animación
      &:hover {
-       transform: translateY(-8px) scale(1.02);
+       transform: translateY(-8px) scale3d(1.02, 1.02, 1);
        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
        border-color: var(--color-primary);
        z-index: 5; // En hover también menor que el switch
-
-       &.plan-card--featured {
-         transform: translateY(-8px) scale(1.07);
-         z-index: 5; // Mismo z-index en hover
-         
-         @media (max-width: #{$breakpoint-lg - 1px}) {
-           transform: translateY(-8px) scale(1.02);
-         }
+     }
+     
+     &--featured:hover {
+       @media (min-width: #{$breakpoint-lg}) {
+         transform: translateY(-8px) scale3d(1.07, 1.07, 1);
+       }
+       
+       @media (max-width: #{$breakpoint-lg - 1px}) {
+         transform: translateY(-8px) scale3d(1.02, 1.02, 1);
        }
      }
 

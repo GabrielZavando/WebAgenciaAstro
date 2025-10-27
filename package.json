@@ -1,6 +1,6 @@
 {
   "name": "landing-page",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Landing Page para mi agencia digital",
   "scripts": {
     "dev": "astro dev --open",
