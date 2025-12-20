@@ -2,7 +2,9 @@
 import ModalMessage from "../shared/ModalMessage.astro";
 
 // Leer la variable de entorno en el servidor (frontmatter)
-const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia-201828783555.southamerica-west1.run.app";
+const API_BASE_URL =
+  import.meta.env.PUBLIC_API_BASE_URL ||
+  "https://api-agencia-201828783555.southamerica-west1.run.app";
 ---
 
 <section class="contact" id="contact">
@@ -59,7 +61,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
           class="form-input form-textarea"
           required
           minlength="20"
-          placeholder="Cuéntame sobre tu proyecto... (mínimo 20 caracteres)"></textarea>
+          placeholder="Cuéntame sobre tu proyecto... (mínimo 20 caracteres)"
+        ></textarea>
         <div class="character-counter">
           <span id="currentCount">0</span>
           <span>/</span>
@@ -78,7 +81,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
       <!-- Campos ocultos: ninguno requerido por la API actual (se mantiene solo el honeypot anti-spam) -->
 
-      <button type="submit" class="btn-cta__solid contact-field fade-in fade-in-delay-6"> Enviar mensaje </button>
+      <button
+        type="submit"
+        class="btn-cta__solid contact-field fade-in fade-in-delay-6"
+      >
+        Enviar mensaje
+      </button>
     </form>
   </div>
 </section>
@@ -87,7 +95,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 <script define:vars={{ apiBaseUrl: API_BASE_URL }}>
   // Hacer disponible la configuración globalmente
   window.__CONTACT_CONFIG = {
-    API_BASE_URL: apiBaseUrl
+    API_BASE_URL: apiBaseUrl,
   };
 </script>
 
@@ -349,12 +357,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     if (window.__CONTACT_CONFIG && window.__CONTACT_CONFIG.API_BASE_URL) {
       return window.__CONTACT_CONFIG.API_BASE_URL;
     }
-    
+
     // 2. Runtime config (para deploys estáticos)
     if (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) {
       return window.__APP_CONFIG.PUBLIC_API_BASE_URL;
     }
-    
+
     // 3. Fallback
     return "https://api-agencia-201828783555.southamerica-west1.run.app";
   }
@@ -363,12 +371,11 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
   const CONTACT_ENDPOINT = "/forms/contact";
   const API_URL = `${API_BASE_URL}${CONTACT_ENDPOINT}`;
 
-
   // Flag de desarrollo para simulación
   const DEV_SIMULATION = API_BASE_URL.includes("localhost");
-  
+
   // Simula respuesta en modo desarrollo si no hay backend
-  const REQUEST_TIMEOUT_MS = 10000;
+  const REQUEST_TIMEOUT_MS = 30000; // 30s para tolerar cold starts de Cloud Run
   const HONEYPOT_FIELD = "website";
 
   // Utilidad timeout fetch con soporte AbortController
@@ -383,7 +390,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
       });
     }
     return fetch(resource, { ...options, signal: controller.signal }).finally(
-      () => clearTimeout(timeoutId)
+      () => clearTimeout(timeoutId),
     );
   }
 
@@ -415,6 +422,34 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
       typeof window !== "undefined" &&
       window.location.search.includes("debug=1");
     let inFlightController = null;
+    let apiWarmedUp = false;
+
+    // =====================
+    // WARMUP DE LA API (Anti Cold Start)
+    // =====================
+    // Precalentar la API cuando el usuario hace scroll a la sección de contacto
+    const contactSection = document.getElementById("contact");
+    if (contactSection && "IntersectionObserver" in window) {
+      const warmupObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !apiWarmedUp) {
+              apiWarmedUp = true;
+              // Hacer ping silencioso a la API para despertarla
+              fetch(`${API_BASE_URL}/forms/status`, {
+                method: "GET",
+                headers: { Accept: "application/json" },
+              }).catch(() => {
+                // Ignorar errores del warmup - es solo para despertar la API
+              });
+              warmupObserver.disconnect();
+            }
+          });
+        },
+        { rootMargin: "200px" }, // Empezar warmup 200px antes de que sea visible
+      );
+      warmupObserver.observe(contactSection);
+    }
 
     // =====================
     // CONFIGURACIÓN ANTI-SPAM
@@ -430,7 +465,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
         /\b[A-Z]{10,}\b/, // Palabras todas en mayúsculas muy largas
         /(.)\1{5,}/, // Caracteres repetidos 6+ veces
         /^[^aeiouáéíóú\s]{15,}$/i, // Texto sin vocales (spam típico)
-      ]
+      ],
     };
 
     // Registrar timestamp de carga del formulario
@@ -580,7 +615,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
           errorElement = document.createElement("span");
           errorElement.classList.add("error-message");
           // Añadimos inline style para forzar visibilidad si la cascada CSS lo sobreescribe
-          errorElement.style.color = '#ef4444';
+          errorElement.style.color = "#ef4444";
           formGroup.appendChild(errorElement);
         }
         errorElement.textContent = message;
@@ -618,10 +653,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     function isInCooldown() {
       const lastSubmit = localStorage.getItem("lastFormSubmit");
       if (!lastSubmit) return false;
-      
+
       const timeSinceLastSubmit = Date.now() - parseInt(lastSubmit);
       const cooldownMs = SPAM_CONFIG.COOLDOWN_MINUTES * 60 * 1000;
-      
+
       return timeSinceLastSubmit < cooldownMs;
     }
 
@@ -629,11 +664,11 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     function getCooldownTimeRemaining() {
       const lastSubmit = localStorage.getItem("lastFormSubmit");
       if (!lastSubmit) return 0;
-      
+
       const timeSinceLastSubmit = Date.now() - parseInt(lastSubmit);
       const cooldownMs = SPAM_CONFIG.COOLDOWN_MINUTES * 60 * 1000;
       const remaining = cooldownMs - timeSinceLastSubmit;
-      
+
       return Math.max(0, Math.ceil(remaining / 1000)); // Segundos restantes
     }
 
@@ -641,32 +676,45 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     function isSpamContent(message) {
       // Verificar longitud mínima
       if (message.length < SPAM_CONFIG.MIN_MESSAGE_LENGTH) {
-        return { isSpam: true, reason: `El mensaje debe tener al menos ${SPAM_CONFIG.MIN_MESSAGE_LENGTH} caracteres` };
+        return {
+          isSpam: true,
+          reason: `El mensaje debe tener al menos ${SPAM_CONFIG.MIN_MESSAGE_LENGTH} caracteres`,
+        };
       }
 
       // Verificar exceso de mayúsculas
       const uppercaseCount = (message.match(/[A-Z]/g) || []).length;
       const uppercaseRatio = uppercaseCount / message.length;
       if (uppercaseRatio > SPAM_CONFIG.MAX_UPPERCASE_RATIO) {
-        return { isSpam: true, reason: "El mensaje contiene demasiadas mayúsculas" };
+        return {
+          isSpam: true,
+          reason: "El mensaje contiene demasiadas mayúsculas",
+        };
       }
 
       // Verificar patrones sospechosos
       for (const pattern of SPAM_CONFIG.SPAM_PATTERNS) {
         if (pattern.test(message)) {
-          return { isSpam: true, reason: "El mensaje contiene contenido no permitido" };
+          return {
+            isSpam: true,
+            reason: "El mensaje contiene contenido no permitido",
+          };
         }
       }
 
       // Verificar palabras muy cortas o sin sentido
       const words = message.trim().split(/\s+/);
-      const validWords = words.filter(word => word.length > 2);
+      const validWords = words.filter((word) => word.length > 2);
       if (validWords.length < 3) {
-        return { isSpam: true, reason: "El mensaje debe contener al menos 3 palabras válidas" };
+        return {
+          isSpam: true,
+          reason: "El mensaje debe contener al menos 3 palabras válidas",
+        };
       }
 
       // Verificar que tenga vocales (texto normal)
-      const vowelCount = (message.match(/[aeiouáéíóúAEIOUÁÉÍÓÚ]/g) || []).length;
+      const vowelCount = (message.match(/[aeiouáéíóúAEIOUÁÉÍÓÚ]/g) || [])
+        .length;
       if (vowelCount < message.length * 0.15) {
         return { isSpam: true, reason: "El mensaje no parece texto válido" };
       }
@@ -688,7 +736,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
         if (!navigator.onLine) {
           console.warn("Sin conexión a Internet.");
-          updateModalMessage("errorModal", "No hay conexión a Internet. Por favor, verifica tu conexión e intenta nuevamente.");
+          updateModalMessage(
+            "errorModal",
+            "No hay conexión a Internet. Por favor, verifica tu conexión e intenta nuevamente.",
+          );
           openModal("errorModal");
           return;
         }
@@ -702,13 +753,14 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
           const remainingSeconds = getCooldownTimeRemaining();
           const minutes = Math.floor(remainingSeconds / 60);
           const seconds = remainingSeconds % 60;
-          const timeText = minutes > 0 
-            ? `${minutes} minuto${minutes > 1 ? 's' : ''} y ${seconds} segundo${seconds !== 1 ? 's' : ''}`
-            : `${seconds} segundo${seconds !== 1 ? 's' : ''}`;
-          
+          const timeText =
+            minutes > 0
+              ? `${minutes} minuto${minutes > 1 ? "s" : ""} y ${seconds} segundo${seconds !== 1 ? "s" : ""}`
+              : `${seconds} segundo${seconds !== 1 ? "s" : ""}`;
+
           updateModalMessage(
-            "errorModal", 
-            `Por favor espera ${timeText} antes de enviar otro mensaje. Esto ayuda a prevenir spam.`
+            "errorModal",
+            `Por favor espera ${timeText} antes de enviar otro mensaje. Esto ayuda a prevenir spam.`,
           );
           openModal("errorModal");
           return;
@@ -726,14 +778,16 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
         if (isFilledTooQuickly()) {
           updateModalMessage(
             "errorModal",
-            "Por favor, tómate tu tiempo para completar el formulario. Parece que fue enviado demasiado rápido."
+            "Por favor, tómate tu tiempo para completar el formulario. Parece que fue enviado demasiado rápido.",
           );
           openModal("errorModal");
           return;
         }
 
         // 4. Validar contenido del mensaje
-        const messageValue = form.querySelector('[name="message"]').value.trim();
+        const messageValue = form
+          .querySelector('[name="message"]')
+          .value.trim();
         const spamCheck = isSpamContent(messageValue);
         if (spamCheck.isSpam) {
           updateModalMessage("errorModal", spamCheck.reason);
@@ -778,7 +832,6 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
             },
           };
 
-
           let response;
           if (!API_BASE_URL && DEV_SIMULATION) {
             // Simulación local sin backend
@@ -789,7 +842,9 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
               json: async () => ({ success: true, simulated: true }),
             };
           } else {
-            response = await fetchWithRetry(API_URL, {
+            // Usar fetchWithTimeout en lugar de fetchWithRetry para evitar
+            // reintentos automáticos que causan envíos duplicados de correos
+            response = await fetchWithTimeout(API_URL, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -810,10 +865,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
             } catch (jsonError) {
               /* noop */
             }
-            
+
             // Guardar timestamp del envío exitoso (cooldown)
             localStorage.setItem("lastFormSubmit", Date.now().toString());
-            
+
             openModal("successModal");
             form.reset();
             inputs?.forEach((input) => clearErrors(input));
@@ -834,20 +889,26 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
             openModal("errorModal");
           }
         } catch (err) {
-          
           // Mensaje de error más específico
-          let errorMessage = "No se pudo enviar el formulario. Inténtalo nuevamente en unos segundos.";
-          
+          let errorMessage =
+            "No se pudo enviar el formulario. Inténtalo nuevamente en unos segundos.";
+
           if (err?.name === "AbortError") {
-            errorMessage = "La solicitud fue cancelada o expiró. Intenta nuevamente.";
+            errorMessage =
+              "La solicitud fue cancelada o expiró. Intenta nuevamente.";
           } else if (!navigator.onLine) {
-            errorMessage = "Sin conexión a Internet. Revisa tu red e intenta de nuevo.";
-          } else if (err?.name === "TypeError" && err?.message?.includes("Failed to fetch")) {
-            errorMessage = "Error de conexión. Verifica que la API esté disponible y que no hay problemas de CORS.";
+            errorMessage =
+              "Sin conexión a Internet. Revisa tu red e intenta de nuevo.";
+          } else if (
+            err?.name === "TypeError" &&
+            err?.message?.includes("Failed to fetch")
+          ) {
+            errorMessage =
+              "Error de conexión. Verifica que la API esté disponible y que no hay problemas de CORS.";
           } else if (err?.message) {
             errorMessage = `Error: ${err.message}`;
           }
-          
+
           updateModalMessage("errorModal", errorMessage);
           openModal("errorModal");
         } finally {

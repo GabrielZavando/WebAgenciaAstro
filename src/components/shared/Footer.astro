@@ -6,7 +6,9 @@ const currentYear = new Date().getFullYear();
 const { menuItems, socialLinks } = menuData;
 
 // Leer la variable de entorno en el servidor (frontmatter)
-const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia-201828783555.southamerica-west1.run.app";
+const API_BASE_URL =
+  import.meta.env.PUBLIC_API_BASE_URL ||
+  "https://api-agencia-201828783555.southamerica-west1.run.app";
 ---
 
 <footer class="footer">
@@ -15,9 +17,15 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     <div class="footer__section footer__section--nav">
       <h3 class="footer__title">Navegación</h3>
       <ul class="footer__list">
-        {menuItems.map(item => (
-          <li class="footer__item"><a href={item.href} class="footer__link">{item.text}</a></li>
-        ))}
+        {
+          menuItems.map((item) => (
+            <li class="footer__item">
+              <a href={item.href} class="footer__link">
+                {item.text}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </div>
 
@@ -25,18 +33,20 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     <div class="footer__section footer__section--social">
       <h3 class="footer__title">Conecta conmigo</h3>
       <div class="footer__social-icons">
-      {socialLinks.map(link => (
-        <a 
-        href={link.url} 
-        class="footer__icon" 
-        title={link.name} 
-        aria-label={link.name} 
-        target="_blank" 
-        rel="noopener"
-        >
-        <i class={link.icon}></i>
-        </a>
-      ))}
+        {
+          socialLinks.map((link) => (
+            <a
+              href={link.url}
+              class="footer__icon"
+              title={link.name}
+              aria-label={link.name}
+              target="_blank"
+              rel="noopener"
+            >
+              <i class={link.icon} />
+            </a>
+          ))
+        }
       </div>
     </div>
 
@@ -45,16 +55,15 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
       <h3 class="footer__title">Suscríbete</h3>
       <!-- BACKEND: Este formulario envía los datos a tu API NestJS (POST /forms/subscribe) con JSON { email, meta }. -->
       <form class="footer__form" id="subscribeForm" novalidate>
-        
         <div class="footer__form-group">
-          <input 
-            type="email" 
-            class="footer__input" 
-            name="email" 
-            placeholder="Tu correo electrónico" 
+          <input
+            type="email"
+            class="footer__input"
+            name="email"
+            placeholder="Tu correo electrónico"
             required
             id="subscribeEmail"
-          >
+          />
         </div>
 
         <!-- Honeypot anti-spam (debe permanecer vacío) -->
@@ -65,10 +74,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
         <div class="footer__form-group">
           <label class="footer__checkbox">
-            <input type="checkbox" name="terms" required id="subscribeTerms">
+            <input type="checkbox" name="terms" required id="subscribeTerms" />
             <span class="footer__checkbox-custom"></span>
             <span class="footer__checkbox-text">
-              Acepto la <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
+              Acepto la <a href="/politica-de-privacidad" class="footer__link"
+                >Política de privacidad</a
+              >
             </span>
           </label>
         </div>
@@ -76,21 +87,27 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
           Suscribirme
         </button>
       </form>
-      <p class="footer__note">Recibe tips de transformación digital sin spam.</p>
+      <p class="footer__note">
+        Recibe tips de transformación digital sin spam.
+      </p>
     </div>
   </div>
 
   <!-- Cierre del footer -->
   <div class="footer__bottom">
     <p class="footer__legal">
-      <a href="/politica-de-privacidad" class="footer__link">Política de privacidad</a>
+      <a href="/politica-de-privacidad" class="footer__link"
+        >Política de privacidad</a
+      >
     </p>
-    <p class="footer__copyright">© {currentYear} Gabriel Zavando. Todos los derechos reservados.</p>
+    <p class="footer__copyright">
+      © {currentYear} Gabriel Zavando. Todos los derechos reservados.
+    </p>
   </div>
 </footer>
 
 <style lang="scss">
-  @use '../../styles/config' as *;
+  @use "../../styles/config" as *;
 
   .footer {
     background-color: var(--color-dark);
@@ -104,18 +121,18 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
       display: grid;
       gap: var(--space-lg);
       align-items: start;
-      
+
       // Mobile first: 1 columna, disposición vertical
       grid-template-columns: 1fr;
-      grid-template-areas: 
+      grid-template-areas:
         "nav"
-        "social" 
+        "social"
         "subscribe";
 
       @include respond-to(xs) {
         // Tablet: 2 columnas, navegación a la izquierda, social y subscribe apilados a la derecha
         grid-template-columns: 1fr 1fr;
-        grid-template-areas: 
+        grid-template-areas:
           "nav social"
           "nav subscribe";
       }
@@ -143,9 +160,11 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
       &--social {
         grid-area: social;
-        
+
         @include respond-to(xs) {
-          margin-bottom: var(--space-md); // Pequeño margen entre social y subscribe en 2 columnas
+          margin-bottom: var(
+            --space-md
+          ); // Pequeño margen entre social y subscribe en 2 columnas
         }
 
         @include respond-to(md) {
@@ -297,7 +316,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
         transition: all var(--transition-normal) ease;
 
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           left: 4px;
           top: 1px;
@@ -353,7 +372,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
         color: transparent;
 
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           top: 50%;
           left: 50%;
@@ -435,8 +454,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
   // Animación de loading
   @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
   }
 
   // Estados de validación del formulario de suscripción
@@ -474,26 +497,26 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 <script define:vars={{ apiBaseUrl: API_BASE_URL }}>
   // Hacer disponible la configuración globalmente
   window.__SUBSCRIBE_CONFIG = {
-    API_BASE_URL: apiBaseUrl
+    API_BASE_URL: apiBaseUrl,
   };
 </script>
 
 <!-- Modales de éxito y error (newsletter) -->
-<ModalMessage 
+<ModalMessage
   id="subscribeSuccessModal"
   type="success"
   title="¡Suscripción exitosa!"
   message="Te has suscrito correctamente. Pronto recibirás consejos de transformación digital."
 />
 
-<ModalMessage 
+<ModalMessage
   id="subscribeErrorModal"
   type="error"
   title="Error en la suscripción"
   message="Ocurrió un problema al suscribirte. Intenta nuevamente más tarde."
 />
 
-<ModalMessage 
+<ModalMessage
   id="subscribeInfoModal"
   type="info"
   title="Ya estás suscrito"
@@ -507,12 +530,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     if (window.__SUBSCRIBE_CONFIG && window.__SUBSCRIBE_CONFIG.API_BASE_URL) {
       return window.__SUBSCRIBE_CONFIG.API_BASE_URL;
     }
-    
+
     // 2. Runtime config (para deploys estáticos)
     if (window.__APP_CONFIG && window.__APP_CONFIG.PUBLIC_API_BASE_URL) {
       return window.__APP_CONFIG.PUBLIC_API_BASE_URL;
     }
-    
+
     // 3. Fallback
     return "https://api-agencia-201828783555.southamerica-west1.run.app";
   }
@@ -521,47 +544,85 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
   const SUBSCRIBE_ENDPOINT = "/forms/subscribe";
   const API_URL = `${API_BASE_URL}${SUBSCRIBE_ENDPOINT}`;
 
-
   // Flag de desarrollo para simulación
   const DEV_SIMULATION = API_BASE_URL.includes("localhost");
-  const REQUEST_TIMEOUT_MS = 10000;
-  const HONEYPOT_FIELD = 'website';
+  const REQUEST_TIMEOUT_MS = 30000; // 30s para tolerar cold starts de Cloud Run
+  const HONEYPOT_FIELD = "website";
 
   function fetchWithTimeout(resource, options = {}) {
     const { timeout = REQUEST_TIMEOUT_MS, signal } = options;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort('timeout'), timeout);
-    if (signal) signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
-    return fetch(resource, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+    const timeoutId = setTimeout(() => controller.abort("timeout"), timeout);
+    if (signal)
+      signal.addEventListener("abort", () => controller.abort(signal.reason), {
+        once: true,
+      });
+    return fetch(resource, { ...options, signal: controller.signal }).finally(
+      () => clearTimeout(timeoutId),
+    );
   }
   async function fetchWithRetry(url, options = {}, retries = 1) {
-    try { return await fetchWithTimeout(url, options); }
-    catch (err) {
-      if (retries > 0 && (err?.name === 'AbortError' || err?.message === 'Failed to fetch' || err?.message === 'timeout')) {
-        await new Promise(r => setTimeout(r, 600));
+    try {
+      return await fetchWithTimeout(url, options);
+    } catch (err) {
+      if (
+        retries > 0 &&
+        (err?.name === "AbortError" ||
+          err?.message === "Failed to fetch" ||
+          err?.message === "timeout")
+      ) {
+        await new Promise((r) => setTimeout(r, 600));
         return fetchWithRetry(url, options, retries - 1);
       }
       throw err;
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const subscribeForm = document.getElementById('subscribeForm');
-    const emailInput = document.getElementById('subscribeEmail');
-    const termsCheckbox = document.getElementById('subscribeTerms');
-    const submitButton = subscribeForm?.querySelector('.footer__submit-btn');
-    if (!subscribeForm || !emailInput || !termsCheckbox || !submitButton) return;
+  document.addEventListener("DOMContentLoaded", () => {
+    const subscribeForm = document.getElementById("subscribeForm");
+    const emailInput = document.getElementById("subscribeEmail");
+    const termsCheckbox = document.getElementById("subscribeTerms");
+    const submitButton = subscribeForm?.querySelector(".footer__submit-btn");
+    if (!subscribeForm || !emailInput || !termsCheckbox || !submitButton)
+      return;
+
+    // =====================
+    // WARMUP DE LA API (Anti Cold Start)
+    // =====================
+    let apiWarmedUp = false;
+    const footer = document.querySelector(".footer");
+    if (footer && "IntersectionObserver" in window) {
+      const warmupObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !apiWarmedUp) {
+              apiWarmedUp = true;
+              // Hacer ping silencioso a la API para despertarla
+              fetch(`${API_BASE_URL}/forms/status`, {
+                method: "GET",
+                headers: { Accept: "application/json" },
+              }).catch(() => {
+                // Ignorar errores del warmup
+              });
+              warmupObserver.disconnect();
+            }
+          });
+        },
+        { rootMargin: "300px" }, // Empezar warmup 300px antes de que sea visible
+      );
+      warmupObserver.observe(footer);
+    }
 
     // Deshabilitar botón hasta tener email válido + términos
     submitButton.disabled = true;
 
     // Validación en tiempo real
-    emailInput.addEventListener('blur', () => validateEmail(emailInput));
-    emailInput.addEventListener('input', () => {
+    emailInput.addEventListener("blur", () => validateEmail(emailInput));
+    emailInput.addEventListener("input", () => {
       clearErrors(emailInput);
       updateSubmitState();
     });
-    termsCheckbox.addEventListener('change', updateSubmitState);
+    termsCheckbox.addEventListener("change", updateSubmitState);
 
     function updateSubmitState() {
       const value = emailInput.value.trim();
@@ -571,42 +632,47 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
     }
 
     function validateEmail(field) {
-      const formGroup = field.closest('.footer__form-group');
+      const formGroup = field.closest(".footer__form-group");
       const value = field.value.trim();
       let isValid = true;
-      let errorMessage = '';
+      let errorMessage = "";
       clearErrors(field);
-      if (!value) { isValid = false; errorMessage = 'El correo electrónico es requerido'; }
-      else if (!isValidEmailFormat(value)) { isValid = false; errorMessage = 'Por favor ingresa un correo electrónico válido'; }
+      if (!value) {
+        isValid = false;
+        errorMessage = "El correo electrónico es requerido";
+      } else if (!isValidEmailFormat(value)) {
+        isValid = false;
+        errorMessage = "Por favor ingresa un correo electrónico válido";
+      }
       if (formGroup) {
         if (isValid && value) {
-          formGroup.classList.add('success');
-          formGroup.classList.remove('error');
+          formGroup.classList.add("success");
+          formGroup.classList.remove("error");
         } else if (!isValid) {
-          formGroup.classList.add('error');
-          formGroup.classList.remove('success');
+          formGroup.classList.add("error");
+          formGroup.classList.remove("success");
           showError(field, errorMessage);
         }
       }
       return isValid;
     }
     function showError(field, message) {
-      const formGroup = field.closest('.footer__form-group');
+      const formGroup = field.closest(".footer__form-group");
       if (formGroup) {
-        let errorElement = formGroup.querySelector('.footer__error-message');
+        let errorElement = formGroup.querySelector(".footer__error-message");
         if (!errorElement) {
-          errorElement = document.createElement('span');
-          errorElement.classList.add('footer__error-message');
+          errorElement = document.createElement("span");
+          errorElement.classList.add("footer__error-message");
           formGroup.appendChild(errorElement);
         }
         errorElement.textContent = message;
       }
     }
     function clearErrors(field) {
-      const formGroup = field.closest('.footer__form-group');
+      const formGroup = field.closest(".footer__form-group");
       if (formGroup) {
-        formGroup.classList.remove('error', 'success');
-        const errorElement = formGroup.querySelector('.footer__error-message');
+        formGroup.classList.remove("error", "success");
+        const errorElement = formGroup.querySelector(".footer__error-message");
         if (errorElement) errorElement.remove();
       }
     }
@@ -617,19 +683,19 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
 
     // Modales helpers
     function openModal(modalId) {
-      if (typeof window !== 'undefined' && window.modalHelpers) {
+      if (typeof window !== "undefined" && window.modalHelpers) {
         window.modalHelpers.openModal(modalId);
       }
     }
     function updateModalMessage(modalId, message) {
-      if (typeof window !== 'undefined' && window.modalHelpers) {
+      if (typeof window !== "undefined" && window.modalHelpers) {
         window.modalHelpers.updateModalMessage(modalId, message);
       }
     }
 
     // Envío
     let inFlightController = null;
-    subscribeForm.addEventListener('submit', async (e) => {
+    subscribeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       // Honeypot
@@ -642,92 +708,117 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || "https://api-agencia
       if (!emailOk || !termsOk) return;
 
       if (!navigator.onLine) {
-        updateModalMessage('subscribeErrorModal', 'Sin conexión a Internet. Revisa tu red e intenta de nuevo.');
-        openModal('subscribeErrorModal');
+        updateModalMessage(
+          "subscribeErrorModal",
+          "Sin conexión a Internet. Revisa tu red e intenta de nuevo.",
+        );
+        openModal("subscribeErrorModal");
         return;
       }
 
-      submitButton.classList.add('loading');
+      submitButton.classList.add("loading");
       submitButton.disabled = true;
-      if (inFlightController) { try { inFlightController.abort('new-submit'); } catch(_) {} }
+      if (inFlightController) {
+        try {
+          inFlightController.abort("new-submit");
+        } catch (_) {}
+      }
       inFlightController = new AbortController();
 
       try {
         const payload = {
-          email: String(emailInput.value || '').trim(),
+          email: String(emailInput.value || "").trim(),
           meta: {
             userAgent: navigator.userAgent,
             referrer: document.referrer || null,
             page: window.location.pathname,
-            ts: new Date().toISOString() // Fecha ISO 8601 válida para el backend
-          }
+            ts: new Date().toISOString(), // Fecha ISO 8601 válida para el backend
+          },
         };
-
 
         let response;
         if (!API_BASE_URL && DEV_SIMULATION) {
-          console.log('🧪 Modo simulación - sin backend configurado');
-          await new Promise(r => setTimeout(r, 500));
-          response = { ok: true, status: 200, json: async () => ({ success: true, simulated: true }) };
+          console.log("🧪 Modo simulación - sin backend configurado");
+          await new Promise((r) => setTimeout(r, 500));
+          response = {
+            ok: true,
+            status: 200,
+            json: async () => ({ success: true, simulated: true }),
+          };
         } else {
-          response = await fetchWithRetry(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          // Usar fetchWithTimeout en lugar de fetchWithRetry para evitar
+          // reintentos automáticos que causan suscripciones duplicadas
+          response = await fetchWithTimeout(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
             body: JSON.stringify(payload),
             timeout: REQUEST_TIMEOUT_MS,
             signal: inFlightController.signal,
           });
         }
 
-        console.log('📥 Respuesta HTTP status:', response.status);
-        console.log('✅ Response OK:', response.ok);
+        console.log("📥 Respuesta HTTP status:", response.status);
+        console.log("✅ Response OK:", response.ok);
 
         if (response.ok) {
-          try { 
+          try {
             const responseData = await response.json();
-            console.log('📋 Respuesta backend:', responseData); 
-            
+            console.log("📋 Respuesta backend:", responseData);
+
             // Verificar si el usuario ya está suscrito
             if (responseData.alreadySubscribed) {
               // Actualizar el modal de info con el mensaje del backend
-              updateModalMessage('subscribeInfoModal', String(responseData.message || 'El correo ya está suscrito'));
-              openModal('subscribeInfoModal');
+              updateModalMessage(
+                "subscribeInfoModal",
+                String(responseData.message || "El correo ya está suscrito"),
+              );
+              openModal("subscribeInfoModal");
             } else {
               // Usuario suscrito exitosamente
-              openModal('subscribeSuccessModal');
+              openModal("subscribeSuccessModal");
             }
-            
+
             subscribeForm.reset();
             clearErrors(emailInput);
             submitButton.disabled = true; // hasta que vuelva a ser válido
           } catch (error) {
-            console.error('Error parsing response:', error);
-            openModal('subscribeSuccessModal'); // fallback
+            console.error("Error parsing response:", error);
+            openModal("subscribeSuccessModal"); // fallback
           }
         } else {
           try {
             const errData = await response.json();
-            console.error('📋 Error backend:', errData);
+            console.error("📋 Error backend:", errData);
             if (errData?.message) {
-              updateModalMessage('subscribeErrorModal', String(errData.message));
+              updateModalMessage(
+                "subscribeErrorModal",
+                String(errData.message),
+              );
             }
           } catch {}
-          openModal('subscribeErrorModal');
+          openModal("subscribeErrorModal");
         }
       } catch (err) {
-        console.error('❌ Error suscripción:', err);
-        let errorMessage = 'No se pudo completar la suscripción. Intenta nuevamente en unos segundos.';
-        if (err?.name === 'AbortError') errorMessage = 'La solicitud fue cancelada o expiró. Intenta nuevamente.';
-        else if (!navigator.onLine) errorMessage = 'Sin conexión a Internet. Revisa tu red e intenta de nuevo.';
-        
-        updateModalMessage('subscribeErrorModal', errorMessage);
-        openModal('subscribeErrorModal');
+        console.error("❌ Error suscripción:", err);
+        let errorMessage =
+          "No se pudo completar la suscripción. Intenta nuevamente en unos segundos.";
+        if (err?.name === "AbortError")
+          errorMessage =
+            "La solicitud fue cancelada o expiró. Intenta nuevamente.";
+        else if (!navigator.onLine)
+          errorMessage =
+            "Sin conexión a Internet. Revisa tu red e intenta de nuevo.";
+
+        updateModalMessage("subscribeErrorModal", errorMessage);
+        openModal("subscribeErrorModal");
       } finally {
-        submitButton.classList.remove('loading');
+        submitButton.classList.remove("loading");
         submitButton.disabled = false;
         inFlightController = null;
       }
     });
   });
 </script>
-

@@ -1,0 +1,268 @@
+---
+// Componente de desuscripción
+const API_BASE_URL =
+    import.meta.env.PUBLIC_API_BASE_URL ||
+    "https://api-agencia-201828783555.southamerica-west1.run.app";
+---
+
+<section class="unsubscribe-section">
+    <div class="unsubscribe-container fade-in">
+        <div class="unsubscribe-card" id="unsubscribeCard">
+            <!-- Loading State -->
+            <div id="loadingState" class="state-content">
+                <div class="spinner"></div>
+                <h2 class="state-title">Procesando tu solicitud...</h2>
+                <p class="state-text">
+                    Por favor espera un momento mientras te damos de baja de
+                    nuestra lista.
+                </p>
+            </div>
+
+            <!-- Success State -->
+            <div id="successState" class="state-content hidden">
+                <div class="icon-circle success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="state-title">¡Te has desuscrito correctamente!</h2>
+                <p class="state-text">
+                    Lamentamos verte partir. Tu correo ha sido eliminado
+                    exitosamente de nuestra base de datos. Ya no recibirás más
+                    correos de nosotros.
+                </p>
+                <a href="/" class="btn-cta__solid">Volver al inicio</a>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="state-content hidden">
+                <div class="icon-circle error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="state-title" id="errorTitle">Ups, algo salió mal</h2>
+                <p class="state-text" id="errorMessage">
+                    No pudimos procesar tu solicitud. Puede que el enlace haya
+                    expirado o sea inválido.
+                </p>
+                <a href="/" class="btn-cta__solid">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style lang="scss">
+    @use "../styles/config" as *;
+
+    .unsubscribe-section {
+        min-height: 60vh; // Asegurar altura suficiente
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-background);
+        padding: var(--space-2xl) var(--space-md);
+    }
+
+    .unsubscribe-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .unsubscribe-card {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        padding: var(--space-2xl);
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+        // Borde superior de color primario como detalle estético
+        border-top: 4px solid var(--color-primary);
+    }
+
+    .state-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-lg);
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .state-title {
+        font-family: var(--font-headings);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0;
+    }
+
+    .state-text {
+        font-family: var(--font-primary);
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        margin: 0;
+        max-width: 400px;
+    }
+
+    // Iconos de estado
+    .icon-circle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: var(--space-sm);
+
+        &.success {
+            background-color: rgba(var(--color-success-rgb, 16, 185, 129), 0.1);
+            color: var(--color-success, #10b981);
+        }
+
+        &.error {
+            background-color: rgba(var(--color-error-rgb, 239, 68, 68), 0.1);
+            color: var(--color-error, #ef4444);
+        }
+    }
+
+    // Spinner de carga
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--color-surface-secondary);
+        border-top: 3px solid var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: var(--space-md);
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    // Botón volver
+    .btn-cta__solid {
+        display: inline-block;
+        background-color: var(--color-primary);
+        color: var(--color-white);
+        text-decoration: none;
+        padding: var(--space-sm) var(--space-xl);
+        font-weight: 600;
+        margin-top: var(--space-md);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(
+                --color-primary-hover,
+                #d6006c
+            ); // Fallback color
+            transform: translateY(-2px);
+        }
+    }
+</style>
+
+<script define:vars={{ apiBaseUrl: API_BASE_URL }}>
+    // Configuración segura disponible para el script del cliente
+    window.__UNSUBSCRIBE_CONFIG = {
+        API_BASE_URL: apiBaseUrl,
+    };
+</script>
+
+<script type="module">
+    // Lógica del cliente
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Referencias al DOM
+        const loadingState = document.getElementById("loadingState");
+        const successState = document.getElementById("successState");
+        const errorState = document.getElementById("errorState");
+        const errorTitle = document.getElementById("errorTitle");
+        const errorMessage = document.getElementById("errorMessage");
+
+        // Funciones helper para cambiar estado
+        function showState(stateId) {
+            [loadingState, successState, errorState].forEach((el) => {
+                if (el) el.classList.add("hidden");
+            });
+            document.getElementById(stateId)?.classList.remove("hidden");
+        }
+
+        function showError(title, message) {
+            if (errorTitle) errorTitle.textContent = title;
+            if (errorMessage) errorMessage.textContent = message;
+            showState("errorState");
+        }
+
+        // Configuración API
+        function getAPIBaseURL() {
+            if (
+                window.__UNSUBSCRIBE_CONFIG &&
+                window.__UNSUBSCRIBE_CONFIG.API_BASE_URL
+            ) {
+                return window.__UNSUBSCRIBE_CONFIG.API_BASE_URL;
+            }
+            return "https://api-agencia-201828783555.southamerica-west1.run.app";
+        }
+
+        const API_BASE_URL = getAPIBaseURL().replace(/\/$/, "");
+        const ENDPOINT = "/forms/unsubscribe";
+
+        // Obtener parámetros de URL
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get("email");
+
+        // Validación inicial
+        if (!email) {
+            showError(
+                "Enlace inválido",
+                "No se encontró ninguna dirección de correo electrónico en el enlace. Por favor, verifica que hayas copiado el enlace completo.",
+            );
+            return;
+        }
+
+        // Ejecutar llamada a la API
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}${ENDPOINT}?email=${encodeURIComponent(email)}`,
+                {
+                    method: "POST", // Ajustado al método correcto (POST según controlador)
+                    headers: {
+                        Accept: "application/json",
+                    },
+                },
+            );
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Éxito real
+                showState("successState");
+            } else {
+                // Manejar errores de negocio
+                // Si el usuario ya no estaba suscrito, también lo consideramos un "éxito" UX,
+                // pero podemos mostrar un mensaje específico si queremos.
+                // El controlador retorna success: true incluso si no estaba suscrito ("wasSubscribed": false).
+                // Así que si success es true, mostramos éxito.
+
+                if (data.success) {
+                    showState("successState");
+                } else {
+                    throw new Error(data.message || "Error desconocido");
+                }
+            }
+        } catch (error) {
+            console.error("Error al desuscribir:", error);
+            showError(
+                "Error de conexión",
+                "Tuvimos un problema al conectar con el servidor. Por favor, intenta de nuevo más tarde o contáctame directamente.",
+            );
+        }
+    });
+</script>
