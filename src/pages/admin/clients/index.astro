@@ -1,0 +1,64 @@
+
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+---
+
+<AdminLayout title="Gestión de Clientes">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2>Clientes</h2>
+      <!-- Crear cliente podría ser invitando por email o creando user. Por ahora solo listamos existentes -->
+      <button class="btn btn-primary" onclick="alert('Funcionalidad de invitación pendiente')">Invitar Cliente</button>
+  </div>
+
+  <div id="clientsList">Cargando clientes...</div>
+
+  <script define:vars={{ API_BASE_URL }}>
+    async function loadClients() {
+        try {
+            const token = document.cookie.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
+            const response = await fetch(`${API_BASE_URL}/clients`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Error loading clients');
+            
+            const clients = await response.json();
+            
+            const container = document.getElementById('clientsList');
+            if (!container) return;
+            
+            if (clients.length === 0) {
+                container.innerHTML = '<p>No hay clientes registrados.</p>';
+                return;
+            }
+
+            let html = '<table class="table"><thead><tr><th>Nombre</th><th>Email</th><th>Desde</th><th>Acciones</th></tr></thead><tbody>';
+            
+            clients.forEach(client => {
+                const date = client.createdAt ? new Date(client.createdAt._seconds * 1000).toLocaleDateString() : '-';
+                const name = client.displayName || 'Sin nombre';
+                html += `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${client.email}</td>
+                        <td>${date}</td>
+                        <td>
+                            <a href="/admin/clients/${client.uid}" class="btn" style="background: #374151; color: white; font-size: 0.8rem;">Ver Proyectos</a>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('clientsList').innerText = 'Error cargando clientes. Asegúrate de tener permisos de Admin.';
+        }
+    }
+
+    loadClients();
+  </script>
+</AdminLayout>

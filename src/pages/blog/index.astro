@@ -1,0 +1,187 @@
+
+---
+import Layout from '../../layouts/MainLayout.astro';
+
+// Fetch posts from API (Server Side)
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+let posts = [];
+let error = null;
+
+try {
+  // Fetch solo publicados
+  const res = await fetch(`${API_BASE_URL}/blog?published=true`);
+  if (!res.ok) throw new Error('Error fetching posts');
+  posts = await res.json();
+} catch (e) {
+  console.error(e);
+  error = 'No se pudieron cargar los artículos del blog.';
+}
+
+const getExcerpt = (post: any) => {
+  if (post.excerpt) {
+    return post.excerpt.length > 150 ? post.excerpt.substring(0, 150) + '...' : post.excerpt;
+  }
+  if (post.content) {
+    // 1. Quitar bloques <style>...</style> y su contenido
+    let stripped = post.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+    // 2. Quitar bloques <script>...</script> y su contenido
+    stripped = stripped.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+    // 3. Quitar cualquier otra etiqueta HTML (e.g. <p>, <strong>)
+    stripped = stripped.replace(/<[^>]*>?/gm, '');
+    // 4. Limpiar espacios múltiples o saltos de línea (como un plain text real)
+    stripped = stripped.replace(/\s+/g, ' ').trim();
+
+    return stripped.length > 150 ? stripped.substring(0, 150) + '...' : stripped;
+  }
+  return '';
+};
+---
+
+<Layout title="Blog | Agencia Digital" alwaysScrolledNav={true}>
+  <section class="blog-section">
+    <div class="container">
+      <h1 class="page-title fade-in">Blog</h1>
+      <p class="page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
+
+      {error && <div class="error-message">{error}</div>}
+
+      <div class="posts-grid">
+        {posts.map((post: any) => (
+          <article class="post-card fade-in">
+             {post.coverImage && (
+                 <div class="post-image">
+                     <img src={post.coverImage} alt={post.title} />
+                 </div>
+             )}
+            <div class="post-content">
+              <h2 class="post-title">
+                <a href={`/blog/${post.slug}`}>{post.title}</a>
+              </h2>
+              <div class="post-meta">
+                  <span class="post-author"><i class="fas fa-pen-nib"></i> {post.author || 'Administrador'}</span>
+                  {post.category && <span class="post-category"><i class="fas fa-folder"></i> {post.category}</span>}
+              </div>
+              <p class="post-excerpt">
+                {getExcerpt(post)}
+              </p>
+              <a href={`/blog/${post.slug}`} class="btn-cta__solid">Leer más</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .blog-section {
+    padding: 8rem 0 4rem 0;
+    min-height: 80vh;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .page-subtitle {
+     text-align: center;
+     color: var(--color-text-muted);
+     margin-bottom: 3rem;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .post-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-card:hover {
+     transform: translateY(-5px);
+     box-shadow: var(--shadow-lg);
+  }
+  
+  .post-image img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+  }
+
+  .post-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    text-align: left;
+  }
+
+  .post-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .post-title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .post-title a:hover {
+      color: var(--color-primary);
+  }
+  
+  .post-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.25rem;
+  }
+
+  .post-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+
+  .post-meta span i {
+      width: 14px;
+      color: var(--color-primary);
+      text-align: center;
+  }
+
+  .post-excerpt {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  .error-message {
+      text-align: center;
+      color: var(--color-error);
+      padding: 2rem;
+  }
+</style>

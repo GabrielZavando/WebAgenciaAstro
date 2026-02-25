@@ -1,16 +1,12 @@
 ---
-import Header from "../components/shared/Header.astro";
-import Footer from "../components/shared/Footer.astro";
 import "../styles/main.scss";
 
 interface Props {
   title?: string;
   description?: string;
-  alwaysScrolledNav?: boolean;
 }
-const { title = "Desarrollador Freelance | Sitios Web, E-commerce y Chatbots con IA" } = Astro.props;
-const { description = "Construyo sitios web a medida, tiendas online y chatbots con IA. Desarrollo freelance con experiencia, claridad y soporte cercano para tu proyecto digital." } = Astro.props;
-const { alwaysScrolledNav = false } = Astro.props;
+const { title = "Iniciar Sesión | Agencia Digital" } = Astro.props;
+const { description = "Panel de control y administración." } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -24,16 +20,11 @@ const { alwaysScrolledNav = false } = Astro.props;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     
-    <!-- Script para prevenir el parpadeo (flash) al cargar la página -->
     <script is:inline>
-      // Verificar si hay un tema guardado en localStorage
       const savedTheme = localStorage.getItem('theme');
-      
-      // Aplicar el tema al elemento HTML inmediatamente
       if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
       } else {
-        // Si no hay tema guardado, usar la preferencia del sistema
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
       }
@@ -43,31 +34,12 @@ const { alwaysScrolledNav = false } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <Header alwaysScrolled={alwaysScrolledNav} />
+    <!-- Sin Header ni Footer -->
     <slot />
-    <Footer />
-    <button id="scroll-top" class="btn-up" aria-label="Volver arriba">
-      <i class="fas fa-arrow-up"></i>
-    </button>   
 
-    <!-- Scripts -->
     <script>
       // @ts-nocheck
       document.addEventListener('DOMContentLoaded', () => {
-        // Scroll top button
-        const scrollBtn = document.getElementById('scroll-top');
-        if (scrollBtn) {
-          window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) scrollBtn.classList.add('visible');
-            else scrollBtn.classList.remove('visible');
-          });
-          scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            scrollBtn.classList.remove('visible');
-          });
-        }
-
-        // Sistema unificado de animaciones fade-in
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -76,15 +48,11 @@ const { alwaysScrolledNav = false } = Astro.props;
           });
         }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
 
-        // Observar todos los elementos con fade-in
         const fadeElements = document.querySelectorAll('.fade-in');
         fadeElements.forEach((el) => {
           observer.observe(el);
-          
-          // Si está visible al cargar, animar inmediatamente respetando delays
           const rect = el.getBoundingClientRect();
           if (rect.top < window.innerHeight && rect.bottom > 0) {
-            // Forzar un pequeño delay para que CSS transitions funcionen
             setTimeout(() => {
               el.classList.add('animate');
             }, 50);
@@ -94,5 +62,3 @@ const { alwaysScrolledNav = false } = Astro.props;
     </script>
   </body>
 </html>
-
-

@@ -6,9 +6,13 @@ import menuData from "../../data/menu.json";
 
 const currentPath = Astro.url.pathname;
 const { menuItems } = menuData;
+interface Props {
+    alwaysScrolled?: boolean;
+}
+const { alwaysScrolled = false } = Astro.props;
 ---
 
-<header class="header fade-in-down">
+<header class:list={["header fade-in-down", { "scrolled": alwaysScrolled }]} data-always-scrolled={alwaysScrolled ? "true" : undefined}>
     <div class="header__container">
         <h1 class="header__logo">
             <a href="/">
@@ -88,13 +92,17 @@ const { menuItems } = menuData;
         }
         
         // Cambiar color del header al hacer scroll
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                header?.classList.add('scrolled');
-            } else {
-                header?.classList.remove('scrolled');
-            }
-        });
+        const isAlwaysScrolled = header?.hasAttribute('data-always-scrolled');
+        
+        if (!isAlwaysScrolled) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    header?.classList.add('scrolled');
+                } else {
+                    header?.classList.remove('scrolled');
+                }
+            });
+        }
     });
 </script>
 

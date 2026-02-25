@@ -1,0 +1,284 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Search from "../../components/shared/Search.astro";
+
+const { slug } = Astro.params;
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+
+let post = null;
+let htmlContent = '';
+let formattedDate = '';
+
+try {
+  const res = await fetch(`${API_BASE_URL}/blog/slug/${slug}`);
+  if (!res.ok) {
+    return Astro.redirect('/404');
+  }
+  post = await res.json();
+  
+  if (post.content) {
+     // Eliminar etiquetas de documento completo que rompen el layout global de Astro (Word/Google Docs paste)
+     let safeContent = post.content;
+     
+     // 1. Quitar bloques <style>...</style> que sobrescriban el body o footer
+     safeContent = safeContent.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+     
+     // 2. Quitar bloques <script>...</script>
+     safeContent = safeContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+     
+     // 3. Remover etiquetas delimitadoras de HTML (doc, html, head, body, meta, link, title)
+     safeContent = safeContent.replace(/<\/?(?:html|head|body|meta|link|title|!DOCTYPE|xml)[^>]*>/gi, '');
+     
+     htmlContent = safeContent.trim();
+  }
+  
+  if (post.createdAt?._seconds) {
+      formattedDate = new Date(post.createdAt._seconds * 1000).toLocaleDateString("es-CL", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+      });
+  } else if (post.publishedAt) {
+      formattedDate = new Date(post.publishedAt).toLocaleDateString("es-CL", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+      });
+  }
+} catch (e) {
+  return Astro.redirect('/404');
+}
+---
+
+<MainLayout title={post.title} description={post.excerpt}>
+    <!-- Banner Post -->
+    <section class="banner fade-in">
+        <div class="banner__background">
+            {
+                post.coverImage && (
+                    <img
+                        src={post.coverImage}
+                        alt={`Imagen para ${post.title}`}
+                        class="banner__image"
+                    />
+                )
+            }
+        </div>
+
+        <div class="banner__container">
+            <a href="/blog" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver al blog
+            </a>
+            <header class="post-header-content">
+                <time
+                    datetime={post.createdAt?._seconds ? new Date(post.createdAt._seconds * 1000).toISOString() : new Date().toISOString()}
+                    class="post-date"
+                >
+                    {formattedDate}
+                </time>
+                <h1 class="post-title">{post.title}</h1>
+                <div class="post-meta">
+                    <span class="post-author">Por {post.author || 'Administrador'}</span>
+                </div>
+            </header>
+        </div>
+    </section>
+
+    <div class="container">
+        <Search placeholder="Buscar artículos..." />
+    </div>
+
+    <article class="single-post fade-in">
+        <div class="container container--narrow">
+            <div class="post-content" set:html={htmlContent}>
+            </div>
+        </div>
+    </article>
+</MainLayout>
+
+<style lang="scss">
+    @use "../../styles/config" as *;
+
+    .banner {
+        position: relative;
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        padding-top: calc(var(--space-3xl) + 60px); // Menos espacio superior, para acercarlo al menu
+        margin-top: -100px; /* Absorbe el espacio del Header Transparente para montarse debajo */
+        isolation: isolate;
+
+        &__background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: var(--z-background);
+            background: linear-gradient(
+                135deg,
+                var(--banner-overlay-start),
+                var(--banner-overlay-end)
+            );
+
+            .banner__image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                opacity: 1;
+                backface-visibility: hidden;
+            }
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
+            z-index: var(--z-base);
+        }
+
+        &__container {
+            width: 100%;
+            max-width: #{container(max)};
+            margin: 0 auto;
+            padding: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; // Centrado
+            position: relative;
+            z-index: var(--z-content);
+            text-align: center;
+        }
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-white); // Blanco para el banner
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: var(--space-xl);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    }
+
+    .post-header-content {
+        max-width: 900px;
+    }
+
+    .post-date {
+        display: block;
+        color: var(--color-accent); // Acento para destacar
+        font-family: var(--font-primary);
+        margin-bottom: var(--space-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .post-title {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        line-height: 1.1;
+        margin-bottom: var(--space-md);
+        color: var(--color-white);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .post-author {
+        color: var(--color-white);
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    .single-post {
+        padding: var(--space-3xl) 0;
+        background: var(--color-surface);
+        margin-bottom: 8rem; // Espacio extra para separación visual
+    }
+
+    .container--narrow {
+        max-width: 800px;
+    }
+
+    .post-content {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: var(--color-text);
+
+        // Estilos básicos para contenido markdown
+        :global(h2) {
+            font-size: 2rem;
+            margin-top: var(--space-2xl);
+            margin-bottom: var(--space-md);
+            color: var(--color-headings);
+        }
+
+        :global(h3) {
+            font-size: 1.5rem;
+            margin-top: var(--space-xl);
+            margin-bottom: var(--space-sm);
+            color: var(--color-headings);
+        }
+
+        :global(p) {
+            margin-bottom: var(--space-md);
+        }
+
+        :global(ul),
+        :global(ol) {
+            margin-bottom: var(--space-md);
+            padding-left: var(--space-xl);
+        }
+
+        :global(li) {
+            margin-bottom: var(--space-xs);
+        }
+
+        :global(blockquote) {
+            border-left: 4px solid var(--color-primary);
+            padding-left: var(--space-lg);
+            margin: var(--space-xl) 0;
+            font-style: italic;
+            color: var(--color-text-secondary);
+            background: var(--color-surface-secondary);
+            padding: var(--space-lg);
+            border-radius: 0 8px 8px 0;
+        }
+
+        :global(img) {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: var(--space-lg) 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        :global(a) {
+            color: var(--color-primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+
+            &:hover {
+                text-decoration: none;
+                color: var(--color-primary-dark);
+            }
+        }
+    }
+</style>

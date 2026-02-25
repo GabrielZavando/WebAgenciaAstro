@@ -1,0 +1,265 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+
+// Proteger la ruta y obtener el token SSR
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+let users = [];
+let errorMsg = null;
+
+try {
+  const response = await fetch(`${API_URL}/users`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (response.ok) {
+    users = await response.json();
+  } else {
+    // Si no es 2xx (ej. 403 Forbidden porque no es Admin)
+    errorMsg = `Error al cargar usuarios: ${response.statusText}`;
+    if (response.status === 403) {
+      errorMsg = "No tienes permisos de Administrador para ver esta página.";
+    }
+  }
+} catch (e) {
+  errorMsg = "No se pudo conectar con el servidor.";
+  console.error("Error fetching users:", e);
+}
+---
+
+<DashboardLayout title="Gestión de Usuarios" role="admin">
+  <div class="header-actions">
+    <div>
+      <h1>Usuarios</h1>
+      <p class="text-muted">Lista de todos los clientes y administradores registrados.</p>
+    </div>
+    <a href="/admin/usuarios/nuevo" class="btn-primary">
+      <i class="fas fa-plus"></i> Nuevo Usuario
+    </a>
+  </div>
+
+  {errorMsg && (
+    <div class="error-banner">
+      <i class="fas fa-exclamation-triangle"></i> {errorMsg}
+    </div>
+  )}
+
+  <div class="content-card fade-in">
+    {users.length === 0 && !errorMsg ? (
+      <div class="empty-state">
+        <i class="fas fa-users-slash empty-icon"></i>
+        <h3>No hay usuarios registrados</h3>
+        <p>Aún no has creado ningún usuario en el sistema.</p>
+      </div>
+    ) : null}
+
+    {users.length > 0 && (
+      <div class="table-responsive">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Fecha de Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user: any) => (
+              <tr>
+                <td>
+                  <div class="user-info">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt={`Avatar de ${user.displayName || user.email}`} class="user-avatar-img" />
+                    ) : (
+                      <div class="user-avatar">
+                        {user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span class="user-name">{user.displayName || 'Sin nombre'}</span>
+                  </div>
+                </td>
+                <td>{user.email}</td>
+                <td>
+                  <span class={`role-badge ${user.role}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td>{user.createdAt ? new Date(user.createdAt._seconds ? user.createdAt._seconds * 1000 : user.createdAt).toLocaleDateString() : 'Desconocida'}</td>
+                <td>
+                  <div class="actions">
+                    <a href={`/admin/usuarios/${user.uid || user.id}`} class="btn-icon" title="Editar"><i class="fas fa-edit"></i></a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+</DashboardLayout>
+
+<style>
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-actions h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+  .text-muted {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .content-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .error-banner {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-left: 4px solid var(--color-error);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--color-text-muted);
+  }
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  .empty-state h3 {
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .users-table th, .users-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .users-table th {
+    background: rgba(0,0,0,0.02);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .users-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .user-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .user-name {
+    font-weight: 500;
+  }
+
+  .role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .role-badge.admin {
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+  }
+  .role-badge.client {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color 0.2s;
+  }
+  .btn-icon:hover {
+    color: var(--color-primary);
+  }
+  .btn-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>

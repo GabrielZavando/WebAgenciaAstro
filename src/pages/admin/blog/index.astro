@@ -1,0 +1,73 @@
+
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+---
+
+<DashboardLayout title="Gestión del Blog" role="admin">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2>Artículos</h2>
+      <a href="/admin/blog/new" class="btn btn-primary">Nuevo Post</a>
+  </div>
+
+  <div id="postsList">Cargando posts...</div>
+
+  <script define:vars={{ API_BASE_URL }}>
+    async function loadPosts() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/blog`);
+            const posts = await response.json();
+            
+            const container = document.getElementById('postsList');
+            if (!container) return;
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<p>No hay posts creados aún.</p>';
+                return;
+            }
+
+            let html = '<table class="table"><thead><tr><th>Título</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
+            
+            posts.forEach(post => {
+                const date = new Date(post.createdAt._seconds * 1000).toLocaleDateString(); // Firebase timestamp
+                html += `
+                    <tr>
+                        <td>${post.title}</td>
+                        <td>${post.published ? '<span style="color: #34d399">Publicado</span>' : '<span style="color: #fbbf24">Borrador</span>'}</td>
+                        <td>${date}</td>
+                        <td>
+                            <a href="/admin/blog/edit/${post.id}" class="btn" style="background: #374151; color: white; font-size: 0.8rem;">Editar</a>
+                            <button onclick="deletePost('${post.id}')" class="btn" style="background: #ef4444; color: white; font-size: 0.8rem; margin-left: 0.5rem;">Borrar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('postsList').innerText = 'Error cargando posts.';
+        }
+    }
+
+    // Expose delete function globally
+    window.deletePost = async (id) => {
+        if (!confirm('¿Estás seguro de borrar este post?')) return;
+        
+        try {
+             const token = document.cookie.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
+             await fetch(`${API_BASE_URL}/blog/${id}`, {
+                 method: 'DELETE',
+                 headers: { 'Authorization': `Bearer ${token}` }
+             });
+             loadPosts(); // Reload
+        } catch (e) {
+            alert('Error eliminando post');
+        }
+    };
+
+    loadPosts();
+  </script>
+</DashboardLayout>

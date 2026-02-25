@@ -1,0 +1,279 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+
+// Proteger la ruta y obtener el token SSR
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+---
+
+<DashboardLayout title="Nuevo Usuario" role="admin">
+  <div class="header-actions">
+    <div>
+      <a href="/admin/usuarios" class="back-link">
+        <i class="fas fa-arrow-left"></i> Volver a Usuarios
+      </a>
+      <h1>Registrar Nuevo Usuario</h1>
+      <p class="text-muted">Crea un cliente o administrador. Se registrará automáticamente en la base de datos.</p>
+    </div>
+  </div>
+
+  <div class="content-card fade-in">
+    <form id="createUserForm" class="user-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="displayName">Nombre Completo <span class="required">*</span></label>
+          <input type="text" id="displayName" name="displayName" required placeholder="Ej: Juan Pérez" />
+        </div>
+        
+        <div class="form-group">
+          <label for="role">Rol <span class="required">*</span></label>
+          <select id="role" name="role" required>
+            <option value="client" selected>Cliente (Acceso a Dashboard)</option>
+            <option value="admin">Administrador (Acceso Total)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Correo Electrónico <span class="required">*</span></label>
+          <input type="email" id="email" name="email" required placeholder="juan@ejemplo.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña (opcional)</label>
+          <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" minlength="6" />
+          <small class="help-text">Si se deja vacío, se generará una contraseña segura por defecto.</small>
+        </div>
+      </div>
+
+      <div id="formFeedback" class="feedback-message hidden"></div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span class="btn-text">Crear Usuario</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</DashboardLayout>
+
+<script>
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  const form = document.getElementById('createUserForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const btnText = submitBtn?.querySelector('.btn-text');
+  const feedback = document.getElementById('formFeedback');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!submitBtn || !feedback) return;
+
+    // Obtener token (está en localStorage o se puede leer de cookies si las exponemos,
+    // pero idealmente AuthFirebase client module tiene el current user)
+    import('../../../lib/firebase/client').then(async ({ auth }) => {
+      const user = auth.currentUser;
+      if (!user) {
+        showFeedback('Error: No estás autenticado.', 'error');
+        return;
+      }
+      
+      const token = await user.getIdToken();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Limpiar contraseña si viene vacía para usar el default del backend
+      if (!data.password) delete data.password;
+
+      // Estado de carga
+      submitBtn.disabled = true;
+      btnText?.classList.add('hidden');
+      feedback.className = 'feedback-message hidden';
+
+      try {
+        const response = await fetch(`${API_URL}/users/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showFeedback('Usuario creado exitosamente.', 'success');
+          form.reset();
+          // Redirigir a listado luego de 1.5s
+          setTimeout(() => {
+            window.location.href = '/admin/usuarios';
+          }, 1500);
+        } else {
+          showFeedback(result.message || 'Ocurrió un error al crear el usuario.', 'error');
+        }
+      } catch (error) {
+        showFeedback('No se pudo conectar con el servidor.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        btnText?.classList.remove('hidden');
+      }
+    });
+  });
+
+  function showFeedback(message: string, type: 'error' | 'success') {
+    if(!feedback) return;
+    feedback.textContent = message;
+    feedback.className = `feedback-message ${type}`;
+  }
+</script>
+
+<style>
+  .header-actions {
+    margin-bottom: 2rem;
+  }
+  
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+  }
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .header-actions h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+  .text-muted {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .content-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 2rem;
+  }
+
+  .user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .form-row .form-group {
+    flex: 1;
+  }
+
+  /* Responsive para filas */
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  label {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .required {
+    color: var(--color-error);
+  }
+
+  .help-text {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  input, select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    font-size: 1rem;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+  .btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .feedback-message {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 500;
+  }
+  .feedback-message.error {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  }
+  .feedback-message.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .hidden {
+    display: none;
+  }
+</style>

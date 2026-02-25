@@ -1,11 +1,33 @@
 {
   "menuItems": [
-    { "text": "Inicio", "href": "/" },
-    { "text": "Servicios", "href": "#services" },
-    { "text": "Quién Soy", "href": "#about" },
-    { "text": "Metodología", "href": "#workflow" },
-    { "text": "Planes", "href": "#plans" },
-    { "text": "Contacto", "href": "#contact" }
+    {
+      "text": "Inicio",
+      "href": "/"
+    },
+    {
+      "text": "Servicios",
+      "href": "/#servicios"
+    },
+    {
+      "text": "Quién Soy",
+      "href": "/#quien-soy"
+    },
+    {
+      "text": "Metodología",
+      "href": "/#metodologia"
+    },
+    {
+      "text": "Planes",
+      "href": "/#planes"
+    },
+    {
+      "text": "Blog",
+      "href": "/blog"
+    },
+    {
+      "text": "Contacto",
+      "href": "/#contacto"
+    }
   ],
   "socialLinks": [
     {
