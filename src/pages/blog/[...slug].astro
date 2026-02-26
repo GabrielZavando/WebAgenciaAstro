@@ -79,6 +79,11 @@ try {
                 <h1 class="post-title">{post.title}</h1>
                 <div class="post-meta">
                     <span class="post-author">Por {post.author || 'Administrador'}</span>
+                    {post.category && (
+                        <span class="post-category">
+                            <i class="fas fa-tag"></i> {post.category}
+                        </span>
+                    )}
                 </div>
             </header>
         </div>
@@ -107,7 +112,7 @@ try {
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        padding-top: calc(var(--space-3xl) + 60px); // Menos espacio superior, para acercarlo al menu
+        padding-top: 180px; /* Incrementado para empujar el contenido visualmente hacia abajo */
         margin-top: -100px; /* Absorbe el espacio del Header Transparente para montarse debajo */
         isolation: isolate;
 
@@ -169,13 +174,11 @@ try {
         margin-bottom: var(--space-xl);
         background: rgba(255, 255, 255, 0.1);
         padding: 0.5rem 1rem;
-        border-radius: 20px;
-        backdrop-filter: blur(4px);
+        border-radius: 0; // Flat Design (Sin bordes redondeados)
         transition: all 0.3s ease;
 
         &:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
         }
     }
 
@@ -201,10 +204,32 @@ try {
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
+    .post-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
     .post-author {
         color: var(--color-white);
         font-weight: 500;
         opacity: 0.9;
+    }
+
+    .post-category {
+        background: rgba(255, 0, 128, 0.1); // Transparencia basada en el primary (#FF0080)
+        color: var(--color-white); // Texto blanco para mejor contraste
+        border: 1px solid rgba(255, 0, 128, 0.3);
+        padding: 0.35rem 1rem;
+        border-radius: 0; // Flat Design (Sin bordes redondeados)
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .single-post {
@@ -214,7 +239,8 @@ try {
     }
 
     .container--narrow {
-        max-width: 800px;
+        width: 90%;
+        max-width: 1200px;
     }
 
     .post-content {

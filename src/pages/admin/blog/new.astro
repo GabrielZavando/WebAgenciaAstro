@@ -31,7 +31,8 @@ if (!token) {
 
       <div class="form-group">
         <label for="content">Contenido <span class="required">*</span></label>
-        <textarea id="content" name="content" required rows="12" placeholder="Escribe el contenido aquí (Soporta HTML básico)"></textarea>
+        <div id="editor-container" style="height: 400px; background: var(--color-background); border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md);"></div>
+        <input type="hidden" id="content" name="content" required />
       </div>
 
       <div class="form-row">
@@ -58,10 +59,10 @@ if (!token) {
         </div>
       </div>
 
-      <div class="form-group checkbox-group">
-        <label>
+      <div class="form-group toggle-group">
+        <label class="toggle">
           <input type="checkbox" id="published" name="published" value="true" />
-          Publicado (Visible al público)
+          <span class="label-text">Publicado (Visible al público)</span>
         </label>
       </div>
 
@@ -77,12 +78,35 @@ if (!token) {
 </DashboardLayout>
 
 <script>
+  import Quill from 'quill';
+  import 'quill/dist/quill.snow.css';
+
   const API_URL = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
   const form = document.getElementById('createPostForm') as HTMLFormElement;
   const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
   const titleInput = document.getElementById('title') as HTMLInputElement;
   const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const contentInput = document.getElementById('content') as HTMLInputElement;
   const feedback = document.getElementById('formFeedback');
+
+  const quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Escribe el contenido HTML enriquecido aquí...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ]
+    }
+  });
+
+  quill.on('text-change', () => {
+    contentInput.value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
+  });
 
   // Auto-generate slug
   titleInput?.addEventListener('input', () => {
@@ -169,8 +193,13 @@ if (!token) {
   .required { color: var(--color-error); }
   input, textarea { padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); font-family: inherit; font-size: 1rem; }
   input:focus, textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1); }
-  .checkbox-group label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-  .checkbox-group input { width: auto; }
+  .toggle-group { margin: 0.5rem 0; }
+  .toggle { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+  .toggle input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 44px; height: 24px; background: var(--color-border); border-radius: 12px; position: relative; cursor: pointer; outline: none; transition: background 0.3s ease; flex-shrink: 0; margin: 0; padding: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); border: none; }
+  .toggle input[type="checkbox"]::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .toggle input[type="checkbox"]:checked { background: var(--color-primary); }
+  .toggle input[type="checkbox"]:checked::after { transform: translateX(20px); }
+  .toggle .label-text { font-weight: 500; color: var(--color-text); user-select: none; }
   .form-actions { display: flex; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem; }
   .btn-primary { background: var(--color-primary); color: white; padding: 0.875rem 2rem; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; }
   .btn-primary:hover { opacity: 0.9; }
@@ -179,4 +208,20 @@ if (!token) {
   .feedback-message.error { background: rgba(var(--color-error-rgb), 0.1); color: var(--color-error); border: 1px solid rgba(var(--color-error-rgb), 0.2); }
   .feedback-message.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
   .hidden { display: none; }
+  
+  /* Quill Overrides */
+  :global(.ql-toolbar.ql-snow) {
+    border-color: var(--color-border);
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  :global(.ql-container.ql-snow) {
+    border-color: var(--color-border);
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-text);
+  }
 </style>
