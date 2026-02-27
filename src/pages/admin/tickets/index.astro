@@ -1,0 +1,476 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+---
+
+<DashboardLayout title="Gestión de Tickets" role="admin">
+  <div class="support-page">
+    <div class="page-header">
+      <div>
+        <h1>Gestión de Tickets</h1>
+        <p class="text-muted">Revisa y responde las solicitudes de soporte de los clientes.</p>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <div class="card-header">
+        <h3><i class="fas fa-list"></i> Todos los Tickets</h3>
+      </div>
+      <div class="card-body" id="ticketsList">
+        <div class="loading-state">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Cargando tickets...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  import { auth } from "../../../lib/firebase/client";
+  import { onAuthStateChanged } from "firebase/auth";
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  const ticketsList = document.getElementById('ticketsList');
+
+  interface Ticket {
+    id: string;
+    subject: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high';
+    status: 'open' | 'in-progress' | 'resolved';
+    adminResponse: string;
+    createdAt: { _seconds?: number } | string;
+    clientEmail?: string;
+  }
+
+  let token = '';
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    token = await user.getIdToken();
+    await loadTickets();
+  });
+
+  async function loadTickets() {
+    try {
+      const res = await fetch(`${API_URL}/support/tickets`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      const tickets: Ticket[] = await res.json();
+      renderTickets(tickets);
+    } catch {
+      if (ticketsList) {
+        ticketsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Error al cargar tickets.</p>
+          </div>`;
+      }
+    }
+  }
+
+  function renderTickets(tickets: Ticket[]) {
+    if (!ticketsList) return;
+
+    if (tickets.length === 0) {
+      ticketsList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>Sin tickets</h3>
+          <p>No hay tickets de soporte en el sistema.</p>
+        </div>`;
+      return;
+    }
+
+    ticketsList.innerHTML = tickets.map(ticket => {
+      const date = formatDate(ticket.createdAt);
+      const statusInfo = getStatusInfo(ticket.status);
+      const priorityInfo = getPriorityInfo(ticket.priority);
+
+      return `
+        <div class="ticket-item">
+          <div class="ticket-header">
+            <span class="status-badge ${statusInfo.className}">
+              <i class="${statusInfo.icon}"></i> ${statusInfo.label}
+            </span>
+            <span class="priority-badge ${priorityInfo.className}">
+              ${priorityInfo.label}
+            </span>
+            <span class="ticket-email">
+              <i class="fas fa-user"></i> ${ticket.clientEmail || 'Cliente desconocido'}
+            </span>
+          </div>
+          <h4 class="ticket-subject">${ticket.subject}</h4>
+          <p class="ticket-message">${ticket.message}</p>
+          <div class="ticket-footer">
+            <span class="ticket-date">
+              <i class="fas fa-clock"></i> ${date}
+            </span>
+          </div>
+          ${ticket.adminResponse ? `
+            <div class="admin-response">
+              <div class="response-header">
+                <i class="fas fa-reply"></i> Tu respuesta
+              </div>
+              <p>${ticket.adminResponse}</p>
+            </div>
+          ` : `
+            ${ticket.status !== 'resolved' ? `
+              <form class="admin-reply-form" data-id="${ticket.id}" style="margin-top: 1rem;">
+                <textarea name="adminResponse" placeholder="Escribe tu respuesta para el cliente..." rows="3" required></textarea>
+                <div class="form-actions mt-2" style="display:flex; gap: 0.5rem; align-items:center; margin-top:0.5rem; justify-content: flex-end;">
+                  <select name="status" class="status-select" style="padding: 0.5rem;">
+                    <option value="in-progress" ${ticket.status === 'in-progress' ? 'selected' : ''}>En progreso</option>
+                    <option value="resolved">Resuelto</option>
+                  </select>
+                  <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem; min-width: auto; font-size: 0.85rem;">
+                    <span class="btn-text">Responder / Actualizar</span>
+                    <span class="loader hidden" style="width: 14px; height: 14px; border-width: 2px;"></span>
+                  </button>
+                </div>
+                <div class="feedback-message hidden" style="margin-top: 0.5rem;"></div>
+              </form>
+            ` : ''}
+          `}
+        </div>
+      `;
+    }).join('');
+
+    // Attach form listeners
+    document.querySelectorAll('.admin-reply-form').forEach(form => {
+      form.addEventListener('submit', handleReplySubmit);
+    });
+  }
+
+  async function handleReplySubmit(e: Event) {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const ticketId = form.getAttribute('data-id');
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const feedback = form.querySelector('.feedback-message') as HTMLElement;
+    const formData = new FormData(form);
+    
+    const adminResponse = formData.get('adminResponse') as string;
+    const status = formData.get('status') as string;
+
+    setLoading(submitBtn, true);
+
+    try {
+      const res = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ adminResponse, status })
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar el ticket');
+      
+      showFeedback(feedback, 'Ticket actualizado correctamente.', 'success');
+      setTimeout(() => loadTickets(), 1500);
+    } catch (err: any) {
+      showFeedback(feedback, err.message, 'error');
+      setLoading(submitBtn, false);
+    }
+  }
+
+  // Utilidades
+  function getStatusInfo(status: string) {
+    const map: Record<string, { label: string; className: string; icon: string }> = {
+      open: { label: 'Abierto', className: 'status-open', icon: 'fas fa-circle' },
+      'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'fas fa-spinner' },
+      resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check-circle' },
+    };
+    return map[status] || map.open;
+  }
+
+  function getPriorityInfo(priority: string) {
+    const map: Record<string, { label: string; className: string }> = {
+      low: { label: 'Baja', className: 'priority-low' },
+      medium: { label: 'Media', className: 'priority-medium' },
+      high: { label: 'Alta', className: 'priority-high' },
+    };
+    return map[priority] || map.medium;
+  }
+
+  function formatDate(raw: { _seconds?: number } | string): string {
+    if (typeof raw === 'string') return new Date(raw).toLocaleDateString('es-CL');
+    if (raw && raw._seconds) return new Date(raw._seconds * 1000).toLocaleDateString('es-CL');
+    return '-';
+  }
+
+  function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
+    const text = btn.querySelector('.btn-text');
+    const loader = btn.querySelector('.loader');
+    btn.disabled = isLoading;
+    if (isLoading) {
+      text?.classList.add('hidden');
+      loader?.classList.remove('hidden');
+    } else {
+      text?.classList.remove('hidden');
+      loader?.classList.add('hidden');
+    }
+  }
+
+  function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
+    el.textContent = message;
+    el.className = `feedback-message ${type}`;
+    setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
+  }
+</script>
+
+<style>
+  .support-page {
+    width: 100%;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+  .page-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .text-muted {
+    color: var(--color-text-muted);
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .content-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background: rgba(0,0,0,0.02);
+  }
+  .card-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-header i {
+    color: var(--color-primary);
+  }
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  select {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .feedback-message {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+  .feedback-message.error {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  }
+  .feedback-message.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .hidden { display: none; }
+
+  .loader {
+    border: 2px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Lista de tickets */
+  .ticket-item {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+  .ticket-item:last-child {
+    margin-bottom: 0;
+  }
+  .ticket-item:hover {
+    border-color: var(--color-primary);
+  }
+
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .ticket-email {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .status-badge i {
+    font-size: 0.5rem;
+  }
+  .status-open {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+  }
+  .status-progress {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+  }
+  .status-resolved {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+
+  .priority-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .priority-low { background: rgba(var(--color-text-muted-rgb, 150,150,150), 0.1); color: var(--color-text-muted); }
+  .priority-medium { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  .priority-high { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+  .ticket-subject {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+  .ticket-message {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+  }
+  .ticket-footer {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .admin-response {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(var(--color-primary-rgb), 0.05);
+    border-left: 3px solid var(--color-primary);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+  .response-header {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .admin-response p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+
+  .loading-state,
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--color-text-muted);
+  }
+  .loading-state i,
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+    opacity: 0.5;
+  }
+  .empty-state h3 {
+    margin: 0 0 0.5rem;
+    color: var(--color-text);
+    font-size: 1.25rem;
+  }
+  .empty-state p { margin: 0; font-size: 1rem; }
+</style>

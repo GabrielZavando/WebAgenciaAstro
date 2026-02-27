@@ -1,5 +1,5 @@
 ---
-import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -9,14 +9,14 @@ if (!token) {
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 ---
 
-<DashboardLayout title="Archivos" role="client">
+<DashboardLayout title="Archivos del Sistema" role="admin">
   <div class="files-page">
     <div class="page-header">
-      <h1>Mis Archivos</h1>
-      <p class="text-muted">Sube, organiza y descarga tus archivos personales. Tu cuenta tiene un límite de 5GB.</p>
+      <h1>Archivos del Sistema</h1>
+      <p class="text-muted">Despídase del desorden. Visualiza, sube y administra tus archivos personales. Tu cuenta tiene un límite de 30GB.</p>
     </div>
 
-    <!-- Cuota de almacenamiento -->
+    <!-- Cuota de almacenamiento (Admin 30GB limit) -->
     <div class="storage-banner" id="storageBanner">
       <div class="storage-info">
         <i class="fas fa-database"></i>
@@ -104,7 +104,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 </DashboardLayout>
 
 <script>
-  import { auth } from "../../lib/firebase/client";
+  import { auth } from "../../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
 
   const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
@@ -188,7 +188,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
             <div class="empty-state">
               <i class="fas fa-folder-open"></i>
               <h3>Sin archivos</h3>
-              <p>No hay archivos que coincidan con tu búsqueda o aún no has subido ninguno.</p>
+              <p>No hay archivos que coincidan con tu búsqueda o aún no se han subido archivos.</p>
             </div>
           </td>
         </tr>`;
@@ -391,7 +391,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    overflow: hidden; /* Mantiene bordes redondeados */
+    overflow: hidden;
   }
   
   .table-container table {

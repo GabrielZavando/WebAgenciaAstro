@@ -11,26 +11,38 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 const { id } = Astro.params;
 
 let user = null;
+let projects = [];
 let errorMsg = null;
 
 try {
-  const response = await fetch(`${API_URL}/users/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
+  const [userRes, projectsRes] = await Promise.all([
+    fetch(`${API_URL}/users/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }),
+    fetch(`${API_URL}/projects/client/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+  ]);
 
-  if (response.ok) {
-    user = await response.json();
+  if (userRes.ok) {
+    user = await userRes.json();
   } else {
-    errorMsg = `Error al cargar datos del usuario: ${response.statusText}`;
-    if (response.status === 403) {
+    errorMsg = `Error al cargar datos del usuario: ${userRes.statusText}`;
+    if (userRes.status === 403) {
       errorMsg = "No tienes permisos de Administrador para ver esta página.";
     }
   }
+
+  if (projectsRes.ok) {
+    projects = await projectsRes.json();
+  }
 } catch (e) {
   errorMsg = "No se pudo conectar con el servidor.";
-  console.error("Error fetching user data:", e);
+  console.error("Error fetching data:", e);
 }
 
 if (!user && !errorMsg) {
@@ -86,6 +98,20 @@ if (!user && !errorMsg) {
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="storageLimitGb">Capacidad de Almacenamiento (GB) <span class="required">*</span></label>
+            <input type="number" id="storageLimitGb" name="storageLimitGb" required min="1" step="1" value={user.storageLimitGb !== undefined ? user.storageLimitGb : 1} />
+            <small class="help-text">Cantidad en GB disponibles para almacenamiento de archivos en la nube.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="monthlyTicketLimit">Cuota Mensual de Tickets <span class="required">*</span></label>
+            <input type="number" id="monthlyTicketLimit" name="monthlyTicketLimit" required min="0" step="1" value={user.monthlyTicketLimit !== undefined ? user.monthlyTicketLimit : 2} />
+            <small class="help-text">Cantidad de tickets de soporte que el usuario puede solicitar por mes.</small>
+          </div>
+        </div>
+
         <div id="formFeedback" class="feedback-message hidden"></div>
 
         <div class="form-actions">
@@ -94,6 +120,75 @@ if (!user && !errorMsg) {
           </button>
         </div>
       </form>
+    </div>
+
+    <!-- Sección de Proyectos -->
+    <div class="content-card fade-in" style="margin-top: 2rem;">
+      <div class="header-actions" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.5rem; margin: 0 0 0.5rem 0;">Proyectos del Cliente</h2>
+        <p class="text-muted">Gestiona los proyectos contratados por este cliente.</p>
+      </div>
+
+      <form id="createProjectForm" class="project-form" data-clientid={user.uid || id}>
+        <div class="form-row" style="align-items: flex-end; margin-bottom: 1.5rem;">
+          <div class="form-group" style="flex: 2;">
+            <label for="projectName">Nombre del Proyecto <span class="required">*</span></label>
+            <input type="text" id="projectName" name="name" required placeholder="Ej: Rediseño Web" />
+          </div>
+          <div class="form-group" style="flex: 2;">
+            <label for="projectDescription">Descripción (Opcional)</label>
+            <input type="text" id="projectDescription" name="description" placeholder="Breve descripción" />
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label for="monthlyTicketLimit">Tickets / mes <span class="required">*</span></label>
+            <input type="number" id="monthlyTicketLimit" name="monthlyTicketLimit" required min="1" step="1" value="10" />
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <button type="submit" class="btn-primary" id="btnCreateProject" style="width: 100%;">
+              <i class="fas fa-plus"></i> <span style="margin-left:0.5rem">Añadir</span>
+            </button>
+          </div>
+        </div>
+        <div id="projectFormFeedback" class="feedback-message hidden" style="margin-bottom: 1rem;"></div>
+      </form>
+
+      <div class="projects-list">
+        {projects.length > 0 ? (
+          <div class="table-responsive">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+                  <th style="padding: 1rem;">Nombre</th>
+                  <th style="padding: 1rem;">Descripción</th>
+                  <th style="padding: 1rem; text-align: center;">Cuota Mensual</th>
+                  <th style="padding: 1rem; width: 100px; text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projects.map((project: any) => (
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td style="padding: 1rem;"><strong>{project.name}</strong></td>
+                    <td style="padding: 1rem; color: var(--color-text-muted);">{project.description || '-'}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <span class="status-badge status-open"><i class="fas fa-ticket-alt"></i> {project.monthlyTicketLimit || 10}</span>
+                    </td>
+                    <td style="padding: 1rem; text-align: right;">
+                      <button class="btn-icon btn-delete delete-project" data-id={project.id} title="Eliminar proyecto" style="background: none; border: none; color: var(--color-error); cursor: pointer; padding: 0.5rem; border-radius: var(--radius-sm); transition: background 0.2s;">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="empty-state" style="text-align: center; padding: 3rem 1rem; background: rgba(0,0,0,0.02); border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+            <i class="fas fa-folder-open" style="font-size: 2.5rem; color: var(--color-text-muted); margin-bottom: 1rem; display: block;"></i>
+            <p style="color: var(--color-text-muted); margin: 0;">Este cliente no tiene proyectos asignados.</p>
+          </div>
+        )}
+      </div>
     </div>
   )}
 </DashboardLayout>
@@ -125,9 +220,17 @@ if (!user && !errorMsg) {
       const token = await currentUser.getIdToken();
 
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+      const data: Record<string, any> = Object.fromEntries(formData.entries());
       
       if (!data.password) delete data.password;
+
+      // Ensure storageLimitGb and monthlyTicketLimit are numbers
+      if (data.storageLimitGb !== undefined) {
+        data.storageLimitGb = Number(data.storageLimitGb);
+      }
+      if (data.monthlyTicketLimit !== undefined) {
+        data.monthlyTicketLimit = Number(data.monthlyTicketLimit);
+      }
 
       submitBtn.disabled = true;
       btnText?.classList.add('hidden');
@@ -166,6 +269,93 @@ if (!user && !errorMsg) {
     if(!feedback) return;
     feedback.textContent = message;
     feedback.className = `feedback-message ${type}`;
+  }
+
+  // Lógica de Proyectos
+  const projectForm = document.getElementById('createProjectForm') as HTMLFormElement;
+  const projectFeedback = document.getElementById('projectFormFeedback');
+
+  projectForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!projectFeedback) return;
+
+    const clientId = projectForm.dataset.clientid;
+    const formData = new FormData(projectForm);
+    const data = {
+      clientId,
+      name: formData.get('name'),
+      description: formData.get('description'),
+      monthlyTicketLimit: Number(formData.get('monthlyTicketLimit')) || 10,
+    };
+
+    const submitBtn = document.getElementById('btnCreateProject') as HTMLButtonElement;
+    submitBtn.disabled = true;
+    showProjectFeedback('Creando...', 'success');
+
+    try {
+      const { auth } = await import('../../../lib/firebase/client');
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error('No autenticado');
+      
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`${API_URL}/projects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        showProjectFeedback('Proyecto creado exitosamente.', 'success');
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        const result = await response.json();
+        showProjectFeedback(result.message || 'Error al crear proyecto.', 'error');
+      }
+    } catch (error) {
+      showProjectFeedback('Error de conexión.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  const deleteButtons = document.querySelectorAll('.delete-project');
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const projectId = target.dataset.id;
+      if (!projectId || !confirm('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.')) return;
+
+      try {
+        const { auth } = await import('../../../lib/firebase/client');
+        const currentUser = auth.currentUser;
+        if (!currentUser) return alert('No autenticado');
+        
+        const token = await currentUser.getIdToken();
+        const response = await fetch(`${API_URL}/projects/${projectId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          alert('Error al eliminar el proyecto.');
+        }
+      } catch (error) {
+        alert('Error de conexión al eliminar.');
+      }
+    });
+  });
+
+  function showProjectFeedback(message: string, type: 'error' | 'success') {
+    if(!projectFeedback) return;
+    projectFeedback.textContent = message;
+    projectFeedback.className = `feedback-message ${type}`;
   }
 </script>
 

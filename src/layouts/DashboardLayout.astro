@@ -47,13 +47,21 @@ const { title, role = 'admin' } = Astro.props;
             <a href="/admin" class="nav-item">
               <i class="fas fa-home"></i> Resumen
             </a>
+            <a href="/admin/perfil" class="nav-item">
+              <i class="fas fa-user-circle"></i> Mi Perfil
+            </a>
             <a href="/admin/usuarios" class="nav-item">
               <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a href="/admin/archivos" class="nav-item">
+              <i class="fas fa-folder-open"></i> Archivos
             </a>
             <a href="/admin/blog" class="nav-item">
               <i class="fas fa-pen-nib"></i> Blog
             </a>
-
+            <a href="/admin/tickets" class="nav-item">
+              <i class="fas fa-ticket-alt"></i> Tickets
+            </a>
           </>
         )}
 
@@ -236,7 +244,10 @@ const { title, role = 'admin' } = Astro.props;
     }
 
     .content-wrapper {
-      padding: 2rem;
+      width: 90%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 0;
       flex: 1;
     }
 
