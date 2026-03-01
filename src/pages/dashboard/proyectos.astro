@@ -1,0 +1,71 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+
+// Proteger la ruta y obtener el token SSR
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+---
+
+<DashboardLayout title="Mis Proyectos" role="client">
+  <div class="projects-page">
+    <div class="welcome-section">
+      <h1>Mis Proyectos</h1>
+      <p class="text-muted">Visualiza y gestiona el estado de tus proyectos activos en curso.</p>
+    </div>
+
+    <div class="projects-placeholder">
+      <div class="empty-state">
+        <i class="fas fa-tasks"></i>
+        <h3>Próximamente</h3>
+        <p>Estoy preparando el listado detallado de tus proyectos. Muy pronto podrás ver el progreso en tiempo real.</p>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+<style>
+  .welcome-section {
+    margin-bottom: 2.5rem;
+  }
+  .welcome-section h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+  }
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+
+  .projects-placeholder {
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 4rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state p {
+    color: var(--color-text-muted);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+</style>

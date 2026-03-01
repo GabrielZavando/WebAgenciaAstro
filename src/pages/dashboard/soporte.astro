@@ -1,12 +1,9 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
-
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
   return Astro.redirect('/login');
 }
-
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 ---
 
 <DashboardLayout title="Soporte" role="client">
@@ -23,6 +20,12 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       <div class="search-input-wrapper">
         <i class="fas fa-search search-icon"></i>
         <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <i class="fas fa-filter filter-icon"></i>
+        <select id="projectQuerySelect">
+          <option value="">Todos los proyectos</option>
+        </select>
       </div>
       <button class="btn-primary" id="toggleFormBtn">
         <i class="fas fa-plus"></i> Nuevo Ticket
@@ -138,7 +141,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
 
-  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
   const ticketForm = document.getElementById('ticketForm') as HTMLFormElement;
   const submitBtn = document.getElementById('submitTicketBtn') as HTMLButtonElement;
@@ -146,6 +149,8 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const searchInput = document.getElementById('searchInput') as HTMLInputElement;
   const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
   const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
+  const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
+  const feedback = document.getElementById('ticketFeedback') as HTMLDivElement;
 
   // Nodos UI
   const toggleFormBtn = document.getElementById('toggleFormBtn');
@@ -222,6 +227,11 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     const options = allProjects.map(p => `<option value="${p.id}">${p.name}</option>`);
     projectSelect.innerHTML = defaultOption + options.join('');
 
+    // También poblar el filtro de consulta
+    if (projectQuerySelect) {
+      projectQuerySelect.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
+    }
+
     projectSelect.addEventListener('change', () => {
       if (projectNameInput) {
         if (projectSelect.value) {
@@ -235,15 +245,22 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   }
 
   searchInput?.addEventListener('input', applyFilters);
+  projectQuerySelect?.addEventListener('change', applyFilters);
 
   function applyFilters() {
     if (!ticketsListBody) return;
     
     const query = searchInput?.value.toLowerCase().trim() || '';
+    const selectedProjectId = projectQuerySelect?.value || '';
+    
     let filtered = [...allTickets];
 
     if (query) {
       filtered = filtered.filter(t => t.subject.toLowerCase().includes(query));
+    }
+
+    if (selectedProjectId) {
+      filtered = filtered.filter(t => t.projectId === selectedProjectId);
     }
 
     // Default sorting from API is newest first, which is correct.
@@ -472,6 +489,39 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     font-family: inherit; font-size: 0.95rem; box-sizing: border-box; transition: all 0.2s; box-shadow: var(--shadow-sm);
   }
   .search-input-wrapper input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1); }
+
+  .filter-group {
+    position: relative;
+    min-width: 220px;
+  }
+  .filter-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+  .filter-group select {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    appearance: none;
+  }
+  .filter-group select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
+  }
   .btn-primary {
     padding: 0 1.75rem; background: var(--color-primary); color: white; border: none;
     border-radius: var(--radius-md); font-weight: 600; cursor: pointer;

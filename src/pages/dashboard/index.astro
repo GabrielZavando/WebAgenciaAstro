@@ -12,41 +12,70 @@ if (!token) {
   <div class="dashboard-home">
     <div class="welcome-section">
       <h1 id="welcomeTitle">Hola, Bienvenido</h1>
-      <p class="text-muted">Este es tu panel de cliente. Aquí podrás ver el estado de tus proyectos y contactarnos rápidamente.</p>
+      <p class="text-muted">Este es tu resumen de actividad personalizada. Aquí puedes ver el estado de tus proyectos, archivos y soporte técnico.</p>
     </div>
 
-    <div class="stats-grid">
-
-      <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-user-circle"></i>
+    <div class="stats-grid" id="statsGrid">
+      <!-- Proyectos -->
+      <div class="stat-card" draggable="true" data-id="projects">
+        <div class="stat-icon project-icon">
+          <i class="fas fa-tasks"></i>
         </div>
         <div class="stat-details">
-          <h3>Mi Perfil</h3>
-          <p>Actualiza tus datos y contraseña</p>
-          <a href="/dashboard/perfil" class="btn-stat">Ajustes</a>
+          <h3>Proyectos</h3>
+          <p id="projectsCount">Cargando proyectos...</p>
+          <a href="/dashboard/proyectos" class="btn-stat">Ver Proyectos</a>
         </div>
       </div>
 
-      <div class="stat-card support-card">
-        <div class="stat-icon">
-          <i class="fas fa-headset"></i>
+      <!-- Archivos -->
+      <div class="stat-card" draggable="true" data-id="files">
+        <div class="stat-icon files-icon">
+          <i class="fas fa-folder-open"></i>
         </div>
         <div class="stat-details">
-          <h3>Soporte</h3>
-          <p>¿Necesitas ayuda con algo?</p>
-          <a href="/dashboard/soporte" class="btn-stat outline">Solicitar Ticket</a>
+          <h3>Archivos</h3>
+          <div class="storage-mini-info">
+            <p id="storageText">Cargando espacio...</p>
+            <div class="mini-bar-container"><div id="storageBar" class="mini-bar" style="width: 0%"></div></div>
+          </div>
+          <a href="/dashboard/archivos" class="btn-stat">Mis Archivos</a>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon">
+      <!-- Informes -->
+      <div class="stat-card" draggable="true" data-id="reports">
+        <div class="stat-icon reports-icon">
           <i class="fas fa-file-pdf"></i>
         </div>
         <div class="stat-details">
           <h3>Informes</h3>
-          <p>Consulta y descarga tus informes</p>
-          <a href="/dashboard/informes" class="btn-stat">Ver Informes</a>
+          <p id="reportsCount">Cargando informes...</p>
+          <a href="/dashboard/informes" class="btn-stat">Ver Todo</a>
+        </div>
+      </div>
+
+      <!-- Soporte -->
+      <div class="stat-card" draggable="true" data-id="support">
+        <div class="stat-icon support-icon">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div class="stat-details">
+          <h3>Soporte</h3>
+          <p id="ticketsCount">Cargando tickets...</p>
+          <a href="/dashboard/soporte" class="btn-stat">Nuevo Ticket</a>
+        </div>
+      </div>
+
+      <!-- Perfil -->
+      <div class="stat-card" draggable="true" data-id="profile">
+        <div class="stat-icon profile-icon" id="profileIconContainer">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="stat-details">
+          <h3 id="profileName">Mi Perfil</h3>
+          <p>Gestiona tu cuenta y datos</p>
+          <a href="/dashboard/perfil" class="btn-stat">Ajustes</a>
         </div>
       </div>
     </div>
@@ -57,31 +86,155 @@ if (!token) {
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
 
+  const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const welcomeTitle = document.getElementById('welcomeTitle');
+  const statsGrid = document.getElementById('statsGrid');
+  
+  // Elementos de las cards
+  const projectsCount = document.getElementById('projectsCount');
+  const storageText = document.getElementById('storageText');
+  const storageBar = document.getElementById('storageBar');
+  const reportsCount = document.getElementById('reportsCount');
+  const ticketsCount = document.getElementById('ticketsCount');
+  const profileName = document.getElementById('profileName');
+  const profileIconContainer = document.getElementById('profileIconContainer');
 
-  onAuthStateChanged(auth, (user) => {
-    if (user && welcomeTitle) {
-      welcomeTitle.textContent = `Hola, ${user.displayName || 'Bienvenido'}`;
+  // Aplicar orden guardado ANTES de hidratar datos
+  const savedOrder = localStorage.getItem('dashboard_cards_order');
+  if (savedOrder && statsGrid) {
+    try {
+      const order = JSON.parse(savedOrder);
+      const cards = Array.from(statsGrid.children);
+      order.forEach((id: string) => {
+        const card = cards.find(c => c.getAttribute('data-id') === id);
+        if (card) statsGrid.appendChild(card);
+      });
+    } catch (e) {
+      console.error("Error cargando orden del dashboard", e);
+    }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      if (welcomeTitle) welcomeTitle.textContent = `Hola, ${user.displayName || 'Bienvenido'}`;
+      if (profileName) profileName.textContent = user.displayName || 'Mi Perfil';
+      
+      if (user.photoURL && profileIconContainer) {
+        profileIconContainer.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" class="profile-card-img" />`;
+      }
+      
+      const token = await user.getIdToken();
+      loadDashboardData(token);
     }
   });
+
+  async function loadDashboardData(token: string) {
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    // Cargar Proyectos
+    try {
+      const res = await fetch(`${API}/projects/my`, { headers });
+      const projects = await res.json();
+      if (projectsCount) projectsCount.textContent = `${projects.length} proyecto(s) activo(s)`;
+    } catch {
+      if (projectsCount) projectsCount.textContent = "Error al cargar";
+    }
+
+    // Cargar Almacenamiento
+    try {
+      const res = await fetch(`${API}/files/storage/quota`, { headers });
+      const q = await res.json();
+      if (storageText && storageBar) {
+        storageText.textContent = `${q.usedFormatted} de ${q.limitFormatted}`;
+        const pct = q.limitBytes > 0 ? (q.usedBytes / q.limitBytes) * 100 : 0;
+        storageBar.style.width = `${Math.min(pct, 100)}%`;
+      }
+    } catch {
+      if (storageText) storageText.textContent = "Error al cargar";
+    }
+
+    // Cargar Informes
+    try {
+      const res = await fetch(`${API}/reports`, { headers });
+      const reports = await res.json();
+      if (reportsCount) reportsCount.textContent = `${reports.length} informe(s) disponible(s)`;
+    } catch {
+      if (reportsCount) reportsCount.textContent = "Error al cargar";
+    }
+
+    // Cargar Tickets
+    try {
+      const res = await fetch(`${API}/support/tickets/my`, { headers });
+      const tickets = await res.json();
+      const openTickets = tickets.filter((t: any) => t.status !== 'resolved').length;
+      if (ticketsCount) ticketsCount.textContent = `${openTickets} ticket(s) pendiente(s)`;
+    } catch {
+      if (ticketsCount) ticketsCount.textContent = "Error al cargar";
+    }
+  }
+
+  // --- Lógica de Drag and Drop ---
+  let draggedCard: HTMLElement | null = null;
+
+  statsGrid?.querySelectorAll('.stat-card').forEach(cardElement => {
+    const card = cardElement as HTMLElement;
+    card.addEventListener('dragstart', (e) => {
+      const de = e as DragEvent;
+      draggedCard = card;
+      draggedCard.classList.add('dragging');
+      statsGrid?.classList.add('is-dragging-any');
+      if (de.dataTransfer) de.dataTransfer.effectAllowed = 'move';
+    });
+
+    card.addEventListener('dragend', () => {
+      draggedCard?.classList.remove('dragging');
+      statsGrid?.classList.remove('is-dragging-any');
+      draggedCard = null;
+      saveCurrentOrder();
+    });
+
+    card.addEventListener('dragover', (e) => {
+      const de = e as DragEvent;
+      de.preventDefault();
+      if (!draggedCard || draggedCard === card) return;
+      
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      
+      // Determinar si insertar antes o después
+      if (de.clientX < midpoint) {
+        statsGrid.insertBefore(draggedCard, card);
+      } else {
+        statsGrid.insertBefore(draggedCard, card.nextSibling);
+      }
+    });
+  });
+
+  function saveCurrentOrder() {
+    if (!statsGrid) return;
+    const order = Array.from(statsGrid.children).map(c => c.getAttribute('data-id'));
+    localStorage.setItem('dashboard_cards_order', JSON.stringify(order));
+  }
 </script>
 
 <style>
   .welcome-section {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
   .welcome-section h1 {
-    font-size: 1.75rem;
+    font-size: 2rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--color-text);
   }
   .text-muted {
     color: var(--color-text-muted);
+    font-size: 1.1rem;
   }
 
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
   }
 
@@ -89,52 +242,137 @@ if (!token) {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    padding: 2rem;
     display: flex;
     align-items: flex-start;
     gap: 1.5rem;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: grab;
+    user-select: none;
   }
-  .stat-card:hover {
+  
+  .stat-card:active {
+    cursor: grabbing;
+  }
+
+  .stat-card.dragging {
+    border: 2px solid var(--color-primary);
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+    z-index: 10;
+    background: var(--color-surface);
+  }
+
+  /* Cuando se está moviendo cualquier card, las demás se hacen transparentes y muestran el slot */
+  .stats-grid.is-dragging-any {
+    background-image: none; /* Eliminar patrón de cuadritos */
+  }
+
+  .stats-grid.is-dragging-any .stat-card:not(.dragging) {
+    opacity: 0.2;
+    transform: scale(0.98);
+    filter: grayscale(1);
+    border: 2px dashed var(--color-primary); /* El "slot" donde se puede poner */
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Ocultar contenido interno de los slots para que se vea más el "espacio" */
+  .stats-grid.is-dragging-any .stat-card:not(.dragging) * {
+    visibility: hidden;
+  }
+
+  .stat-card:hover:not(.dragging):not(.is-dragging-any *) {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
     border-color: var(--color-primary);
   }
 
   .stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: rgba(var(--color-primary-rgb), 0.1);
-    color: var(--color-primary);
+    width: 64px;
+    height: 64px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     flex-shrink: 0;
   }
 
+  /* Colores temáticos para iconos */
+  .project-icon { background: rgba(var(--color-primary-rgb), 0.1); color: var(--color-primary); }
+  .files-icon { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+  .reports-icon { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+  .support-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  .profile-icon { 
+    background: rgba(100, 108, 255, 0.1); 
+    color: #646cff; 
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+  }
+
+  .profile-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+  }
+
+  .stat-details {
+    flex: 1;
+    min-width: 0;
+  }
   .stat-details h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
+    font-weight: 700;
   }
   .stat-details p {
     color: var(--color-text-muted);
-    font-size: 0.9rem;
-    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    margin: 0 0 1.25rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Info de almacenamiento mini */
+  .storage-mini-info {
+    margin-bottom: 1.25rem;
+  }
+  .storage-mini-info p {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  .mini-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .mini-bar {
+    height: 100%;
+    background: #22c55e;
+    border-radius: 3px;
+    transition: width 1s ease-out;
   }
 
   .btn-stat {
     display: inline-block;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     background: var(--color-primary);
     color: white;
     text-decoration: none;
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
     transition: opacity 0.2s;
+    text-align: center;
   }
   .btn-stat:hover {
     opacity: 0.9;
@@ -147,5 +385,16 @@ if (!token) {
   }
   .btn-stat.outline:hover {
     background: rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  @media (max-width: 640px) {
+    .stat-card {
+      padding: 1.5rem;
+    }
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 1.25rem;
+    }
   }
 </style>

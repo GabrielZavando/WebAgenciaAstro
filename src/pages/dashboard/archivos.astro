@@ -5,8 +5,6 @@ const token = Astro.cookies.get('session')?.value;
 if (!token) {
   return Astro.redirect('/login');
 }
-
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 ---
 
 <DashboardLayout title="Archivos" role="client">

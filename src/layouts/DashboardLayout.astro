@@ -1,5 +1,7 @@
 ---
 import '../styles/main.scss';
+import { Image } from "astro:assets";
+import Logo from "../assets/img/logo-medium.png";
 
 interface Props {
   title: string;
@@ -14,7 +16,7 @@ const { title, role = 'admin' } = Astro.props;
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} | Agencia Digital</title>
+  <title>{title} | Gabriel Zavando</title>
   
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -35,9 +37,17 @@ const { title, role = 'admin' } = Astro.props;
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <a href="/" class="logo">
-          Agencia<span>Digital</span>
+        <a href={role === 'admin' ? '/admin' : '/dashboard'} class="logo">
+          <Image 
+            src={Logo} 
+            alt="Gabriel Zavando Logo" 
+            height={30}
+            class="sidebar-img-logo"
+          />
         </a>
+        <button id="sidebarCollapseBtn" class="sidebar-collapse-btn">
+          <i class="fas fa-angle-left"></i>
+        </button>
       </div>
       
       <nav class="sidebar-nav">
@@ -45,22 +55,19 @@ const { title, role = 'admin' } = Astro.props;
         {role === 'admin' && (
           <>
             <a href="/admin" class="nav-item">
-              <i class="fas fa-home"></i> Resumen
-            </a>
-            <a href="/admin/perfil" class="nav-item">
-              <i class="fas fa-user-circle"></i> Mi Perfil
+              <i class="fas fa-home"></i> <span class="nav-text">Resumen</span>
             </a>
             <a href="/admin/usuarios" class="nav-item">
-              <i class="fas fa-users"></i> Usuarios
+              <i class="fas fa-users"></i> <span class="nav-text">Usuarios</span>
             </a>
             <a href="/admin/archivos" class="nav-item">
-              <i class="fas fa-folder-open"></i> Archivos
+              <i class="fas fa-folder-open"></i> <span class="nav-text">Archivos</span>
             </a>
             <a href="/admin/blog" class="nav-item">
-              <i class="fas fa-pen-nib"></i> Blog
+              <i class="fas fa-pen-nib"></i> <span class="nav-text">Blog</span>
             </a>
             <a href="/admin/tickets" class="nav-item">
-              <i class="fas fa-ticket-alt"></i> Tickets
+              <i class="fas fa-ticket-alt"></i> <span class="nav-text">Tickets</span>
             </a>
           </>
         )}
@@ -69,19 +76,19 @@ const { title, role = 'admin' } = Astro.props;
         {role === 'client' && (
           <>
             <a href="/dashboard" class="nav-item">
-              <i class="fas fa-home"></i> Inicio
+              <i class="fas fa-home"></i> <span class="nav-text">Inicio</span>
             </a>
-            <a href="/dashboard/perfil" class="nav-item">
-              <i class="fas fa-user-circle"></i> Mi Perfil
+            <a href="/dashboard/proyectos" class="nav-item">
+              <i class="fas fa-tasks"></i> <span class="nav-text">Proyectos</span>
             </a>
             <a href="/dashboard/informes" class="nav-item">
-              <i class="fas fa-file-pdf"></i> Informes
+              <i class="fas fa-file-pdf"></i> <span class="nav-text">Informes</span>
             </a>
             <a href="/dashboard/archivos" class="nav-item">
-              <i class="fas fa-folder-open"></i> Archivos
+              <i class="fas fa-folder-open"></i> <span class="nav-text">Archivos</span>
             </a>
             <a href="/dashboard/soporte" class="nav-item">
-              <i class="fas fa-headset"></i> Soporte
+              <i class="fas fa-headset"></i> <span class="nav-text">Soporte</span>
             </a>
 
           </>
@@ -90,7 +97,7 @@ const { title, role = 'admin' } = Astro.props;
 
       <div class="sidebar-footer">
         <button id="logoutBtn" class="nav-item text-error">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+          <i class="fas fa-sign-out-alt"></i> <span class="nav-text">Cerrar Sesión</span>
         </button>
       </div>
     </aside>
@@ -105,10 +112,50 @@ const { title, role = 'admin' } = Astro.props;
           <h2>{title}</h2>
         </div>
         <div class="topbar-right">
-          <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
-            <i class="fas fa-moon dark-icon"></i>
-            <i class="fas fa-sun light-icon"></i>
-          </button>
+          <div class="topbar-actions">
+            <!-- Notificaciones -->
+            <div class="notifications-container">
+              <button id="notificationsBtn" class="topbar-btn" aria-label="Notificaciones">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge"></span>
+              </button>
+            </div>
+
+            <div class="user-menu-container">
+            <button id="userMenuBtn" class="user-menu-btn" aria-expanded="false" aria-haspopup="true">
+              <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="user-avatar" />
+              <div class="user-info-text">
+                <span id="userNameDisplay" class="user-name">Cargando...</span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="userDropdown" class="user-dropdown hidden">
+              <div class="dropdown-header">
+                <p id="userEmailDisplay" class="text-muted">Cargando...</p>
+              </div>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href={role === 'admin' ? '/admin/perfil' : '/dashboard/perfil'} class="dropdown-item">
+                    <i class="fas fa-user"></i> Mi Perfil
+                  </a>
+                </li>
+                <li>
+                  <button id="theme-toggle" class="dropdown-item theme-toggle">
+                    <span class="dark-icon-txt"><i class="fas fa-sun"></i> Modo Claro</span>
+                    <span class="light-icon-txt"><i class="fas fa-moon"></i> Modo Oscuro</span>
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <button id="logoutDropdownBtn" class="dropdown-item text-error">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -142,33 +189,73 @@ const { title, role = 'admin' } = Astro.props;
       position: fixed;
       height: 100vh;
       z-index: 100;
-      transition: transform 0.3s ease;
+      transition: width 0.3s ease, transform 0.3s ease;
+      padding: 0; /* Forzar padding zero */
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
     }
 
     .sidebar-header {
-      padding: 1.5rem;
+      height: 70px;
+      padding: 0 1rem;
       border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sidebar.collapsed .sidebar-header {
+      justify-content: center;
+      padding: 0;
+    }
+    
+    .sidebar.collapsed .logo {
+      display: none;
+    }
+
+    .sidebar-collapse-btn {
+      background: rgba(var(--color-primary-rgb), 0.05);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .sidebar-collapse-btn:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
     }
     .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--color-text);
+      display: flex;
+      align-items: center;
       text-decoration: none;
     }
-    .logo span {
-      color: var(--color-primary);
+    .sidebar-img-logo {
+      height: 30px;
+      width: auto;
     }
 
     .sidebar-nav {
       flex: 1;
-      padding: 1rem 0;
+      padding: 0.5rem 0;
       overflow-y: auto;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1rem;
       color: var(--color-text-muted);
       text-decoration: none;
       transition: all 0.2s;
@@ -180,6 +267,20 @@ const { title, role = 'admin' } = Astro.props;
       font-family: inherit;
       font-size: 1rem;
       cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 0.75rem 0;
+    }
+
+    .nav-text {
+      transition: opacity 0.2s;
+    }
+
+    .sidebar.collapsed .nav-text {
+      display: none;
     }
 
     .nav-item:hover {
@@ -210,6 +311,11 @@ const { title, role = 'admin' } = Astro.props;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+
+    .sidebar.collapsed + .dashboard-content {
+      margin-left: 70px;
     }
 
     .topbar {
@@ -228,6 +334,45 @@ const { title, role = 'admin' } = Astro.props;
       display: flex;
       align-items: center;
       gap: 1rem;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .topbar-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .topbar-btn:hover {
+      color: var(--color-primary);
+    }
+    .notifications-container {
+      position: relative;
+    }
+    .notification-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-error);
+      border-radius: 0; /* Flat design */
+      border: 2px solid var(--color-surface);
     }
     .topbar h2 {
       margin: 0;
@@ -254,15 +399,137 @@ const { title, role = 'admin' } = Astro.props;
     .theme-toggle {
       background: none;
       border: none;
-      color: var(--color-text);
-      font-size: 1.25rem;
+      color: inherit;
+      font-size: 1rem;
       cursor: pointer;
-      padding: 0.5rem;
+      padding: 0;
       transition: color 0.3s;
+      width: 100%;
+      text-align: left;
     }
     
-    html[data-theme='dark'] .dark-icon { display: none; }
-    html[data-theme='light'] .light-icon { display: none; }
+    html[data-theme='dark'] .light-icon-txt { display: none; }
+    html[data-theme='light'] .dark-icon-txt { display: none; }
+
+    /* Estilos del User Dropdown */
+    .user-menu-container {
+      position: relative;
+    }
+    .user-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: var(--radius-md);
+      transition: background-color 0.2s;
+    }
+    .user-menu-btn:hover {
+      background-color: rgba(var(--color-primary-rgb), 0.05);
+    }
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 0; /* Rectangular flat design */
+      object-fit: cover;
+      border: 1px solid var(--color-border);
+    }
+    .user-info-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--color-text);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .user-info-text i {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      transition: transform 0.25s;
+    }
+    .user-menu-btn[aria-expanded="true"] .user-info-text i {
+      transform: rotate(180deg);
+    }
+    
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 240px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .user-dropdown.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .user-dropdown.hidden {
+      display: block; /* overwritten by opacity/pointer-events */
+    }
+    .dropdown-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .dropdown-header p {
+      margin: 0;
+      font-size: 0.75rem;
+      word-break: break-all;
+    }
+    .dropdown-menu {
+      list-style: none;
+      margin: 0;
+      padding: 0.5rem 0;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: 0.95rem;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .dropdown-item:hover {
+      background-color: rgba(var(--color-primary-rgb), 0.05);
+      color: var(--color-primary);
+    }
+    .dropdown-item i {
+      width: 18px;
+      text-align: center;
+      color: var(--color-text-muted);
+    }
+    .dropdown-item:hover i {
+      color: inherit;
+    }
+    .dropdown-divider {
+      height: 1px;
+      background-color: var(--color-border);
+      margin: 0.5rem 0;
+      border: none;
+    }
+    .text-error {
+      color: var(--color-error);
+    }
+    .dropdown-item.text-error:hover {
+      color: var(--color-error);
+      background-color: rgba(var(--color-error-rgb), 0.05);
+    }
 
     @media (max-width: 768px) {
       .sidebar {
@@ -282,26 +549,99 @@ const { title, role = 'admin' } = Astro.props;
 
   <script>
     import { auth } from "../lib/firebase/client";
-    import { signOut } from "firebase/auth";
+    import { signOut, onAuthStateChanged } from "firebase/auth";
 
+    // Dropdown functionality
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
 
+    userMenuBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isExpanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
+      
+      if (isExpanded) {
+        userDropdown?.classList.remove('show');
+        userMenuBtn.setAttribute('aria-expanded', 'false');
+      } else {
+        userDropdown?.classList.add('show');
+        userMenuBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.user-menu-container')) {
+        userDropdown?.classList.remove('show');
+        userMenuBtn?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Hydrate user data
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (userNameDisplay) userNameDisplay.textContent = user.displayName || 'Usuario';
+        if (userEmailDisplay) userEmailDisplay.textContent = user.email || '';
+        if (userAvatar) {
+          userAvatar.src = user.photoURL 
+            ? user.photoURL 
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=random`;
+        }
+      }
+    });
 
     // Logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    logoutBtn?.addEventListener('click', async () => {
+    const handleLogout = async () => {
       try {
         await signOut(auth);
         window.location.href = '/login';
       } catch (error) {
         console.error('Error cerrando sesión', error);
       }
-    });
+    };
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+    logoutBtn?.addEventListener('click', handleLogout);
+    logoutDropdownBtn?.addEventListener('click', handleLogout);
 
     // Mobile Sidebar Toggle
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     sidebarToggle?.addEventListener('click', () => {
       sidebar?.classList.toggle('open');
+    });
+
+    // Sidebar Collapse Logic
+    const collapseBtn = document.getElementById('sidebarCollapseBtn');
+    const icon = collapseBtn?.querySelector('i');
+    
+    const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    if (isCollapsed && sidebar) {
+      sidebar.classList.add('collapsed');
+      if (icon) {
+        icon.classList.remove('fa-angle-left');
+        icon.classList.add('fa-angle-right');
+      }
+    }
+
+    collapseBtn?.addEventListener('click', () => {
+      sidebar?.classList.toggle('collapsed');
+      const nowCollapsed = sidebar?.classList.contains('collapsed');
+      localStorage.setItem('sidebar-collapsed', String(nowCollapsed));
+      
+      if (icon) {
+        if (nowCollapsed) {
+          icon.classList.remove('fa-angle-left');
+          icon.classList.add('fa-angle-right');
+        } else {
+          icon.classList.remove('fa-angle-right');
+          icon.classList.add('fa-angle-left');
+        }
+      }
     });
 
     // Theme Toggle
@@ -316,12 +656,25 @@ const { title, role = 'admin' } = Astro.props;
     // Marcar item activo según la URL
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll('.nav-item') as NodeListOf<HTMLElement>;
+    
     navItems.forEach(item => {
       const href = item.getAttribute('href');
-      if (href && (currentPath === href || (href !== '/' && currentPath.startsWith(href)))) {
+      if (!href) return;
+
+      // Coincidencia exacta para las rutas base o si es la ruta actual
+      const isExactMatch = currentPath === href;
+      // Coincidencia de subruta (evitando que /dashboard coincida con /dashboard/archivos si no es exacto)
+      const isSubPathMatch = href !== '/admin' && href !== '/dashboard' && href !== '/' && currentPath.startsWith(href);
+
+      if (isExactMatch || isSubPathMatch) {
         item.style.color = 'var(--color-primary)';
-        item.style.backgroundColor = 'rgba(100, 108, 255, 0.1)';
+        item.style.backgroundColor = 'rgba(var(--color-primary-rgb), 0.1)';
         item.style.fontWeight = '600';
+      } else {
+        // Limpiar estilos si no coincide (importante si el script corre más de una vez)
+        item.style.color = '';
+        item.style.backgroundColor = '';
+        item.style.fontWeight = '';
       }
     });
 

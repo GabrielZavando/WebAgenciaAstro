@@ -1,0 +1,635 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+const { id } = Astro.params;
+
+let ticket: any = null;
+let errorMsg = null;
+
+try {
+  const response = await fetch(`${API_URL}/support/tickets/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (response.ok) {
+    ticket = await response.json();
+  } else {
+    errorMsg = `Error al cargar datos del ticket: ${response.statusText}`;
+    if (response.status === 404 || response.status === 403) {
+      errorMsg = "No se encontró el ticket solicitado o no tienes permisos para verlo.";
+    }
+  }
+} catch (e) {
+  errorMsg = "No se pudo conectar con el servidor.";
+  console.error("Error fetching ticket data:", e);
+}
+
+if (!ticket && !errorMsg) {
+  errorMsg = "Ticket no encontrado.";
+}
+
+// Format the date properly
+function formatFullDate(raw: { _seconds?: number } | string): string {
+  let d: Date;
+  if (typeof raw === 'string') d = new Date(raw);
+  else if (raw && raw._seconds) d = new Date(raw._seconds * 1000);
+  else return '-';
+
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  return `${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()} a las ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+}
+
+const getStatusInfo = (status: string) => {
+  const map: Record<string, { label: string; className: string; icon: string }> = {
+    open: { label: 'Enviado / Abierto', className: 'status-open', icon: 'fas fa-envelope' },
+    'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'fas fa-spinner' },
+    resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check-circle' },
+  };
+  return map[status] || map.open;
+};
+
+const getPriorityInfo = (priority: string) => {
+  const map: Record<string, { label: string; color: string }> = {
+    low: { label: 'Baja', color: '#22c55e' },
+    medium: { label: 'Media', color: '#f59e0b' },
+    high: { label: 'Alta', color: '#ef4444' },
+  };
+  return map[priority] || map.medium;
+};
+
+let statusInfo: any = null;
+let priorityInfo: any = null;
+if (ticket) {
+  statusInfo = getStatusInfo(ticket.status);
+  priorityInfo = getPriorityInfo(ticket.priority);
+}
+---
+
+<DashboardLayout title="Ver Ticket" role="admin">
+  <div class="header-actions">
+    <div>
+      <a href="/admin/tickets" class="back-link">
+        <i class="fas fa-arrow-left"></i> Volver a la Lista de Tickets
+      </a>
+      {ticket && <h1>Asunto: {ticket.subject}</h1>}
+    </div>
+  </div>
+
+  {errorMsg && (
+    <div class="error-banner">
+      <i class="fas fa-exclamation-triangle"></i> {errorMsg}
+    </div>
+  )}
+
+  {!errorMsg && ticket && (
+    <div class="ticket-details-container fade-in">
+      <div class="ticket-meta-card">
+        <div class="meta-item">
+          <span class="meta-label">ID Ticket</span>
+          <span class="meta-value ticket-id">#{ticket.id.slice(0, 8).toUpperCase()}</span>
+        </div>
+        <div class="meta-item">
+           <span class="meta-label">Cliente (Email)</span>
+           <span class="meta-value"><i class="fas fa-user-circle" style="color: var(--color-text-muted); margin-right: 0.25rem;"></i> {ticket.clientEmail || 'Desconocido'}</span>
+        </div>
+        {ticket.projectName && (
+          <div class="meta-item">
+            <span class="meta-label">Proyecto</span>
+            <span class="meta-value"><i class="fas fa-folder" style="color: var(--color-text-muted); margin-right: 0.25rem;"></i> {ticket.projectName}</span>
+          </div>
+        )}
+        <div class="meta-item">
+          <span class="meta-label">Estado actual</span>
+          <span class={`status-badge ${statusInfo?.className}`}>
+            <i class={statusInfo?.icon}></i> {statusInfo?.label}
+          </span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Prioridad</span>
+          <div class="priority-badge-wrapper">
+            <span class="priority-dot" style={`background-color: ${priorityInfo?.color}`}></span>
+            {priorityInfo?.label}
+          </div>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Fecha de Envío</span>
+          <span class="meta-value"><i class="far fa-calendar-alt"></i> {formatFullDate(ticket.createdAt)}</span>
+        </div>
+        {ticket.status === 'resolved' && ticket.updatedAt && (
+          <div class="meta-item resolved-meta">
+            <span class="meta-label">Resuelto el</span>
+            <span class="meta-value resolved-date"><i class="fas fa-check-double"></i> {formatFullDate(ticket.updatedAt)}</span>
+          </div>
+        )}
+      </div>
+
+      <div class="conversation">
+        <!-- Client initial message -->
+        <div class="message client-message">
+          <div class="message-header">
+            <div class="user-info">
+              <div class="avatar client-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="name-time">
+                <strong>{ticket.clientEmail || 'Cliente'}</strong>
+                <span class="time">{formatFullDate(ticket.createdAt)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="message-body">
+            {ticket.message.split('\n').map((line: string) => (
+              <p>{line}</p>
+            ))}
+            
+            {ticket.attachmentUrl && (
+              <div class="attachment-container">
+                <hr class="attachment-divider" />
+                <p class="attachment-label"><i class="fas fa-paperclip"></i> Archivo Adjunto</p>
+                <a href={ticket.attachmentUrl} target="_blank" rel="noopener noreferrer" class="attachment-link">
+                  <img src={ticket.attachmentUrl} alt="Adjunto del ticket" class="ticket-attachment-img" />
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <!-- Admin Response Area -->
+        <div class="message admin-message focus-message">
+          <div class="message-header">
+            <div class="user-info">
+              <div class="avatar admin-avatar">
+                <i class="fas fa-headset"></i>
+              </div>
+              <div class="name-time">
+                <strong>Tu Respuesta (Soporte)</strong>
+                {ticket.adminResponse && ticket.updatedAt && (
+                   <span class="time">Última actualización: {formatFullDate(ticket.updatedAt)}</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div class="message-body reply-body">
+             <form class="admin-reply-form" data-id={ticket.id}>
+                <textarea name="adminResponse" placeholder="Escribe tu respuesta para el cliente..." rows="4" required>{ticket.adminResponse || ''}</textarea>
+                
+                <div class="form-actions-wrapper">
+                    <div class="status-action">
+                        <label for={`status-${ticket.id}`} class="status-label">Cambiar Estado:</label>
+                        <select name="status" id={`status-${ticket.id}`} class="status-select">
+                        <option value="in-progress" selected={ticket.status === 'in-progress'}>En progreso / Recibido</option>
+                        <option value="resolved" selected={ticket.status === 'resolved'}>Marcar como Resuelto</option>
+                        </select>
+                    </div>
+                
+                    <button type="submit" class="btn-primary">
+                        <span class="btn-text">{ticket.adminResponse ? 'Actualizar Respuesta y Estado' : 'Enviar Respuesta'}</span>
+                        <span class="loader hidden"></span>
+                    </button>
+                </div>
+                <div class="feedback-message hidden" id={`feedback-${ticket.id}`}></div>
+             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</DashboardLayout>
+
+<script>
+  import { auth } from "../../../lib/firebase/client";
+  import { onAuthStateChanged } from "firebase/auth";
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  let token = '';
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      token = await user.getIdToken();
+    }
+  });
+
+  const forms = document.querySelectorAll('.admin-reply-form');
+  forms.forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formEl = e.currentTarget as HTMLFormElement;
+      const ticketId = formEl.getAttribute('data-id');
+      const submitBtn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const feedback = document.getElementById(`feedback-${ticketId}`) as HTMLElement;
+      
+      const formData = new FormData(formEl);
+      const adminResponse = (formData.get('adminResponse') as string).trim();
+      const status = formData.get('status') as string;
+
+      if (!token) {
+        showFeedback(feedback, 'Hubo un error de autenticación. Recarga la página.', 'error');
+        return;
+      }
+
+      setLoading(submitBtn, true);
+
+      try {
+        const res = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ adminResponse, status })
+        });
+
+        if (!res.ok) {
+           const errData = await res.json().catch(()=>({}));
+           throw new Error(errData.message || 'Error al actualizar el ticket');
+        }
+        
+        showFeedback(feedback, 'Respuesta y estado guardados correctamente.', 'success');
+        
+        // Reload after success
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+
+      } catch (err: any) {
+        showFeedback(feedback, err.message || 'Error en el servidor', 'error');
+        setLoading(submitBtn, false);
+      }
+    });
+  });
+
+  function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
+    const text = btn.querySelector('.btn-text');
+    const loader = btn.querySelector('.loader');
+    btn.disabled = isLoading;
+    if (isLoading) {
+      text?.classList.add('hidden');
+      loader?.classList.remove('hidden');
+    } else {
+      text?.classList.remove('hidden');
+      loader?.classList.add('hidden');
+    }
+  }
+
+  function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
+    el.textContent = message;
+    el.className = `feedback-message ${type}`;
+    if (type === 'error') {
+       setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
+    }
+  }
+</script>
+
+<style>
+  .header-actions {
+    margin-bottom: 2rem;
+  }
+  
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .header-actions h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--color-text);
+  }
+
+  .error-banner {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-left: 4px solid var(--color-error);
+  }
+
+  .ticket-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Tarjeta de Metadatos */
+  .ticket-meta-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: space-between;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+
+  .meta-value {
+    font-size: 1rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  .ticket-id {
+    font-family: monospace;
+    background: rgba(150, 150, 150, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    color: var(--color-text-muted);
+  }
+
+  /* Badges y estados */
+  .status-badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: fit-content;
+  }
+  .status-open { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+  .status-progress { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+  .status-resolved { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+
+  .priority-badge-wrapper {
+    display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; font-weight: 500; color: var(--color-text); text-transform: capitalize;
+  }
+  .priority-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  .resolved-date { color: #22c55e; font-weight: 600; }
+
+  /* Conversacion */
+  .conversation {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .message {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .message-header {
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+  }
+  .client-avatar { background: var(--color-text-muted); }
+  .admin-avatar { background: var(--color-primary); }
+
+  .name-time {
+    display: flex;
+    flex-direction: column;
+  }
+  .name-time strong {
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+  .name-time .time {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+
+  .message-body {
+    padding: 1.5rem;
+    color: var(--color-text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .message-body p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  .message-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .attachment-container {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--color-border);
+  }
+  .attachment-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem !important;
+  }
+  .attachment-label i {
+    margin-right: 0.4rem;
+  }
+  .ticket-attachment-img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ticket-attachment-img:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Distingue mensaje de admin */
+  .admin-message {
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .focus-message {
+    border-color: rgba(var(--color-primary-rgb), 0.3);
+  }
+
+  /* Formulario de Respuesta en el Admin */
+  .reply-body form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  .form-actions-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: rgba(0,0,0,0.015);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--color-border);
+  }
+
+  .status-action {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+  }
+  .status-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-text);
+  }
+
+  .status-select {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .status-select:focus {
+     border-color: var(--color-primary);
+     outline: none;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2); }
+  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;}
+
+  .feedback-message {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+  }
+  .feedback-message.error {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  }
+  .feedback-message.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .hidden { display: none !important; }
+
+  .loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .ticket-meta-card {
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .form-actions-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .status-action {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+  }
+</style>
