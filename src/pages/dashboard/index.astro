@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import StorageVisualizer from '../../components/shared/StorageVisualizer.astro';
 
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
@@ -35,9 +36,14 @@ if (!token) {
         </div>
         <div class="stat-details">
           <h3>Archivos</h3>
-          <div class="storage-mini-info">
-            <p id="storageText">Cargando espacio...</p>
-            <div class="mini-bar-container"><div id="storageBar" class="mini-bar" style="width: 0%"></div></div>
+          <div class="storage-mini-info" id="dashboard-storage-container">
+            <StorageVisualizer 
+              usedFormatted="..." 
+              limitFormatted="..." 
+              usedBytes={0} 
+              limitBytes={1} 
+              variant="compact"
+            />
           </div>
           <a href="/dashboard/archivos" class="btn-stat">Mis Archivos</a>
         </div>
@@ -92,8 +98,10 @@ if (!token) {
   
   // Elementos de las cards
   const projectsCount = document.getElementById('projectsCount');
-  const storageText = document.getElementById('storageText');
-  const storageBar = document.getElementById('storageBar');
+  const storageContainer = document.getElementById('dashboard-storage-container');
+  const storageCircle = storageContainer?.querySelector('.chart-progress');
+  const storagePercent = storageContainer?.querySelector('.mini-percent');
+  const storageTextMini = storageContainer?.querySelector('.mini-text');
   const reportsCount = document.getElementById('reportsCount');
   const ticketsCount = document.getElementById('ticketsCount');
   const profileName = document.getElementById('profileName');
@@ -144,13 +152,15 @@ if (!token) {
     try {
       const res = await fetch(`${API}/files/storage/quota`, { headers });
       const q = await res.json();
-      if (storageText && storageBar) {
-        storageText.textContent = `${q.usedFormatted} de ${q.limitFormatted}`;
+      if (storageContainer) {
         const pct = q.limitBytes > 0 ? (q.usedBytes / q.limitBytes) * 100 : 0;
-        storageBar.style.width = `${Math.min(pct, 100)}%`;
+        if (storageCircle) storageCircle.setAttribute('stroke-dasharray', `${Math.min(pct, 100)}, 100`);
+        if (storagePercent) storagePercent.textContent = `${Math.round(pct)}%`;
+        if (storageTextMini) storageTextMini.textContent = `${q.usedFormatted} de ${q.limitFormatted}`;
+        storageContainer.classList.toggle('warning', pct >= 90);
       }
     } catch {
-      if (storageText) storageText.textContent = "Error al cargar";
+      if (storageTextMini) storageTextMini.textContent = "Error al cargar";
     }
 
     // Cargar Informes

@@ -31,6 +31,12 @@ try {
   errorMsg = "No se pudo conectar con el servidor.";
   console.error("Error fetching users:", e);
 }
+
+// Mapeo para nombres de roles
+const roleNames = {
+  admin: 'Administrador',
+  client: 'Cliente'
+};
 ---
 
 <DashboardLayout title="Gestión de Usuarios" role="admin">
@@ -39,9 +45,15 @@ try {
       <h1>Usuarios</h1>
       <p class="text-muted">Lista de todos los clientes y administradores registrados.</p>
     </div>
-    <a href="/admin/usuarios/nuevo" class="btn-primary">
-      <i class="fas fa-plus"></i> Nuevo Usuario
-    </a>
+    <div class="header-right">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="userSearch" placeholder="Buscar por nombre..." />
+      </div>
+      <a href="/admin/usuarios/nuevo" class="btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Usuario
+      </a>
+    </div>
   </div>
 
   {errorMsg && (
@@ -61,7 +73,7 @@ try {
 
     {users.length > 0 && (
       <div class="table-responsive">
-        <table class="users-table">
+        <table class="users-table" id="usersTable">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -73,7 +85,7 @@ try {
           </thead>
           <tbody>
             {users.map((user: any) => (
-              <tr>
+              <tr class="user-row">
                 <td>
                   <div class="user-info">
                     {user.photoURL ? (
@@ -89,14 +101,14 @@ try {
                 <td>{user.email}</td>
                 <td>
                   <span class={`role-badge ${user.role}`}>
-                    {user.role}
+                    {roleNames[user.role as keyof typeof roleNames] || user.role}
                   </span>
                 </td>
                 <td>{user.createdAt ? new Date(user.createdAt._seconds ? user.createdAt._seconds * 1000 : user.createdAt).toLocaleDateString() : 'Desconocida'}</td>
                 <td>
-                  <div class="actions">
-                    <a href={`/admin/usuarios/${user.uid || user.id}`} class="btn-icon" title="Editar"><i class="fas fa-edit"></i></a>
-                  </div>
+                  <a href={`/admin/usuarios/${user.uid || user.id}`} class="btn-details">
+                    ver detalles
+                  </a>
                 </td>
               </tr>
             ))}
@@ -107,6 +119,25 @@ try {
   </div>
 </DashboardLayout>
 
+<script>
+  const searchInput = document.getElementById('userSearch') as HTMLInputElement;
+  const userRows = document.querySelectorAll('.user-row');
+
+  searchInput?.addEventListener('input', () => {
+    const searchTerm = searchInput.value.toLowerCase();
+    userRows.forEach(row => {
+      const name = row.querySelector('.user-name')?.textContent?.toLowerCase() || '';
+      const email = row.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+      
+      if (name.includes(searchTerm) || email.includes(searchTerm)) {
+        (row as HTMLElement).style.display = '';
+      } else {
+        (row as HTMLElement).style.display = 'none';
+      }
+    });
+  });
+</script>
+
 <style>
   .header-actions {
     display: flex;
@@ -114,7 +145,37 @@ try {
     align-items: center;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+    min-width: 300px;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.95rem;
   }
   
   .header-actions h1 {
@@ -211,7 +272,7 @@ try {
     height: 36px;
     background: var(--color-primary);
     color: white;
-    border-radius: 50%;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -220,7 +281,7 @@ try {
   .user-avatar-img {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--radius-md);
     object-fit: cover;
   }
   .user-name {
@@ -229,37 +290,33 @@ try {
 
   .role-badge {
     padding: 0.25rem 0.75rem;
-    border-radius: 99px;
+    border-radius: var(--radius-md);
     font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
+    display: inline-block;
   }
   .role-badge.admin {
-    background: rgba(var(--color-primary-rgb), 0.1);
-    color: var(--color-primary);
+    background: var(--color-primary);
+    color: white;
   }
   .role-badge.client {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
+    background: #22c55e;
+    color: white;
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
+  .btn-details {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-md);
+    background: var(--color-border);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
   }
-  .btn-icon {
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    transition: color 0.2s;
-  }
-  .btn-icon:hover {
-    color: var(--color-primary);
-  }
-  .btn-icon:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .btn-details:hover {
+    background: var(--color-primary);
+    color: white;
   }
 </style>

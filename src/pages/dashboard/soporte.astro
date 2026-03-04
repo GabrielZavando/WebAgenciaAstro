@@ -8,28 +8,30 @@ if (!token) {
 
 <DashboardLayout title="Soporte" role="client">
   <div class="support-page">
-    <div class="page-header">
-      <div>
-        <h1>Centro de Soporte</h1>
-        <p class="text-muted">Solicita ayuda y revisa el estado de tus tickets.</p>
+    <div id="listView">
+      <div class="page-header">
+        <div>
+          <h1>Centro de Soporte</h1>
+          <p class="text-muted">Solicita ayuda y revisa el estado de tus tickets.</p>
+        </div>
       </div>
-    </div>
 
-    <!-- Acciones principales -->
-    <div class="actions-row">
-      <div class="search-input-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+      <!-- Acciones principales -->
+      <div class="actions-row">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+        </div>
+        <div class="filter-group">
+          <i class="fas fa-filter filter-icon"></i>
+          <select id="projectQuerySelect">
+            <option value="">Todos los proyectos</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="toggleFormBtn">
+          <i class="fas fa-plus"></i> Nuevo Ticket
+        </button>
       </div>
-      <div class="filter-group">
-        <i class="fas fa-filter filter-icon"></i>
-        <select id="projectQuerySelect">
-          <option value="">Todos los proyectos</option>
-        </select>
-      </div>
-      <button class="btn-primary" id="toggleFormBtn">
-        <i class="fas fa-plus"></i> Nuevo Ticket
-      </button>
     </div>
 
     <div class="content-card form-container hidden" id="formContainer">
@@ -39,52 +41,33 @@ if (!token) {
       </div>
       <div class="card-body">
         <form id="ticketForm" class="ticket-form">
-          <div class="form-group row-group">
-            <div class="col-group">
-              <label for="subject">Asunto</label>
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                placeholder="Describe brevemente tu problema"
-                required
-              />
-            </div>
-            
-            <div class="col-group">
-              <label for="projectSelect">Proyecto <span class="required">*</span></label>
+          <!-- 1. Proyecto -->
+          <div class="form-group">
+            <label for="projectSelect">Proyecto <span class="required">*</span></label>
+            <div class="select-field-wrapper">
               <select id="projectSelect" name="projectId" required>
                 <option value="" disabled selected>Selecciona un proyecto</option>
               </select>
-              <input type="hidden" id="projectName" name="projectName" value="" />
+              <i class="fas fa-chevron-down select-field-arrow"></i>
             </div>
+            <input type="hidden" id="projectName" name="projectName" value="" />
           </div>
 
-          <div class="form-group row-group">
-            
-            <div class="col-group">
-              <label for="attachment">Adjuntar Imagen (Opcional)</label>
-              <input 
-                type="file" 
-                id="attachment" 
-                name="attachment" 
-                accept="image/png, image/jpeg, image/webp" 
-                class="file-input" 
-              />
-            </div>
-          </div>
-
+          <!-- 2. Asunto -->
           <div class="form-group">
-            <label for="priority">Prioridad</label>
-            <select id="priority" name="priority">
-              <option value="low">Baja</option>
-              <option value="medium" selected>Media</option>
-              <option value="high">Alta</option>
-            </select>
+            <label for="subject">Asunto <span class="required">*</span></label>
+            <input
+              type="text"
+              id="subject"
+              name="subject"
+              placeholder="Describe brevemente tu problema"
+              required
+            />
           </div>
 
+          <!-- 3. Mensaje -->
           <div class="form-group">
-            <label for="message">Mensaje</label>
+            <label for="message">Mensaje <span class="required">*</span></label>
             <textarea
               id="message"
               name="message"
@@ -94,11 +77,45 @@ if (!token) {
             ></textarea>
           </div>
 
+          <!-- 4. Adjuntar Imagen y Prioridad -->
+          <div class="form-group row-group">
+            <div class="col-group">
+              <label for="attachment">Adjuntar Imagen (Opcional)</label>
+              <div class="file-upload-wrapper">
+                <label for="attachment" class="file-upload-icon-btn" title="Adjuntar imagen">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span id="fileNameLabel">Seleccionar imagen</span>
+                </label>
+                <input 
+                  type="file" 
+                  id="attachment" 
+                  name="attachment" 
+                  accept="image/png, image/jpeg, image/webp" 
+                  class="file-input-hidden" 
+                />
+              </div>
+            </div>
+            
+            <div class="col-group">
+              <label for="priority">Prioridad <span class="required">*</span></label>
+              <div class="select-field-wrapper">
+                <select id="priority" name="priority" required>
+                  <option value="low">Baja</option>
+                  <option value="medium" selected>Media</option>
+                  <option value="high">Alta</option>
+                </select>
+                <i class="fas fa-chevron-down select-field-arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <p class="form-legend">(*) Campos obligatorios</p>
+
           <div id="ticketFeedback" class="feedback-message hidden"></div>
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" id="cancelTicketBtn">Cancelar</button>
-            <button type="submit" class="btn-primary" id="submitTicketBtn">
+            <button type="submit" class="btn-primary" id="submitTicketBtn" disabled title="Completa todos los campos obligatorios">
               <span class="btn-text">Enviar Ticket</span>
               <span class="loader hidden"></span>
             </button>
@@ -108,7 +125,7 @@ if (!token) {
     </div>
 
     <!-- Tabla de lista de tickets -->
-    <div class="table-container">
+    <div class="table-container" id="ticketsTableContainer">
       <table class="files-table">
         <thead>
           <tr>
@@ -148,6 +165,11 @@ if (!token) {
   const ticketsListBody = document.getElementById('ticketsListBody');
   const searchInput = document.getElementById('searchInput') as HTMLInputElement;
   const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
+  const subjectInput = document.getElementById('subject') as HTMLInputElement;
+  const messageInput = document.getElementById('message') as HTMLTextAreaElement;
+  const prioritySelect = document.getElementById('priority') as HTMLSelectElement;
+  const attachmentInput = document.getElementById('attachment') as HTMLInputElement;
+  const fileNameLabel = document.getElementById('fileNameLabel');
   const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
   const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
   const feedback = document.getElementById('ticketFeedback') as HTMLDivElement;
@@ -157,6 +179,8 @@ if (!token) {
   const closeFormBtn = document.getElementById('closeFormBtn');
   const cancelTicketBtn = document.getElementById('cancelTicketBtn');
   const formContainer = document.getElementById('formContainer');
+  const listView = document.getElementById('listView');
+  const ticketsTableContainer = document.getElementById('ticketsTableContainer');
 
   interface Ticket {
     id: string;
@@ -241,8 +265,41 @@ if (!token) {
           projectNameInput.value = '';
         }
       }
+      validateForm();
     });
   }
+
+  // Validación de formulario
+  function validateForm() {
+    const isProjectValid = !!projectSelect.value;
+    const isSubjectValid = !!subjectInput.value.trim();
+    const isMessageValid = !!messageInput.value.trim();
+    const isPriorityValid = !!prioritySelect.value;
+
+    const isValid = isProjectValid && isSubjectValid && isMessageValid && isPriorityValid;
+    
+    if (submitBtn) {
+      submitBtn.disabled = !isValid;
+      submitBtn.title = isValid ? 'Enviar Ticket' : 'Completa todos los campos obligatorios';
+    }
+  }
+
+  // Listeners para validación
+  [subjectInput, messageInput].forEach(el => {
+    el?.addEventListener('input', validateForm);
+  });
+  prioritySelect?.addEventListener('change', validateForm);
+
+  // Manejo de archivo (Label icon)
+  attachmentInput?.addEventListener('change', () => {
+    if (fileNameLabel && attachmentInput.files && attachmentInput.files.length > 0) {
+      fileNameLabel.textContent = attachmentInput.files[0].name;
+      fileNameLabel.classList.add('file-selected');
+    } else if (fileNameLabel) {
+      fileNameLabel.textContent = 'Seleccionar imagen';
+      fileNameLabel.classList.remove('file-selected');
+    }
+  });
 
   searchInput?.addEventListener('input', applyFilters);
   projectQuerySelect?.addEventListener('change', applyFilters);
@@ -269,12 +326,18 @@ if (!token) {
 
   function openForm() {
     formContainer?.classList.remove('hidden');
-    formContainer?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    listView?.classList.add('hidden');
+    ticketsTableContainer?.classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function closeForm() {
     formContainer?.classList.add('hidden');
+    listView?.classList.remove('hidden');
+    ticketsTableContainer?.classList.remove('hidden');
     ticketForm?.reset();
+    if(fileNameLabel) fileNameLabel.textContent = 'Seleccionar imagen';
+    validateForm();
     if(feedback) feedback.className = 'feedback-message hidden';
   }
 
@@ -542,16 +605,95 @@ if (!token) {
   .form-container { transition: all 0.3s ease-in-out; opacity: 1; transform: translateY(0); }
   .form-container.hidden { display: none !important; opacity: 0; transform: translateY(-10px); }
 
-  .ticket-form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .ticket-form { display: flex; flex-direction: column; gap: 1.5rem; }
   .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
   .form-group label { font-weight: 500; font-size: 0.9rem; color: var(--color-text); }
+  .required { color: #ef4444; margin-left: 0.2rem; }
+  .form-legend { font-size: 0.8rem; color: var(--color-text-muted); margin-top: -0.5rem; }
+  
+  /* Select wrapper para flecha */
+  .select-field-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .select-field-arrow {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    pointer-events: none;
+  }
+  
   .ticket-form input, .ticket-form textarea, .ticket-form select {
-    padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 0.875rem 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ticket-form select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    padding-right: 3rem;
   }
   .ticket-form input:focus, .ticket-form textarea:focus, .ticket-form select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1); }
-  .ticket-form textarea { resize: vertical; min-height: 100px; }
+  .ticket-form textarea { resize: vertical; min-height: 120px; }
+
+  /* Grid layouts */
+  .row-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .col-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
   
-  .form-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+  /* Diseño de Adjunto (Icono) */
+  .file-upload-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .file-input-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+  }
+  .file-upload-icon-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .file-upload-icon-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.05);
+  }
+  .file-upload-icon-btn i {
+    font-size: 1.25rem;
+  }
+  .file-selected {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
   .btn-secondary { padding: 0.875rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s; background: transparent; color: var(--color-text); border: 1px solid var(--color-border); }
   .btn-secondary:hover { background: var(--color-background); }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -632,6 +774,7 @@ if (!token) {
   /* Responsive */
   @media (max-width: 768px) {
     .actions-row { flex-direction: column; }
+    .row-group { grid-template-columns: 1fr; }
     .search-input-wrapper { max-width: 100%; }
     .btn-primary { justify-content: center; }
     

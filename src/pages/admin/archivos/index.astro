@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -18,13 +19,14 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
     <!-- Cuota de almacenamiento (Admin 30GB limit) -->
     <div class="storage-banner" id="storageBanner">
-      <div class="storage-info">
-        <i class="fas fa-database"></i>
-        <span id="storageText">Cargando almacenamiento...</span>
-      </div>
-      <div class="storage-bar-container">
-        <div class="storage-bar" id="storageBar" style="width: 0%"></div>
-      </div>
+      <StorageVisualizer 
+        id="admin-storage-chart"
+        usedFormatted="..." 
+        limitFormatted="..." 
+        usedBytes={0} 
+        limitBytes={1} 
+        variant="full"
+      />
     </div>
 
     <!-- Acciones -->
@@ -110,9 +112,12 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const tableBody = document.getElementById('filesListBody');
   const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-  const storageText = document.getElementById('storageText');
-  const storageBar = document.getElementById('storageBar');
   const storageBanner = document.getElementById('storageBanner');
+  // Target internal component elements
+  const storageCircle = storageBanner?.querySelector('.chart-progress');
+  const storagePercent = storageBanner?.querySelector('.percentage');
+  const usedValue = storageBanner?.querySelector('.used-value');
+  const limitValue = storageBanner?.querySelector('.limit-value');
   const uploadBtn = document.getElementById('uploadBtn');
   const uploadModal = document.getElementById('uploadModal');
   const closeModal = document.getElementById('closeModal');
@@ -148,13 +153,14 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       const res = await fetch(`${API}/files/storage/quota`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (!res.ok) throw new Error();
       const q = await res.json();
-      if (!storageText || !storageBar || !storageBanner) return;
       const pct = q.limitBytes > 0 ? (q.usedBytes / q.limitBytes) * 100 : 0;
-      storageText.textContent = `${q.usedFormatted} de ${q.limitFormatted} utilizados`;
-      storageBar.style.width = `${Math.min(pct, 100)}%`;
-      storageBanner.classList.toggle('storage-warning', pct >= 90);
+      if (usedValue) usedValue.textContent = q.usedFormatted;
+      if (limitValue) limitValue.textContent = q.limitFormatted;
+      if (storageCircle) storageCircle.setAttribute('stroke-dasharray', `${Math.min(pct, 100)}, 100`);
+      if (storagePercent) storagePercent.textContent = `${Math.round(pct)}%`;
+      if (storageBanner) storageBanner.classList.toggle('warning', pct >= 90);
     } catch {
-      if (storageText) storageText.textContent = 'Error cargando almacenamiento';
+      if (usedValue) usedValue.textContent = 'Error cargando almacenamiento';
     }
   }
 
@@ -357,15 +363,65 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   .page-header h1 { margin: 0 0 0.5rem; font-size: 2rem; font-weight: 700; color: var(--color-text); }
   .text-muted { color: var(--color-text-muted); margin: 0; font-size: 1.05rem; }
 
-  /* Cuota Storage */
-  .storage-banner { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
-  .storage-banner.storage-warning { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
-  .storage-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; font-weight: 600; font-size: 0.95rem; color: var(--color-text); }
-  .storage-info i { color: var(--color-primary); font-size: 1.2rem; }
-  .storage-warning .storage-info i { color: #f59e0b; }
-  .storage-bar-container { width: 100%; height: 8px; background: var(--color-border); border-radius: 4px; overflow: hidden; }
-  .storage-bar { height: 100%; background: var(--color-primary); border-radius: 4px; transition: width 0.8s cubic-bezier(0.2, 0.9, 0.3, 1); }
-  .storage-warning .storage-bar { background: #f59e0b; }
+  /* Cuota Storage Circular */
+  .storage-banner { 
+    background: var(--color-surface); 
+    border: 1px solid var(--color-border); 
+    border-radius: var(--radius-lg); 
+    padding: 1.5rem 2rem; 
+    margin-bottom: 2rem; 
+    box-shadow: var(--shadow-sm); 
+  }
+
+  .circular-chart-wrapper-files {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .circular-chart-mini {
+    width: 70px;
+    height: 70px;
+  }
+
+  .circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 3.8;
+  }
+
+  .circle {
+    fill: none;
+    stroke-width: 3.8;
+    stroke-linecap: round;
+    stroke: var(--color-primary);
+    transition: stroke-dasharray 1s ease-out;
+  }
+
+  .storage-data-files {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .percent-label {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-white);
+  }
+
+  .storage-text-files {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .storage-banner.storage-warning .circle {
+    stroke: #f59e0b;
+  }
+  .storage-banner.storage-warning .percent-label {
+    color: #f59e0b;
+  }
 
   /* Controles (Buscador y Subir) */
   .actions-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: stretch; justify-content: space-between; }

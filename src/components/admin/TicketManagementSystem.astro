@@ -1,0 +1,472 @@
+---
+interface Props {
+  clientId?: string;
+  clientEmail?: string;
+}
+
+const { clientId, clientEmail } = Astro.props;
+---
+
+<div class="ticket-management-system" data-client-id={clientId} data-client-email={clientEmail}>
+  <!-- Acciones principales (Filtro) -->
+  <div class="actions-row">
+    {!clientId && (
+      <div class="search-input-wrapper">
+        <label for="clientSelect" class="sr-only">Filtrar por Cliente</label>
+        <select id="clientSelect" class="form-select">
+          <option value="">Cargando clientes...</option>
+        </select>
+      </div>
+    )}
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+      <button type="button" class="btn-primary btn-search-item" id="btnSearchTicket">Buscar</button>
+    </div>
+  </div>
+
+  <!-- Tabla de lista de tickets -->
+  <div class="table-container">
+    <table class="files-table">
+      <thead>
+        <tr>
+          {!clientId && <th class="col-client">Cliente</th>}
+          <th class="col-project">Proyecto</th>
+          <th class="col-status">Estado</th>
+          <th class="col-priority">Prioridad</th>
+          <th class="col-subject">Asunto</th>
+          <th class="col-date">Fecha Enviado</th>
+          <th class="col-date">Fecha Resuelto</th>
+          <th class="col-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="ticketsListBody">
+        <tr>
+          <td colspan={clientId ? "7" : "8"}>
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Cargando tickets...</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  import { auth } from "../../lib/firebase/client";
+  import { onAuthStateChanged } from "firebase/auth";
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  const container = document.querySelector('.ticket-management-system') as HTMLElement;
+  const clientId = container?.dataset.clientId;
+  const clientEmailFilter = container?.dataset.clientEmail;
+  
+  const ticketsListBody = document.getElementById('ticketsListBody');
+  const clientSelect = document.getElementById('clientSelect') as HTMLSelectElement;
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+
+  interface Ticket {
+    id: string;
+    subject: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high';
+    status: 'open' | 'in-progress' | 'resolved';
+    adminResponse: string;
+    createdAt: { _seconds?: number } | string;
+    updatedAt: { _seconds?: number } | string;
+    clientEmail?: string;
+    clientId?: string;
+    projectId?: string;
+    projectName?: string;
+  }
+
+  interface Client {
+    id: string;
+    displayName: string;
+    email: string;
+  }
+  
+  interface Project {
+    id: string;
+    name: string;
+    clientId: string;
+  }
+
+  let allTickets: Ticket[] = [];
+  let allClients: Client[] = [];
+  let allProjects: Project[] = [];
+  let token = '';
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    token = await user.getIdToken();
+    const promises = [loadProjects(), loadTickets()];
+    if (!clientId) promises.push(loadClients());
+    await Promise.all(promises);
+  });
+
+  async function loadClients() {
+    try {
+      const res = await fetch(`${API_URL}/clients`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      const rawClients = await res.json();
+      allClients = rawClients.map((c: any) => ({
+        id: c.uid || c.id || '',
+        displayName: c.displayName || c.name || 'Sin nombre',
+        email: c.email
+      }));
+      populateClientSelect();
+    } catch {
+      console.error("No se pudieron cargar los clientes");
+      if (clientSelect) clientSelect.innerHTML = '<option value="">Todos los clientes</option>';
+    }
+  }
+  
+  async function loadProjects() {
+    try {
+      const res = await fetch(`${API_URL}/projects`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(() => null);
+      if (res && res.ok) allProjects = await res.json();
+    } catch {
+      console.error("No se pudieron cargar los proyectos");
+    }
+  }
+
+  function populateClientSelect() {
+    if (!clientSelect) return;
+    const defaultOption = '<option value="">Todos los clientes</option>';
+    const options = allClients.map(c => `<option value="${c.email}">${c.displayName} (${c.email})</option>`);
+    clientSelect.innerHTML = defaultOption + options.join('');
+    clientSelect.addEventListener('change', applyFilters);
+  }
+
+  async function loadTickets() {
+    try {
+      const url = clientId ? `${API_URL}/support/tickets/client/${clientId}` : `${API_URL}/support/tickets`;
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      allTickets = await res.json();
+      applyFilters();
+    } catch {
+      if (ticketsListBody) {
+        ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar tickets.</p></div></td></tr>`;
+      }
+    }
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+
+  function applyFilters() {
+    if (!ticketsListBody) return;
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    const selectedClientEmail = clientSelect?.value || clientEmailFilter || '';
+    
+    let filtered = [...allTickets];
+    if (query) filtered = filtered.filter(t => t.subject.toLowerCase().includes(query));
+    if (selectedClientEmail) filtered = filtered.filter(t => t.clientEmail === selectedClientEmail);
+
+    renderTickets(filtered);
+  }
+
+  function renderTickets(tickets: Ticket[]) {
+    if (!ticketsListBody) return;
+    if (tickets.length === 0) {
+      ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><i class="fas fa-inbox"></i><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+      return;
+    }
+
+    ticketsListBody.innerHTML = tickets.map(ticket => {
+      const dateCreated = formatDate(ticket.createdAt);
+      const dateResolved = ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-';
+      const statusInfo = getStatusInfo(ticket.status);
+      const priorityInfo = getPriorityInfo(ticket.priority);
+      const projectName = ticket.projectName || (allProjects.find(p => p.id === ticket.projectId)?.name || 'S/P');
+      const badgeHtml = projectName !== 'S/P' ? `<span class="project-badge"><i class="fas fa-folder"></i> ${projectName}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b"><i class="fas fa-folder"></i> S/P</span>`;
+
+      return `
+        <tr class="file-row">
+          ${!clientId ? `<td class="col-client-data"><div style="font-size: 0.9rem; font-weight: 500;">${ticket.clientEmail || 'Desconocido'}</div></td>` : ''}
+          <td class="col-name-data">${badgeHtml}</td>
+          <td class="col-status-data"><span class="status-badge ${statusInfo.className}" title="${statusInfo.label}"><i class="${statusInfo.icon}"></i> ${statusInfo.label}</span></td>
+          <td class="col-priority-data"><div class="priority-badge-wrapper" title="${priorityInfo.label}"><span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}</div></td>
+          <td class="col-name-data"><div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div></td>
+          <td class="col-date-data">${dateCreated}</td>
+          <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}">${dateResolved}</td>
+          <td class="col-actions-data" style="position: relative;">
+            <div class="td-actions">
+               ${ticket.status !== 'resolved' ? `<button class="btn-action reply-btn" data-id="${ticket.id}" title="Responder"><i class="fas fa-reply"></i></button>` : ''}
+              <a href="/admin/tickets/${ticket.id}" class="btn-action view-btn outline" title="Ver Ticket completo"><i class="fas fa-eye"></i></a>
+            </div>
+            ${renderQuickReply(ticket)}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.reply-btn').forEach(btn => btn.addEventListener('click', toggleReplyForm));
+    document.querySelectorAll('.admin-reply-form').forEach(form => form.addEventListener('submit', handleReplySubmit));
+  }
+  
+  function renderQuickReply(ticket: Ticket): string {
+    if (ticket.status === 'resolved') return '';
+    return `
+      <div class="quick-reply-panel hidden" id="reply-panel-${ticket.id}">
+        <form class="admin-reply-form" data-id="${ticket.id}">
+          <label>Responder Ticket</label>
+          <textarea name="adminResponse" placeholder="Escribe tu respuesta..." rows="3" required>${ticket.adminResponse || ''}</textarea>
+          <div class="panel-actions">
+            <select name="status" class="status-select">
+              <option value="in-progress" ${ticket.status === 'in-progress' ? 'selected' : ''}>En progreso</option>
+              <option value="resolved">Resuelto</option>
+            </select>
+            <div class="btn-group">
+              <button type="button" class="btn-cancel-reply" data-id="${ticket.id}">Cancelar</button>
+              <button type="submit" class="btn-submit-reply">
+                <span class="btn-text">Enviar</span>
+                <span class="loader hidden"></span>
+              </button>
+            </div>
+          </div>
+          <div class="feedback-message hidden"></div>
+        </form>
+      </div>
+    `;
+  }
+  
+  function toggleReplyForm(e: Event) {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const ticketId = btn.getAttribute('data-id');
+    const panel = document.getElementById(`reply-panel-${ticketId}`);
+    document.querySelectorAll('.quick-reply-panel').forEach(p => { if (p.id !== `reply-panel-${ticketId}`) p.classList.add('hidden'); });
+    if (panel) {
+      panel.classList.toggle('hidden');
+      const cancelBtn = panel.querySelector('.btn-cancel-reply');
+      if (cancelBtn && !cancelBtn.hasAttribute('data-listener')) {
+        cancelBtn.setAttribute('data-listener', 'true');
+        cancelBtn.addEventListener('click', () => panel.classList.add('hidden'));
+      }
+    }
+  }
+
+  async function handleReplySubmit(e: Event) {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const ticketId = form.getAttribute('data-id');
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const feedback = form.querySelector('.feedback-message') as HTMLElement;
+    const formData = new FormData(form);
+    const adminResponse = (formData.get('adminResponse') as string).trim();
+    const status = formData.get('status') as string;
+
+    setLoading(submitBtn, true);
+    try {
+      const res = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ adminResponse, status })
+      });
+      if (!res.ok) throw new Error('Error al actualizar');
+      showFeedback(feedback, 'Actualizado correctamente.', 'success');
+      setTimeout(() => loadTickets(), 1200);
+    } catch (err: any) {
+      showFeedback(feedback, err.message, 'error');
+      setLoading(submitBtn, false);
+    }
+  }
+
+  function getStatusInfo(status: string) {
+    const map: any = {
+      open: { label: 'Abierto', className: 'status-open', icon: 'fas fa-envelope' },
+      'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'fas fa-spinner' },
+      resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check-circle' },
+    };
+    return map[status] || map.open;
+  }
+
+  function getPriorityInfo(priority: string) {
+    const map: any = {
+      low: { label: 'Baja', color: '#22c55e' },
+      medium: { label: 'Media', color: '#f59e0b' },
+      high: { label: 'Alta', color: '#ef4444' },
+    };
+    return map[priority] || map.medium;
+  }
+
+  function formatDate(raw: any): string {
+    if (!raw) return '-';
+    let d = new Date();
+    if (typeof raw === 'string') d = new Date(raw);
+    else if (raw._seconds) d = new Date(raw._seconds * 1000);
+    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
+    const text = btn.querySelector('.btn-text');
+    const loader = btn.querySelector('.loader');
+    btn.disabled = isLoading;
+    if (isLoading) { text?.classList.add('hidden'); loader?.classList.remove('hidden'); }
+    else { text?.classList.remove('hidden'); loader?.classList.add('hidden'); }
+  }
+
+  function showFeedback(el: HTMLElement, message: string, type: string) {
+    el.textContent = message;
+    el.className = `feedback-message ${type}`;
+    if (type === 'error') setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
+  }
+</script>
+
+<style>
+  .actions-row { 
+    display: flex; 
+    gap: 1rem; 
+    margin-bottom: 1.5rem; 
+    justify-content: flex-end; /* Alineado a la derecha */
+  }
+  .search-row { 
+    display: flex;
+    gap: 0.5rem;
+    width: 50%; 
+    margin-left: auto; /* Asegura alineación a la derecha */
+  }
+  
+  .search-row input {
+    flex: 1;
+    padding: 0 1rem !important;
+    border: 1px solid var(--color-border);
+    border-radius: 0 !important; /* Rectangular */
+    background: rgba(17, 24, 39, 0.4); 
+    color: var(--color-text);
+    font-size: 0.95rem;
+    height: 3rem !important;
+    box-shadow: none;
+  }
+
+  .btn-search-item {
+    background: var(--color-primary);
+    color: white;
+    padding: 0 2rem;
+    border: none;
+    border-radius: 0 !important; /* Rectangular */
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-search-item:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  .table-container { 
+    margin-top: 1rem;
+    overflow: hidden; 
+  }
+  
+  .files-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    border: 1px solid var(--color-border);
+    background: rgba(var(--color-surface-rgb), 0.5);
+  }
+
+  .files-table thead { 
+    background: transparent;
+  }
+
+  .files-table th { 
+    padding: 1.25rem 1rem; 
+    font-size: 0.8rem; 
+    font-weight: 700; 
+    color: var(--color-accent); 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .files-table th:last-child {
+    border-right: none;
+  }
+
+  .files-table :global(td) { 
+    padding: 1.5rem 1rem; 
+    border-bottom: 1px solid var(--color-border); 
+    border-right: 1px solid var(--color-border); 
+    vertical-align: middle; 
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    background-color: transparent !important;
+  }
+
+  .files-table :global(td:last-child) {
+    border-right: none;
+  }
+
+  /* Highlight first data column */
+  .files-table :global(tr td:first-child) {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .files-table :global(tr) {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+  }
+
+  .files-table :global(tr:hover) {
+    background-color: color-mix(in srgb, var(--color-primary), transparent 85%) !important;
+  }
+
+  .files-table :global(tr:hover td) {
+    color: var(--color-text);
+  }
+  
+  .status-badge { font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; text-transform: uppercase; }
+  .status-open { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+  .status-progress { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  .status-resolved { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+
+  .project-badge { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .priority-badge-wrapper { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 500; }
+  .priority-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .td-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+  .btn-action { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-surface); cursor: pointer; color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .btn-action:hover { border-color: var(--color-primary); color: var(--color-primary); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .reply-btn { border-color: rgba(var(--color-primary-rgb), 0.2); color: var(--color-primary); }
+
+  .quick-reply-panel { position: absolute; right: 0; top: 100%; z-index: 50; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1rem; width: 320px; box-shadow: var(--shadow-md); text-align: left; }
+  .quick-reply-panel label { display:block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .quick-reply-panel textarea { width: 100%; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 4px; font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .panel-actions { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .btn-group { display: flex; gap: 0.5rem; }
+  .btn-submit-reply { background: var(--color-primary); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; }
+
+  .empty-state { text-align: center; padding: 3rem; color: var(--color-text-muted); }
+  .hidden { display: none !important; }
+  .loader { border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; width: 12px; height: 12px; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  @media (max-width: 768px) {
+    .actions-row { flex-direction: column; }
+    .files-table thead { display: none; }
+    .files-table tr, .files-table td { display: block; width: 100%; border: none !important; }
+    .files-table tr { border-bottom: 2px solid var(--color-border) !important; padding: 1rem; }
+    .quick-reply-panel { position: static; width: 100%; }
+  }
+</style>

@@ -1,0 +1,296 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+
+// Futuras herramientas de Gabriel Zavando
+const tools = [
+  {
+    title: "Firmas de Correo Corporativas",
+    description: "Diseña firmas profesionales y consistentes para los correos electrónicos de todo tu equipo. Próximamente disponible.",
+    icon: "fas fa-signature",
+    status: "coming-soon",
+    category: "Productividad"
+  }
+];
+---
+
+<DashboardLayout title="Herramientas" role="client">
+  <div class="tools-page">
+    <div class="page-header">
+      <div>
+        <h1>Herramientas Exclusivas</h1>
+        <p class="text-muted">Recursos desarrollados por Gabriel Zavando para potenciar la identidad y productividad de tu empresa.</p>
+      </div>
+    </div>
+
+    <div class="tools-grid">
+      {tools.map(tool => (
+        <div class="tool-card coming-soon">
+          <div class="tool-card-header">
+            <div class="tool-icon-wrapper">
+              <i class={tool.icon}></i>
+            </div>
+            <span class="tool-status-badge">Próximamente</span>
+          </div>
+          <div class="tool-card-body">
+            <div class="category-tag">{tool.category}</div>
+            <h3>{tool.title}</h3>
+            <p>{tool.description}</p>
+          </div>
+          <div class="tool-card-footer">
+            <button disabled class="btn-tool-disabled">
+              En desarrollo <i class="fas fa-hammer"></i>
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <!-- Placeholder para futuras mentes creativas -->
+      <div class="tool-card placeholder-card">
+        <div class="placeholder-content">
+          <i class="fas fa-plus-circle"></i>
+          <p>Nuevas herramientas en camino...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de recolección de ideas (Buzón de ideas) -->
+    <div class="idea-mailbox">
+      <div class="mailbox-header">
+        <div class="icon-bulb">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <div>
+          <h3>Buzón de ideas</h3>
+          <p>Mi objetivo es crear utilidades que realmente te sirvan. Comparte conmigo qué herramienta facilitaría tu día a día y la desarrollaré para ti.</p>
+        </div>
+      </div>
+      <div class="mailbox-actions">
+        <a href="/dashboard/soporte" class="btn-primary btn-small">
+          Enviar idea <i class="fas fa-paper-plane"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+<style>
+  .tools-page { width: 100%; }
+  .page-header { margin-bottom: 3rem; }
+  .page-header h1 { margin: 0 0 0.5rem; font-size: 2.2rem; font-weight: 700; color: var(--color-text); }
+  .text-muted { color: var(--color-text-muted); margin: 0; font-size: 1.1rem; }
+
+  /* Grid de Herramientas */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .tool-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tool-card.coming-soon {
+    border-style: dashed;
+    background: rgba(var(--color-primary-rgb), 0.02);
+  }
+
+  .tool-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tool-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .tool-status-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--color-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+  }
+
+  .category-tag {
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-card-body h3 {
+    margin: 0 0 1rem;
+    font-size: 1.4rem;
+    color: var(--color-text);
+  }
+
+  .tool-card-body p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .tool-card-footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .btn-tool-disabled {
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--color-border);
+    border: none;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    cursor: not-allowed;
+  }
+
+  /* Placeholder card */
+  .placeholder-card {
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: 2px dashed var(--color-border);
+    box-shadow: none;
+    opacity: 0.6;
+  }
+
+  .placeholder-content {
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  .placeholder-content i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  /* Buzón de Ideas */
+  .idea-mailbox {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .idea-mailbox::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), transparent);
+  }
+
+  .mailbox-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 700px;
+  }
+
+  .icon-bulb {
+    width: 72px;
+    height: 72px;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+  }
+
+  .mailbox-header h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.8rem;
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  .mailbox-header p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px -2px rgba(var(--color-primary-rgb), 0.3);
+    width: auto; /* Forzar ancho automático */
+  }
+
+  .btn-small {
+    padding: 0.75rem 1.8rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px -3px rgba(var(--color-primary-rgb), 0.4);
+  }
+
+  @media (max-width: 480px) {
+    .tools-grid { grid-template-columns: 1fr; }
+    .page-header h1 { font-size: 1.8rem; }
+    .idea-mailbox { padding: 2rem 1.5rem; }
+  }
+</style>
