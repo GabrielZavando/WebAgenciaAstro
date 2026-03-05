@@ -1,0 +1,107 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+const status = Astro.url.searchParams.get("status");
+const isOk = status === "ok";
+---
+
+<MainLayout
+  title={isOk ? "¡Suscripción confirmada!" : "Error al confirmar"}
+  description="Confirmación de suscripción al newsletter de Gabriel Zavando"
+>
+  <section class="confirm-section">
+    <div class="confirm-container">
+      {isOk ? (
+        <>
+          <div class="icon-wrapper success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h1 class="confirm-title">¡Suscripción confirmada!</h1>
+          <p class="confirm-text">
+            Genial, ya estás en la lista. Pronto recibirás tips de
+            transformación digital directamente en tu bandeja de entrada.
+          </p>
+        </>
+      ) : (
+        <>
+          <div class="icon-wrapper error">
+            <i class="fas fa-times-circle"></i>
+          </div>
+          <h1 class="confirm-title">Enlace inválido o expirado</h1>
+          <p class="confirm-text">
+            El enlace de confirmación no es válido o ya fue usado. Si crees que
+            es un error, intenta suscribirte nuevamente.
+          </p>
+        </>
+      )}
+
+      <a href="/" class="btn-home">
+        <i class="fas fa-arrow-left"></i> Volver al inicio
+      </a>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .confirm-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    background: var(--color-background);
+  }
+
+  .confirm-container {
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 3rem 2rem;
+  }
+
+  .icon-wrapper {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .icon-wrapper.success {
+    color: #10b981;
+  }
+
+  .icon-wrapper.error {
+    color: #ef4444;
+  }
+
+  .confirm-title {
+    font-family: var(--font-headings);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  .confirm-text {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  .btn-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-primary);
+    color: #fff;
+    padding: 0.75rem 1.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .btn-home:hover {
+    background: var(--color-secondary);
+  }
+</style>

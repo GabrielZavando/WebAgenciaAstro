@@ -5,11 +5,16 @@ import ModalMessage from "./ModalMessage.astro";
 const currentYear = new Date().getFullYear();
 const { menuItems, socialLinks } = menuData;
 
-// Leer la variable de entorno en el servidor (frontmatter)
 const API_BASE_URL =
   import.meta.env.PUBLIC_API_BASE_URL ||
   "https://api-agencia-201828783555.southamerica-west1.run.app";
+// Site Key de Cloudflare Turnstile
+const TURNSTILE_SITE_KEY =
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
+
+<!-- Cloudflare Turnstile SDK -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <footer class="footer">
   <div class="footer__container">
@@ -71,6 +76,16 @@ const API_BASE_URL =
           <label>Tu sitio web (no completar)</label>
           <input type="text" name="website" tabindex="-1" autocomplete="off" />
         </div>
+
+        <!-- Timestamp de carga (anti-bot: tiempo mínimo de llenado) -->
+        <input type="hidden" name="formLoadTime" id="subFormLoadTime" value="" />
+
+        <!-- Cloudflare Turnstile (invisible, no agrega fricción visual) -->
+        <div
+          class="cf-turnstile"
+          data-sitekey={TURNSTILE_SITE_KEY}
+          data-size="invisible"
+        ></div>
 
         <div class="footer__form-group">
           <label class="footer__checkbox">
@@ -505,8 +520,8 @@ const API_BASE_URL =
 <ModalMessage
   id="subscribeSuccessModal"
   type="success"
-  title="¡Suscripción exitosa!"
-  message="Te has suscrito correctamente. Pronto recibirás consejos de transformación digital."
+  title="¡Casi listo!"
+  message="Te enviamos un correo de confirmación. Haz clic en el enlace del email para activar tu suscripción."
 />
 
 <ModalMessage
@@ -585,6 +600,13 @@ const API_BASE_URL =
     const submitButton = subscribeForm?.querySelector(".footer__submit-btn");
     if (!subscribeForm || !emailInput || !termsCheckbox || !submitButton)
       return;
+
+    // Registrar timestamp de carga del formulario (anti-bot)
+    const subFormLoadTime = Date.now();
+    const loadTimeInput = document.getElementById("subFormLoadTime");
+    if (loadTimeInput) loadTimeInput.value = subFormLoadTime.toString();
+    const MIN_FORM_TIME_SECONDS = 3;
+    const COOLDOWN_MINUTES = 2;
 
     // =====================
     // WARMUP DE LA API (Anti Cold Start)
@@ -702,6 +724,32 @@ const API_BASE_URL =
       const honey = subscribeForm.querySelector(`[name="${HONEYPOT_FIELD}"]`);
       if (honey && honey.value) return;
 
+      // Tiempo mínimo de llenado (anti-bot)
+      const timeSpent = (Date.now() - subFormLoadTime) / 1000;
+      if (timeSpent < MIN_FORM_TIME_SECONDS) {
+        updateModalMessage(
+          "subscribeErrorModal",
+          "Formulario enviado demasiado rápido. Por favor inténtalo de nuevo.",
+        );
+        openModal("subscribeErrorModal");
+        return;
+      }
+
+      // Cooldown de localStorage
+      const lastSub = localStorage.getItem("lastSubscribeSubmit");
+      if (lastSub) {
+        const elapsed = Date.now() - parseInt(lastSub);
+        if (elapsed < COOLDOWN_MINUTES * 60 * 1000) {
+          const rem = Math.ceil((COOLDOWN_MINUTES * 60 * 1000 - elapsed) / 1000);
+          updateModalMessage(
+            "subscribeErrorModal",
+            `Por favor espera ${rem}s antes de intentar de nuevo.`,
+          );
+          openModal("subscribeErrorModal");
+          return;
+        }
+      }
+
       // Validaciones
       const emailOk = validateEmail(emailInput);
       const termsOk = termsCheckbox.checked;
@@ -726,13 +774,18 @@ const API_BASE_URL =
       inFlightController = new AbortController();
 
       try {
+        // Obtener token de Turnstile (widget invisible autoejecutado)
+        const turnstileToken =
+          (subscribeForm.querySelector('[name="cf-turnstile-response"]'))?.value || "";
+
         const payload = {
           email: String(emailInput.value || "").trim(),
+          turnstileToken,
           meta: {
             userAgent: navigator.userAgent,
             referrer: document.referrer || null,
             page: window.location.pathname,
-            ts: new Date().toISOString(), // Fecha ISO 8601 válida para el backend
+            ts: new Date().toISOString(),
           },
         };
 

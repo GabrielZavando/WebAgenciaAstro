@@ -1,0 +1,44 @@
+// =========================
+// Component: Forms
+// =========================
+
+.input-with-icon,
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    padding-right: 2.5rem;
+
+    &:hover, &:focus, &:active {
+      cursor: pointer !important;
+    }
+  }
+
+  .icon-select,
+  .sort-icon,
+  .select-field-arrow,
+  svg {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    transition: transform 0.3s ease;
+    color: var(--color-text-muted);
+  }
+
+  /* Open state controlled by JS via mousedown/blur events */
+  &.is-open .icon-select,
+  &.is-open .sort-icon,
+  &.is-open .select-field-arrow,
+  &.is-open svg {
+    transform: translateY(-50%) rotate(180deg) !important;
+  }
+}

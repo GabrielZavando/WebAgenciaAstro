@@ -15,7 +15,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
           <input type="text" id="searchInput" placeholder="Buscar artículo por nombre..." style="flex: 1; padding: 0.75rem 1rem; border-radius: 0; border: 1px solid var(--color-border, #334155); background: transparent; color: white; font-family: inherit; font-size: 1rem; outline: none; transition: border-color 0.2s;">
           <button type="button" class="btn btn-cta" style="border-radius: 0; padding: 0.75rem 2rem; font-size: 1rem; white-space: nowrap; height: 100%;">Buscar</button>
       </div>
-      <div style="position: relative; display: flex; align-items: center; border: 1px solid var(--color-border, #334155); background: transparent; height: 100%;">
+      <div class="select-wrapper" style="position: relative; display: flex; align-items: center; border: 1px solid var(--color-border, #334155); background: transparent; height: 100%;">
           <select id="sortFilter" style="padding: 0.75rem 3.5rem 0.75rem 1rem; border-radius: 0; border: none; background: transparent; color: white; font-family: inherit; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; outline: none; height: 100%;">
               <option value="" style="background: var(--color-surface, #0f172a); color: white;">Ordenar por defecto</option>
               <option value="status-pub" style="background: var(--color-surface, #0f172a); color: white;">Estado: Publicado</option>
@@ -25,9 +25,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
               <option value="category" style="background: var(--color-surface, #0f172a); color: white;">Categoría</option>
               <option value="tag" style="background: var(--color-surface, #0f172a); color: white;">Etiqueta</option>
           </select>
-          <div id="sortIconContainer" style="position: absolute; right: 0; top: 0; bottom: 0; width: 3rem; background: transparent; color: var(--color-primary, #e11d48); display: flex; align-items: center; justify-content: center; pointer-events: none; transition: transform 0.3s ease;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </div>
+          <i class="fas fa-chevron-down select-field-arrow"></i>
       </div>
   </div>
 
@@ -129,12 +127,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
     setTimeout(() => {
         const searchInput = document.getElementById('searchInput');
         const sortFilter = document.getElementById('sortFilter');
+        const sortIconContainer = document.getElementById('sortIconContainer');
 
         if (searchInput) searchInput.addEventListener('input', applyFilters);
         if (sortFilter) {
             sortFilter.addEventListener('change', () => {
                 applyFilters();
-                sortFilter.blur();
             });
         }
     }, 100);
@@ -158,10 +156,33 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
     loadPosts();
   </script>
 
-  <style>
-    /* Rotar ícono al abrir el select */
-    #sortFilter:focus + #sortIconContainer {
-        transform: rotate(180deg);
-    }
-  </style>
+  <script is:inline>
+    (function () {
+      function init() {
+        const sel = document.getElementById('sortFilter');
+        if (!sel) return;
+        const icon = sel.parentElement.querySelector('.select-field-arrow');
+        if (!icon) return;
+
+        function show() {
+          icon.style.transition = 'transform 0.25s ease';
+          icon.style.transform = 'translateY(-50%) rotate(180deg)';
+        }
+        function hide() {
+          icon.style.transition = 'transform 0.25s ease';
+          icon.style.transform = 'translateY(-50%) rotate(0deg)';
+        }
+
+        sel.addEventListener('mousedown', show);
+        sel.addEventListener('blur', hide);
+        sel.addEventListener('change', hide);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
 </DashboardLayout>

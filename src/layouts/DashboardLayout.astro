@@ -63,9 +63,26 @@ const { title, role = 'admin' } = Astro.props;
             <a href="/admin/archivos" class="nav-item">
               <i class="fas fa-folder-open"></i> <span class="nav-text">Archivos</span>
             </a>
-            <a href="/admin/blog" class="nav-item">
-              <i class="fas fa-pen-nib"></i> <span class="nav-text">Blog</span>
+            <a href="/admin/suscriptores" class="nav-item">
+              <i class="fas fa-envelope-open-text"></i> <span class="nav-text">Suscriptores</span>
             </a>
+            <a href="/admin/contacto" class="nav-item">
+              <i class="fas fa-address-book"></i> <span class="nav-text">Contacto</span>
+            </a>
+            <div class="nav-item-group">
+              <button class="nav-item nav-item-toggle" aria-expanded="false">
+                <i class="fas fa-pen-nib"></i> <span class="nav-text">Blog</span>
+                <i class="fas fa-chevron-down nav-chevron" style="margin-left:auto; font-size: 0.8rem; transition: transform 0.2s;"></i>
+              </button>
+              <div class="nav-submenu">
+                <a href="/admin/blog" class="nav-item sub-item">
+                  <i class="fas fa-file-alt" style="font-size: 0.85em;"></i> <span class="nav-text">Artículos</span>
+                </a>
+                <a href="/admin/blog/categorias" class="nav-item sub-item">
+                  <i class="fas fa-tags" style="font-size: 0.85em;"></i> <span class="nav-text">Categorías</span>
+                </a>
+              </div>
+            </div>
             <a href="/admin/tickets" class="nav-item">
               <i class="fas fa-ticket-alt"></i> <span class="nav-text">Tickets</span>
             </a>
@@ -293,6 +310,27 @@ const { title, role = 'admin' } = Astro.props;
     .nav-item i {
       width: 20px;
       text-align: center;
+    }
+    
+    .nav-item-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-submenu {
+      display: none;
+      flex-direction: column;
+      background: rgba(0,0,0,0.02);
+      padding-left: 1rem;
+    }
+    html[data-theme='dark'] .nav-submenu { background: rgba(255,255,255,0.02); }
+    .nav-submenu.open { display: flex; }
+    .nav-item.sub-item {
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+    }
+    .nav-item-toggle[aria-expanded="true"] .nav-chevron {
+      transform: rotate(180deg);
     }
     .text-error {
       color: var(--color-error);
@@ -656,6 +694,18 @@ const { title, role = 'admin' } = Astro.props;
       localStorage.setItem('theme', newTheme);
     });
 
+    // Logic for submenus
+    const navToggles = document.querySelectorAll('.nav-item-toggle');
+    navToggles.forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const submenu = toggle.nextElementSibling as HTMLElement;
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isExpanded));
+        submenu?.classList.toggle('open');
+      });
+    });
+
     // Marcar item activo según la URL
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll('.nav-item') as NodeListOf<HTMLElement>;
@@ -667,14 +717,22 @@ const { title, role = 'admin' } = Astro.props;
       // Coincidencia exacta para las rutas base o si es la ruta actual
       const isExactMatch = currentPath === href;
       // Coincidencia de subruta (evitando que /dashboard coincida con /dashboard/archivos si no es exacto)
-      const isSubPathMatch = href !== '/admin' && href !== '/dashboard' && href !== '/' && currentPath.startsWith(href);
+      const isSubPathMatch = href !== '/admin' && href !== '/dashboard' && href !== '/' && currentPath.startsWith(href) && !item.classList.contains('nav-item-toggle');
 
       if (isExactMatch || isSubPathMatch) {
         item.style.color = 'var(--color-primary)';
         item.style.backgroundColor = 'rgba(var(--color-primary-rgb), 0.1)';
         item.style.fontWeight = '600';
+        
+        // Auto-open parent submenu if active
+        const parentSubmenu = item.closest('.nav-submenu');
+        if (parentSubmenu) {
+          parentSubmenu.classList.add('open');
+          const toggle = parentSubmenu.previousElementSibling;
+          if (toggle) toggle.setAttribute('aria-expanded', 'true');
+        }
       } else {
-        // Limpiar estilos si no coincide (importante si el script corre más de una vez)
+        // Limpiar estilos si no coincide
         item.style.color = '';
         item.style.backgroundColor = '';
         item.style.fontWeight = '';
@@ -688,6 +746,38 @@ const { title, role = 'admin' } = Astro.props;
         elements.forEach(el => el.classList.add('animate'));
       }, 50);
     });
+    // Global Select Icon Rotation Logic
+    // Uses mousedown to set the open class BEFORE the native OS dropdown opens.
+    // Uses blur (triggered by change or external click) to remove it.
+    function bindSelectRotation(sel: HTMLSelectElement) {
+      if (sel.dataset.rotationBound) return;
+      sel.dataset.rotationBound = 'true';
+
+      const wrapper = sel.closest<HTMLElement>('.input-with-icon, .select-wrapper');
+      if (!wrapper) return;
+
+      // Mark as open on mousedown — fires before the native dropdown
+      sel.addEventListener('mousedown', () => {
+        wrapper.classList.toggle('is-open');
+      });
+
+      // Always close on blur (handles change & external click)
+      sel.addEventListener('blur', () => {
+        wrapper.classList.remove('is-open');
+      });
+    }
+
+    // Bind all selects inside wrappers at load and on any future DOM changes
+    function bindAllSelects() {
+      document.querySelectorAll<HTMLSelectElement>('.input-with-icon select, .select-wrapper select')
+        .forEach(bindSelectRotation);
+    }
+
+    bindAllSelects();
+
+    // Observe late-injected dynamic selects (e.g. populated via JS)
+    const observer = new MutationObserver(() => bindAllSelects());
+    observer.observe(document.body, { childList: true, subtree: true });
   </script>
 </body>
 </html>

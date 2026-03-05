@@ -1,11 +1,15 @@
 ---
 import ModalMessage from "../shared/ModalMessage.astro";
 
-// Leer la variable de entorno en el servidor (frontmatter)
 const API_BASE_URL =
   import.meta.env.PUBLIC_API_BASE_URL ||
   "https://api-agencia-201828783555.southamerica-west1.run.app";
+const TURNSTILE_SITE_KEY =
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
+
+<!-- Cloudflare Turnstile SDK -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <section class="contact" id="contacto">
   <div class="contact__container">
@@ -78,6 +82,13 @@ const API_BASE_URL =
 
       <!-- Campo oculto para timestamp de carga de página (anti-bot) -->
       <input type="hidden" name="formLoadTime" id="formLoadTime" value="" />
+
+      <!-- Cloudflare Turnstile (invisible) -->
+      <div
+        class="cf-turnstile"
+        data-sitekey={TURNSTILE_SITE_KEY}
+        data-size="invisible"
+      ></div>
 
       <!-- Campos ocultos: ninguno requerido por la API actual (se mantiene solo el honeypot anti-spam) -->
 
@@ -819,11 +830,16 @@ const API_BASE_URL =
 
         try {
           const formData = new FormData(form);
+          // Obtener token Turnstile (campo generado automáticamente por el widget invisible)
+          const turnstileToken =
+            form.querySelector('[name="cf-turnstile-response"]')?.value || "";
+
           const payload = {
             name: String(formData.get("name") || "").trim(),
             email: String(formData.get("email") || "").trim(),
             phone: String(formData.get("phone") || "").trim() || null,
             message: String(formData.get("message") || "").trim(),
+            turnstileToken,
             meta: {
               userAgent: navigator.userAgent,
               referrer: document.referrer || null,

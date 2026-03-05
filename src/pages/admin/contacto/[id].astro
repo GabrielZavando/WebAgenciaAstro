@@ -1,0 +1,487 @@
+---
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+
+const { id } = Astro.params;
+const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
+
+let prospect = null;
+let error = null;
+
+try {
+  if (!id) throw new Error('ID no proporcionado');
+  const res = await fetch(`${API_URL}/forms/admin/prospects/${id}`);
+  if (!res.ok) throw new Error('No se pudo obtener la información.');
+  prospect = await res.json();
+  if (!prospect) throw new Error('Prospecto no encontrado');
+} catch (e) {
+  console.error(e);
+  error = (e as Error).message;
+}
+
+const formatDate = (dateValue: any) => {
+  try {
+    // Firestore devuelve timestamps como { _seconds, _nanoseconds }
+    const timestamp =
+      dateValue?._seconds
+        ? new Date(dateValue._seconds * 1000)
+        : dateValue
+          ? new Date(dateValue)
+          : new Date();
+    if (isNaN(timestamp.getTime())) return 'Fecha inválida';
+    return new Intl.DateTimeFormat('es-AR', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(timestamp);
+  } catch (e) {
+    return 'Fecha desconocida';
+  }
+};
+---
+
+<DashboardLayout title="Detalle del Contacto" role="admin">
+  <div class="admin-container">
+    <header class="admin-header">
+      <div class="header-content">
+        <div class="back-link">
+          <a href="/admin/contacto" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver a Mensajes
+          </a>
+        </div>
+        <div class="title-section">
+          <h1>Hilo de Conversación</h1>
+          <p>
+            {prospect ? `Comunicación con ${prospect.name} (${prospect.email})` : 'Cargando...'}
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      {error ? (
+        <div class="error-message">
+          <p><i class="fas fa-exclamation-triangle"></i> Error: {error}</p>
+        </div>
+      ) : prospect ? (
+        <div class="conversation-layout">
+          <!-- Detalles del usuario -->
+          <div class="user-sidebar">
+             <div class="user-card">
+               <div class="avatar-placeholder">
+                  {prospect.name.charAt(0).toUpperCase()}
+               </div>
+               <h3>{prospect.name}</h3>
+               
+               <div class="info-group">
+                 <label>Email</label>
+                 <span><a href={`mailto:${prospect.email}`}>{prospect.email}</a></span>
+               </div>
+               <div class="info-group">
+                 <label>Teléfono</label>
+                 <span>{prospect.phone || 'No ha provisto teléfono'}</span>
+               </div>
+               <div class="info-group">
+                 <label>Última actividad</label>
+                 <span>{formatDate(prospect.updatedAt || prospect.createdAt)}</span>
+               </div>
+             </div>
+          </div>
+
+          <!-- Historial de mensajes y formulario de respuesta -->
+          <div class="chat-section">
+            <div class="messages-container">
+              {prospect.conversations?.map((conv: any) => {
+                const inMsg = conv.incomingMessage;
+                const outMsg = conv.outgoingResponse;
+
+                return (
+                  <>
+                    {/* Mensaje Entrante del Prospecto */}
+                    <div class="message-bubble from-user">
+                      <div class="message-meta">
+                        <span class="sender">{prospect.name}</span>
+                        <span class="time">{formatDate(inMsg.receivedAt)}</span>
+                      </div>
+                      <div class="message-content">
+                        <p>{inMsg.content}</p>
+                      </div>
+                    </div>
+
+                    {/* Mensaje Saliente del Administrador (si hay uno) */}
+                    {outMsg && outMsg.content && (
+                      <div class="message-bubble from-admin">
+                        <div class="message-meta">
+                          <span class="sender">Administrador</span>
+                          <span class="time">{formatDate(outMsg.sentAt)}</span>
+                        </div>
+                        <div class="message-content">
+                          <p>{outMsg.content}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })}
+            </div>
+
+            <!-- Zona de Respuesta -->
+            <div class="reply-container">
+               <form id="reply-form" class="reply-form">
+                 <input type="hidden" name="prospectId" id="prospectId" value={id} />
+                 <div class="input-group">
+                   <label for="replyContent">Enviar respuesta</label>
+                   <textarea 
+                     id="replyContent" 
+                     name="replyContent" 
+                     rows="4" 
+                     placeholder="Escribe tu mensaje aquí..." 
+                     required
+                   ></textarea>
+                 </div>
+                 <div class="form-actions">
+                   <button type="submit" class="btn-primary" id="btn-submit-reply">
+                     <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                   </button>
+                 </div>
+                 <div id="reply-feedback" class="feedback-msg"></div>
+               </form>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </main>
+  </div>
+</DashboardLayout>
+
+<script>
+  const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
+  const form = document.getElementById('reply-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('btn-submit-reply') as HTMLButtonElement;
+  const feedback = document.getElementById('reply-feedback') as HTMLDivElement;
+  
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const prospectId = (document.getElementById('prospectId') as HTMLInputElement).value;
+      const replyContent = (document.getElementById('replyContent') as HTMLTextAreaElement).value;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        feedback.className = 'feedback-msg'; // Reset
+        feedback.textContent = '';
+        
+        const res = await fetch(`${API_URL}/forms/admin/prospects/${prospectId}/reply`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ replyContent })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          feedback.textContent = "¡Respuesta enviada correctamente!";
+          feedback.classList.add('success');
+          form.reset();
+          // Recargo luego de un retraso mínimo para mostrar el feed agregado (SSR)
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          throw new Error(data.message || 'Error desconocido');
+        }
+      } catch (err: any) {
+         feedback.textContent = `Error: ${err.message}`;
+         feedback.classList.add('error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensaje';
+      }
+    });
+  }
+</script>
+
+<style>
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  margin-bottom: 1rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.9rem;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color, #ffffff);
+}
+
+.title-section h1 {
+  font-size: 2rem;
+  color: var(--text-color, #ffffff);
+  margin-bottom: 0.5rem;
+}
+
+.title-section p {
+  color: var(--text-muted, #94a3b8);
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--danger-color, #ef4444);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  color: #f87171;
+}
+
+.conversation-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.user-card {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: sticky;
+  top: 2rem;
+}
+
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color, #3b82f6), #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.user-card h3 {
+  color: var(--text-color, #ffffff);
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-group {
+  text-align: left;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.info-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.info-group span {
+  color: var(--text-color, #e2e8f0);
+  font-size: 0.95rem;
+}
+
+.info-group a {
+  color: var(--primary-color, #3b82f6);
+  text-decoration: none;
+}
+
+.info-group a:hover {
+  text-decoration: underline;
+}
+
+/* Chat Section */
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-bubble {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 1.25rem;
+  width: 85%;
+}
+
+.message-bubble.from-user {
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.message-bubble.from-admin {
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.5rem;
+}
+
+.sender {
+  font-weight: 600;
+  color: var(--text-color, #ffffff);
+  font-size: 0.9rem;
+}
+
+.from-admin .sender {
+  color: var(--primary-color, #3b82f6);
+}
+
+.time {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.message-content p {
+  color: var(--text-color, #e2e8f0);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Formulario de Respuesta */
+.reply-container {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  color: var(--text-color, #ffffff);
+}
+
+textarea {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-color, #ffffff);
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover, #2563eb);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.feedback-msg {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: right;
+  min-height: 20px;
+}
+
+.feedback-msg.success { color: #10b981; }
+.feedback-msg.error { color: #ef4444; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .conversation-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .user-card {
+    position: static;
+  }
+  
+  .message-bubble {
+    width: 95%;
+  }
+}
+</style>

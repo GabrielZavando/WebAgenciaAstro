@@ -1,0 +1,74 @@
+// =========================
+// Component: Tables
+// =========================
+
+.table-container {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.files-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-border);
+  background: rgba(var(--color-surface-rgb), 0.5);
+
+  thead {
+    background: transparent;
+  }
+
+  th {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #00e5ff; /* Cyan accent for headers */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    text-align: left;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  td {
+    padding: 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    vertical-align: middle;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    background-color: transparent !important;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  /* Highlight first data column */
+  tr td:first-child {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  tr {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--color-primary), transparent 85%) !important;
+
+      td {
+        color: var(--color-text);
+      }
+    }
+  }
+}
