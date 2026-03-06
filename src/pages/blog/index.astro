@@ -22,9 +22,9 @@ const getExcerpt = (post: any) => {
     return post.excerpt.length > 150 ? post.excerpt.substring(0, 150) + '...' : post.excerpt;
   }
   if (post.content) {
-    // 1. Quitar bloques <style>...</style> y su contenido
+    // 1. Quitar bloques de estilos y su contenido
     let stripped = post.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-    // 2. Quitar bloques <script>...</script> y su contenido
+    // 2. Quitar bloques de scripts y su contenido
     stripped = stripped.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
     // 3. Quitar cualquier otra etiqueta HTML (e.g. <p>, <strong>)
     stripped = stripped.replace(/<[^>]*>?/gm, '');

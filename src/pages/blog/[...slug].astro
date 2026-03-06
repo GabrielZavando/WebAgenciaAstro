@@ -20,10 +20,10 @@ try {
      // Eliminar etiquetas de documento completo que rompen el layout global de Astro (Word/Google Docs paste)
      let safeContent = post.content;
      
-     // 1. Quitar bloques <style>...</style> que sobrescriban el body o footer
+     // 1. Quitar bloques de estilo que sobrescriban el body o footer
      safeContent = safeContent.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
      
-     // 2. Quitar bloques <script>...</script>
+     // 2. Quitar bloques de script
      safeContent = safeContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
      
      // 3. Remover etiquetas delimitadoras de HTML (doc, html, head, body, meta, link, title)
