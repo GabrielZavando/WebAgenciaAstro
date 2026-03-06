@@ -23,32 +23,24 @@ if (!token) {
       </div>
     </div>
   </div>
-</AdminLayout>
+</DashboardLayout>
 
 <script>
   import { auth } from "../../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
+  import { apiClient } from "../../../lib/api-client";
 
   const container = document.getElementById('ideasContainer');
-  let currentToken = '';
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;
-    currentToken = await user.getIdToken();
-    loadIdeas();
+    const token = await user.getIdToken();
+    loadIdeas(token);
   });
 
-  async function loadIdeas() {
+  async function loadIdeas(token: string) {
     try {
-      const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/ideas`, {
-        headers: {
-          'Authorization': `Bearer ${currentToken}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Error al cargar ideas');
-      
-      const ideas = await response.json();
+      const ideas = await apiClient.get<any[]>('/ideas', { token });
       renderIdeas(ideas);
     } catch (error) {
       console.error(error);

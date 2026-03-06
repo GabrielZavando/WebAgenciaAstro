@@ -1,12 +1,11 @@
 
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
 const { id } = Astro.params;
-const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
-<AdminLayout title="Detalle de Cliente">
+<DashboardLayout title="Detalle de Cliente" role="admin">
   <div style="margin-bottom: 2rem;">
       <a href="/admin/clients" class="btn" style="color: var(--text-secondary); text-decoration: none;">&larr; Volver a Clientes</a>
   </div>
@@ -17,16 +16,15 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 
 
 
-  <script define:vars={{ id, API_BASE_URL }}>
-    const token = document.cookie.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
+  <script>
+    import { apiClient } from "../../../lib/api-client";
     
     async function loadData() {
         try {
+            const id = window.location.pathname.split('/').pop();
+            
             // Load Client Info
-            const clientRes = await fetch(`${API_BASE_URL}/clients/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const client = await clientRes.json();
+            const client = await apiClient.get<any>(`/clients/${id}`);
             
             document.getElementById('clientDetails').innerHTML = `
                 <h2>${client.displayName || 'Sin nombre'}</h2>
@@ -54,4 +52,4 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
     message="Hubo un problema al cargar los datos del cliente."
     type="error"
   />
-</AdminLayout>
+</DashboardLayout>

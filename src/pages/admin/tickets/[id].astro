@@ -75,7 +75,7 @@ if (ticket) {
 ---
 
 <DashboardLayout title="Ver Ticket" role="admin">
-    <div class="header-actions" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap;">
+    <div class="header-actions">
       <div>
         <a href="/admin/tickets" class="back-link">
           <i class="fas fa-arrow-left"></i> Volver a la Lista de Tickets
@@ -104,11 +104,11 @@ if (ticket) {
         </div>
         <div class="meta-item">
            <span class="meta-label">Cliente (Email)</span>
-           <span class="meta-value" style="display: flex; align-items: center;">
+           <span class="meta-value ticket-meta-val">
              {ticket.clientPhotoUrl ? (
                <img src={ticket.clientPhotoUrl} alt="Avatar" class="meta-avatar-img" />
              ) : (
-               <i class="fas fa-user-circle" style="color: var(--color-text-muted); margin-right: 0.25rem;"></i>
+               <i class="fas fa-user-circle tick-user-icon"></i>
              )}
              {ticket.clientEmail || 'Desconocido'}
            </span>
@@ -199,11 +199,11 @@ if (ticket) {
           <div class="message-body reply-body">
             <form class="admin-reply-form" data-id={ticket.id}>
               <textarea id="newMessageBody" name="body" placeholder="Escribe tu respuesta para el cliente..." rows="4" required></textarea>
-              <div class="attachment-input-wrapper" style="margin-top: 0.5rem;">
-                <label for="adminAttachment" style="font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-surface); padding: 0.5rem; border: 1px dashed var(--color-border); width: 100%; box-sizing: border-box;">
+              <div class="attachment-input-wrapper">
+                <label for="adminAttachment" class="lbl-attachment">
                   <i class="fas fa-image"></i>
                   <span>Adjuntar imagen (opcional)</span>
-                  <input type="file" id="adminAttachment" name="attachment" accept="image/*" style="display: none;" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
+                  <input type="file" id="adminAttachment" name="attachment" accept="image/*" class="hidden-file-input" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
                 </label>
               </div>
               <div class="form-actions-wrapper">
@@ -436,9 +436,11 @@ if (ticket) {
 </script>
 
 <style is:global>
-  .header-actions {
-    margin-bottom: 2rem;
-  }
+  .text-danger { color: var(--color-error); }
+  .text-muted { color: var(--color-text-muted); }
+
+  /* New specific layout classes */
+  .header-actions { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
   
   .back-link {
     display: inline-flex;

@@ -62,9 +62,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
           <div class="form-group toggle-group" style="margin-top: 0.5rem;">
             <label class="toggle">
               <input type="checkbox" id="fileIsPublic" name="isPublic" value="true" />
-              <div class="toggle-text" style="display: flex; flex-direction: column;">
-                <span class="label-text">Archivo Público</span>
-                <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 400;">Cualquiera con el enlace podrá verlo (Ideal para blog). Si está desmarcado, será privado.</span>
+              <div class="toggle-text toggle-col-text">
+                <span class="label-text">Acceso Público</span>
+                <span class="toggle-hint-text">Cualquiera con el enlace podrá verlo (Ideal para blog). Si está desmarcado, será privado.</span>
               </div>
             </label>
           </div>
@@ -429,6 +429,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   .page-header { margin-bottom: 2rem; }
   .page-header h1 { margin: 0 0 0.5rem; font-size: 2rem; font-weight: 700; color: var(--color-text); }
   .text-muted { color: var(--color-text-muted); margin: 0; font-size: 1.05rem; }
+  .text-danger:hover { color: var(--color-error); opacity: 0.8; }
+  .toggle-col-text { display: flex; flex-direction: column; }
+  .toggle-hint-text { font-size: 0.8rem; color: var(--color-text-muted); font-weight: 400; }
 
   /* Cuota Storage Circular */
   .storage-banner { 

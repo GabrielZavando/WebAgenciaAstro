@@ -6,13 +6,14 @@ import ReportTable from '../../../components/shared/ReportTable.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
+import { apiClient } from '../../../lib/api-client';
+
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
   return Astro.redirect('/login');
 }
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 const { id } = Astro.params;
 
 let user = null;
@@ -22,33 +23,22 @@ let reports = [];
 let errorMsg = null;
 
 try {
-  const [userRes, projectsRes, storageRes, reportsRes] = await Promise.all([
-    fetch(`${API_URL}/users/${id}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+  const [userData, projectsData, storageData, reportsData] = await Promise.all([
+    apiClient.get<any>(`/users/${id}`, { token }).catch((e) => {
+      errorMsg = e.status === 403 
+        ? "No tienes permisos de Administrador para ver esta página." 
+        : `Error al cargar datos del usuario: ${e.message}`;
+      return null;
     }),
-    fetch(`${API_URL}/projects/client/${id}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }),
-    fetch(`${API_URL}/files/storage/quota/${id}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }),
-    fetch(`${API_URL}/reports?clientId=${id}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    apiClient.get<any[]>(`/projects/client/${id}`, { token }).catch(() => []),
+    apiClient.get<any>(`/files/storage/quota/${id}`, { token }).catch(() => null),
+    apiClient.get<any[]>(`/reports?clientId=${id}`, { token }).catch(() => [])
   ]);
 
-  if (userRes.ok) {
-    user = await userRes.json();
-  } else {
-    errorMsg = `Error al cargar datos del usuario: ${userRes.statusText}`;
-    if (userRes.status === 403) {
-      errorMsg = "No tienes permisos de Administrador para ver esta página.";
-    }
-  }
-
-  if (projectsRes.ok) projects = await projectsRes.json();
-  if (storageRes.ok) storage = await storageRes.json();
-  if (reportsRes.ok) reports = await reportsRes.json();
+  user = userData;
+  projects = projectsData;
+  storage = storageData;
+  reports = reportsData;
 } catch (e) {
   errorMsg = "No se pudo conectar con el servidor.";
   console.error("Error fetching data:", e);
@@ -435,8 +425,8 @@ if (!user && !errorMsg) {
     window.userDetailedScriptLoaded = true;
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const API_URL = (import.meta as any).env.PUBLIC_API_URL || 'http://localhost:8080';
       const { validatePassword } = await import('../../../lib/utils/security');
+      const { apiClient } = await import('../../../lib/api-client');
       const summaryView = document.getElementById('summaryView');
       const interactiveCards = document.querySelectorAll('.interactive-card');
       const detailSections = document.querySelectorAll('.detail-section');
@@ -523,18 +513,8 @@ if (!user && !errorMsg) {
           
           setLoading(profileSubmitBtn, true, 'Guardar Cambios');
           try {
-            const { auth } = await import('../../../lib/firebase/client');
-            const token = await auth.currentUser?.getIdToken();
-            const res = await fetch(`${API_URL}/users/${userId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify(data)
-            });
+            await apiClient.patch(`/users/${userId}`, data);
 
-            if (!res.ok) throw new Error('Error al actualizar el perfil.');
             showFeedback('formFeedback', 'Perfil actualizado correctamente.', 'success');
             setTimeout(() => window.location.reload(), 1500);
           } catch (err: any) {
@@ -550,14 +530,7 @@ if (!user && !errorMsg) {
           const userId = editForm.dataset.userid;
           (window as any).confirmModalHelpers.open('deleteUserModal', async () => {
             try {
-              const { auth } = await import('../../../lib/firebase/client');
-              const token = await auth.currentUser?.getIdToken();
-              const res = await fetch(`${API_URL}/users/${userId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-              });
-              
-              if (!res.ok) throw new Error('Error al eliminar usuario');
+              await apiClient.delete(`/users/${userId}`);
               
               (window as any).showToast('Usuario eliminado correctamente', 'success');
               setTimeout(() => window.location.href = '/admin/usuarios', 1500);
@@ -634,18 +607,8 @@ if (!user && !errorMsg) {
         const btn = document.getElementById('btnCreateProject') as HTMLButtonElement;
         setLoading(btn, true, 'Añadir');
         try {
-          const { auth } = await import('../../../lib/firebase/client');
-          const token = await auth.currentUser?.getIdToken();
-          const res = await fetch(`${API_URL}/projects`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-          });
+          await apiClient.post(`/projects`, data);
 
-          if (!res.ok) throw new Error('Error al crear proyecto.');
           showFeedback('projectFormFeedback', 'Proyecto creado exitosamente.', 'success');
           setTimeout(() => window.location.reload(), 1000);
         } catch (err: any) {
@@ -664,14 +627,8 @@ if (!user && !errorMsg) {
 
           (window as any).confirmModalHelpers.open('confirmDeleteProjectModal', async () => {
             try {
-              const { auth } = await import('../../../lib/firebase/client');
-              const token = await auth.currentUser?.getIdToken();
-              const res = await fetch(`${API_URL}/projects/${projectId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-              });
-              if (res.ok) window.location.reload();
-              else throw new Error('No se pudo eliminar el proyecto.');
+              await apiClient.delete(`/projects/${projectId}`);
+              window.location.reload();
             } catch (err) {
               if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorServerModal');
             }
@@ -704,18 +661,7 @@ if (!user && !errorMsg) {
 
         setLoading(btn, true, 'Actualizar Cuota');
         try {
-          const { auth } = await import('../../../lib/firebase/client');
-          const token = await auth.currentUser?.getIdToken();
-          const res = await fetch(`${API_URL}/users/${userId}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ storageLimitGb })
-          });
-
-          if (!res.ok) throw new Error('Error al actualizar almacenamiento.');
+          await apiClient.patch(`/users/${userId}`, { storageLimitGb });
           
           if ((window as any).modalHelpers) {
             (window as any).modalHelpers.openModal('successStorageModal');

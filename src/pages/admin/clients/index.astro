@@ -1,11 +1,11 @@
 
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
-<AdminLayout title="Gestión de Clientes">
+<DashboardLayout title="Gestión de Clientes" role="admin">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
       <h2>Clientes</h2>
       <!-- Crear cliente podría ser invitando por email o creando user. Por ahora solo listamos existentes -->
@@ -14,17 +14,12 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 
   <div id="clientsList">Cargando clientes...</div>
 
-  <script define:vars={{ API_BASE_URL }}>
+  <script>
+    import { apiClient } from "../../../lib/api-client";
+
     async function loadClients() {
         try {
-            const token = document.cookie.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
-            const response = await fetch(`${API_BASE_URL}/clients`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (!response.ok) throw new Error('Error loading clients');
-            
-            const clients = await response.json();
+            const clients = await apiClient.get<any[]>('/clients');
             
             const container = document.getElementById('clientsList');
             if (!container) return;
@@ -74,4 +69,4 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
     message="La funcionalidad de invitación de clientes está pendiente de implementación."
     type="info"
   />
-</AdminLayout>
+</DashboardLayout>
