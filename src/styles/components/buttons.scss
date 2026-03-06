@@ -2,125 +2,114 @@
 @use "sass:color";
 @use "../config" as *;
 
-// Estilos base para todos los botones
-.btn {
-  // Layout
+// =========================
+// Mixin base compartido por todos los botones
+// =========================
+@mixin btn-base {
   display: inline-flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  
-  // Tipografía
   font-family: var(--font-headings);
   font-weight: 600;
   text-decoration: none;
   text-align: center;
-  
-  // Espaciado
-  padding: var(--space-sm) var(--space-md);
-  
-  // Visual
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   outline: none;
-  
-  // Transiciones
   transition: all var(--transition-normal) ease;
-  
+}
+
+// =========================
+// Estilos base para .btn genérico
+// =========================
+.btn {
+  @include btn-base;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 4px;
+
   // Estados de foco
   &:focus-visible {
-    box-shadow: 0 0 0 2px var(--color-body), 0 0 0 4px var(--color-primary);
+    box-shadow:
+      0 0 0 2px var(--color-body),
+      0 0 0 4px var(--color-primary);
   }
-  
+
   // Estado deshabilitado
-  &:disabled, 
+  &:disabled,
   &.disabled {
     opacity: 0.6;
     cursor: not-allowed;
     pointer-events: none;
   }
-  
+
   // Tamaños
   &.btn-sm {
     padding: var(--space-xs) var(--space-sm);
     font-size: 0.875rem;
     border-radius: 4px;
   }
-  
+
   &.btn-md {
     padding: var(--space-sm) var(--space-lg);
     font-size: 1rem;
     border-radius: 8px;
   }
-  
+
   &.btn-lg {
     padding: var(--space-md) var(--space-xl);
     font-size: 1.125rem;
     border-radius: 8px;
   }
-  
+
   // Iconos
   .icon {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    
+
     &-left {
       margin-right: var(--space-xs);
     }
-    
+
     &-right {
       margin-left: var(--space-xs);
     }
   }
 }
 
+// =========================
 // Variantes de botones
+// =========================
 
-// Para botones que invitan a una acción (CTA)
+// CTA - Call to Action
 .btn-cta {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  padding: var(--space-sm) var(--space-md);
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para CTA
+  @include btn-base;
   background: var(--color-primary);
   color: var(--color-white);
   text-transform: uppercase;
   border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
   box-shadow: var(--shadow-md);
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
     background: var(--color-secondary);
   }
-  
+
   &:active {
     transform: translateY(-1px);
   }
-  
+
   // Variante con borde
   &.outline {
     background: transparent;
     border: 2px solid var(--color-primary);
     color: var(--color-primary);
-    
+
     &:hover {
       background: var(--color-primary);
       color: var(--color-white);
@@ -128,96 +117,54 @@
   }
 }
 
+// CTA con borde accent
 .btn-cta__border {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para border
+  @include btn-base;
   background: transparent;
   border: 2px solid var(--color-accent);
   color: var(--color-accent);
   border-radius: 0;
   padding: var(--space-sm) var(--space-md);
-  
+
   &:hover {
     background-color: var(--color-accent);
     color: var(--color-white);
   }
 }
 
-// Botón CTA sólido flat
+// CTA sólido flat
 .btn-cta__solid {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para solid
+  @include btn-base;
   background-color: var(--color-primary);
   color: var(--color-white);
   border-radius: 0;
   padding: var(--space-sm) var(--space-md);
   transition: background-color var(--transition-normal) ease;
-  
+
   &:hover {
     background-color: var(--color-secondary);
     color: var(--color-white);
   }
 }
 
-// Para botones de menú
+// Botón de menú
 .btn-menu {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para menú
+  @include btn-base;
   background: transparent;
   color: var(--color-text);
   padding: var(--space-xs) var(--space-sm);
   font-size: 0.875rem;
   border-radius: 4px;
-  
+
   &:hover {
     background-color: var(--color-surface-secondary);
     color: var(--color-primary);
   }
-  
+
   &.active {
     color: var(--color-primary);
     font-weight: 700;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -231,29 +178,15 @@
   }
 }
 
-// Para botón que lleva al inicio (scroll to top)
+// Botón scroll to top
 .btn-up {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para btn-up
+  @include btn-base;
   position: fixed;
   bottom: var(--space-lg);
   right: var(--space-lg);
   width: 48px;
   height: 48px;
-  border-radius: 0; // Esquinas cuadradas
+  border-radius: 0;
   background-color: var(--color-primary);
   color: var(--color-white);
   box-shadow: var(--shadow-md);
@@ -261,59 +194,43 @@
   transform: translateY(20px);
   visibility: hidden;
   z-index: 100;
-  
+
   &.visible {
     opacity: 1;
     transform: translateY(0);
     visibility: visible;
   }
-  
+
   &:hover {
     background-color: var(--color-secondary);
     transform: translateY(-3px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
 }
 
-// Para botones de formulario
+// Botón de formulario
 .btn-form {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal) ease;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  
-  // Específico para formularios
+  @include btn-base;
   background-color: var(--color-secondary);
   color: var(--color-white);
   width: 100%;
   padding: var(--space-sm) var(--space-lg);
   border-radius: 4px;
-  
+
   &:hover {
     background-color: var(--color-primary);
   }
-  
+
   &:active {
     transform: scale(0.98);
   }
-  
+
   &.loading {
-    position: relative;
     color: transparent;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -333,29 +250,16 @@
   to { transform: rotate(360deg); }
 }
 
-// Para enlaces de navegación
+// Enlaces de navegación
 .btn-nav {
-  // Layout
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  
-  // Tipografía
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-  position: relative;
-  
-  // Específico para enlaces de navegación
+  @include btn-base;
   background: transparent;
   color: var(--color-text);
   padding: var(--space-xs) var(--space-sm);
   font-size: 1rem;
+  text-transform: uppercase;
   transition: color var(--transition-normal) ease;
-  
+
   // Borde inferior animado
   &::after {
     content: '';
@@ -368,16 +272,16 @@
     transition: width var(--transition-normal) ease;
     transform-origin: left;
   }
-  
+
   &:hover {
     &::after {
       width: 100%;
     }
   }
-  
+
   &.active {
     font-weight: 700;
-    
+
     &::after {
       content: '';
       width: 100%;
@@ -386,83 +290,63 @@
   }
 }
 
-// Para botones de peligro (borrado)
+// Botón de peligro (borrado)
 .btn-danger {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: var(--space-sm) var(--space-md);
-  transition: all var(--transition-normal) ease;
-  outline: none;
-  
-  // Específico para danger
+  @include btn-base;
   background-color: var(--color-error);
   color: var(--color-white);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
   box-shadow: var(--shadow-sm);
-  
+
   &:hover {
     background-color: color.adjust(#ef4444, $lightness: -10%);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
 }
 
+// Botón de peligro outline
 .btn-danger-outline {
-  // Heredar estilos base
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
+  @include btn-base;
+  background: transparent;
   border: 1px solid var(--color-error);
   border-radius: 4px;
-  cursor: pointer;
   padding: var(--space-sm) var(--space-md);
-  transition: all var(--transition-normal) ease;
-  outline: none;
-  background: transparent;
-  
-  // Específico para danger outline
   color: var(--color-error);
-  
+
   &:hover {
     background-color: var(--color-error);
     color: var(--color-white);
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
 }
 
-// Utilities para grupos de botones
+// =========================
+// Utilidades
+// =========================
+
+// Grupos de botones
 .btn-group {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: center;
   gap: var(--space-xs);
-  
+
   @media (max-width: #{container(narrow)}) {
     flex-direction: column;
     width: 100%;
-    
+
     .btn {
       width: 100%;
     }
