@@ -2,6 +2,7 @@
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import TicketManagementSystem from '../../../components/admin/TicketManagementSystem.astro';
 import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
+import ReportTable from '../../../components/shared/ReportTable.astro';
 
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
@@ -15,10 +16,11 @@ const { id } = Astro.params;
 let user = null;
 let projects = [];
 let storage = null;
+let reports = [];
 let errorMsg = null;
 
 try {
-  const [userRes, projectsRes, storageRes] = await Promise.all([
+  const [userRes, projectsRes, storageRes, reportsRes] = await Promise.all([
     fetch(`${API_URL}/users/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
@@ -26,6 +28,9 @@ try {
       headers: { 'Authorization': `Bearer ${token}` }
     }),
     fetch(`${API_URL}/files/storage/quota/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }),
+    fetch(`${API_URL}/reports?clientId=${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
   ]);
@@ -41,6 +46,7 @@ try {
 
   if (projectsRes.ok) projects = await projectsRes.json();
   if (storageRes.ok) storage = await storageRes.json();
+  if (reportsRes.ok) reports = await reportsRes.json();
 } catch (e) {
   errorMsg = "No se pudo conectar con el servidor.";
   console.error("Error fetching data:", e);
@@ -142,6 +148,23 @@ if (!user && !errorMsg) {
           </div>
           <div class="card-footer">
             <span>Configurar límite <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <!-- Card: Informes -->
+        <div class="summary-card interactive-card" data-target="section-reports">
+          <div class="card-icon reports-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="card-content">
+            <h3>Informes de Estado</h3>
+            <div class="stats-row">
+              <span class="stat-number">{reports.length}</span>
+              <span class="stat-label">Informes enviados</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span>Ver listado de informes <i class="fas fa-arrow-right"></i></span>
           </div>
         </div>
       </div>
@@ -332,6 +355,18 @@ if (!user && !errorMsg) {
               <button type="submit" class="btn-primary" id="btnUpdateStorage">Actualizar Cuota</button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Sección: Informes Detallado -->
+      <div id="section-reports" class="detail-section hidden">
+        <button class="btn-back-summary"><i class="fas fa-chevron-left"></i> Volver al resumen</button>
+        <div class="content-card">
+          <div class="section-header">
+            <h2>Informes del Usuario</h2>
+            <p class="text-muted">Listado completo de informes enviados a este cliente.</p>
+          </div>
+          <ReportTable clientId={id} role="admin" id="adminUserReportsBody" />
         </div>
       </div>
     </div>
@@ -607,7 +642,7 @@ if (!user && !errorMsg) {
 
 <style>
   .user-detail-container {
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
   }
 
@@ -761,6 +796,7 @@ if (!user && !errorMsg) {
   }
 
   .storage-icon { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+  .reports-icon { background: rgba(255, 0, 128, 0.1); color: #FF0080; }
 
   .card-content h3 {
     margin: 0 0 1rem 0;

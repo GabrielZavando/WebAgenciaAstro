@@ -2,6 +2,8 @@
 import '../styles/main.scss';
 import { Image } from "astro:assets";
 import Logo from "../assets/img/logo-medium.png";
+import ToastContainer from "../components/shared/ToastContainer.astro";
+
 
 interface Props {
   title: string;
@@ -86,6 +88,12 @@ const { title, role = 'admin' } = Astro.props;
             <a href="/admin/tickets" class="nav-item">
               <i class="fas fa-ticket-alt"></i> <span class="nav-text">Tickets</span>
             </a>
+            <a href="/admin/informes" class="nav-item">
+              <i class="fas fa-file-pdf"></i> <span class="nav-text">Informes</span>
+            </a>
+            <a href="/admin/ideas" class="nav-item">
+              <i class="fas fa-lightbulb"></i> <span class="nav-text">Ideas</span>
+            </a>
           </>
         )}
 
@@ -135,10 +143,19 @@ const { title, role = 'admin' } = Astro.props;
           <div class="topbar-actions">
             <!-- Notificaciones -->
             <div class="notifications-container">
-              <button id="notificationsBtn" class="topbar-btn" aria-label="Notificaciones">
+              <button id="notificationsBtn" class="topbar-btn" aria-label="Notificaciones" aria-expanded="false" aria-haspopup="true">
                 <i class="fas fa-bell"></i>
-                <span class="notification-badge"></span>
+                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
               </button>
+
+              <div id="notificationsDropdown" class="user-dropdown notifications-dropdown">
+                <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center;">
+                  <p style="font-weight: 600; font-size: 0.9rem; color: var(--color-text);">Notificaciones</p>
+                </div>
+                <div class="notifications-list" id="notificationsList">
+                  <div class="notification-empty text-muted" style="padding: 1.5rem 1rem; text-align: center; font-size: 0.85rem;">Cargando...</div>
+                </div>
+              </div>
             </div>
 
             <div class="user-menu-container">
@@ -151,7 +168,7 @@ const { title, role = 'admin' } = Astro.props;
             </button>
 
             <!-- Dropdown -->
-            <div id="userDropdown" class="user-dropdown hidden">
+            <div id="userDropdown" class="user-dropdown">
               <div class="dropdown-header">
                 <p id="userEmailDisplay" class="text-muted">Cargando...</p>
               </div>
@@ -182,6 +199,8 @@ const { title, role = 'admin' } = Astro.props;
       <div class="content-wrapper fade-in">
         <slot />
       </div>
+
+      <ToastContainer />
     </main>
   </div>
 
@@ -407,13 +426,21 @@ const { title, role = 'admin' } = Astro.props;
     }
     .notification-badge {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 8px;
-      height: 8px;
+      top: 2px;
+      right: 2px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
       background-color: var(--color-error);
-      border-radius: 0; /* Flat design */
+      border-radius: 8px;
       border: 2px solid var(--color-surface);
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
     .topbar h2 {
       margin: 0;
@@ -430,8 +457,8 @@ const { title, role = 'admin' } = Astro.props;
     }
 
     .content-wrapper {
-      width: 90%;
-      max-width: 1440px;
+      width: 95%;
+      max-width: 1620px;
       margin: 0 auto;
       padding: 2rem 0;
       flex: 1;
@@ -473,7 +500,7 @@ const { title, role = 'admin' } = Astro.props;
     .user-avatar {
       width: 38px;
       height: 38px;
-      border-radius: 0; /* Rectangular flat design */
+      border-radius: 0; /* Square design */
       object-fit: cover;
       border: 1px solid var(--color-border);
     }
@@ -505,12 +532,14 @@ const { title, role = 'admin' } = Astro.props;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
       z-index: 1000;
       opacity: 0;
+      visibility: hidden;
       transform: translateY(-10px);
       pointer-events: none;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .user-dropdown.show {
       opacity: 1;
+      visibility: visible;
       transform: translateY(0);
       pointer-events: auto;
     }
@@ -572,6 +601,56 @@ const { title, role = 'admin' } = Astro.props;
       background-color: rgba(var(--color-error-rgb), 0.05);
     }
 
+    /* Estilos del Notifications Dropdown */
+    .notifications-dropdown {
+      width: 320px;
+      right: -10px;
+    }
+    .notifications-list {
+      max-height: 350px;
+      overflow-y: auto;
+      padding: 0;
+      margin: 0;
+    }
+    .notification-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--color-border);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: background-color 0.2s;
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    .notification-item:hover {
+      background-color: rgba(var(--color-primary-rgb), 0.05);
+    }
+    .notification-item.unread {
+      background-color: rgba(var(--color-primary-rgb), 0.03);
+      border-left: 3px solid var(--color-primary);
+      padding-left: calc(1.25rem - 3px);
+    }
+    .notification-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin: 0;
+    }
+    .notification-message {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+    .notification-time {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      margin-top: 0.25rem;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -599,16 +678,42 @@ const { title, role = 'admin' } = Astro.props;
     const userEmailDisplay = document.getElementById('userEmailDisplay');
     const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
 
+    const notificationsBtn = document.getElementById('notificationsBtn');
+    const notificationsDropdown = document.getElementById('notificationsDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationsList = document.getElementById('notificationsList');
+
     userMenuBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       const isExpanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
       
+      // Close notifications if open
+      notificationsDropdown?.classList.remove('show');
+      notificationsBtn?.setAttribute('aria-expanded', 'false');
+
       if (isExpanded) {
         userDropdown?.classList.remove('show');
         userMenuBtn.setAttribute('aria-expanded', 'false');
       } else {
         userDropdown?.classList.add('show');
         userMenuBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    notificationsBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isExpanded = notificationsBtn.getAttribute('aria-expanded') === 'true';
+      
+      // Close user dropdown if open
+      userDropdown?.classList.remove('show');
+      userMenuBtn?.setAttribute('aria-expanded', 'false');
+
+      if (isExpanded) {
+        notificationsDropdown?.classList.remove('show');
+        notificationsBtn.setAttribute('aria-expanded', 'false');
+      } else {
+        notificationsDropdown?.classList.add('show');
+        notificationsBtn.setAttribute('aria-expanded', 'true');
       }
     });
 
@@ -619,7 +724,99 @@ const { title, role = 'admin' } = Astro.props;
         userDropdown?.classList.remove('show');
         userMenuBtn?.setAttribute('aria-expanded', 'false');
       }
+      if (!target.closest('.notifications-container')) {
+        notificationsDropdown?.classList.remove('show');
+        notificationsBtn?.setAttribute('aria-expanded', 'false');
+      }
     });
+
+    // Helpers para notificaciones
+    const loadNotifications = async () => {
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) return;
+        
+        const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+        const res = await fetch(`${API_URL}/notifications`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.ok) {
+          const dt = await res.json();
+          renderNotifications(dt);
+        }
+      } catch (e) {
+        console.error('Error fetching notifications:', e);
+      }
+    };
+    const renderNotifications = (notifications: any[]) => {
+      if (!notificationsList) return;
+      const unreadNotifications = notifications.filter((n: any) => !n.read);
+      
+      if (unreadNotifications.length === 0) {
+        notificationsList.innerHTML = '<div class="notification-empty text-muted" style="padding: 1.5rem 1rem; text-align: center; font-size: 0.85rem;">No tienes notificaciones pendientes.</div>';
+        if (notificationBadge) notificationBadge.style.display = 'none';
+        return;
+      }
+
+      if (notificationBadge) {
+        notificationBadge.textContent = unreadNotifications.length > 99 ? '99+' : String(unreadNotifications.length);
+        notificationBadge.style.display = 'flex';
+      }
+
+      notificationsList.innerHTML = unreadNotifications.map((notif: any) => {
+        let timestamp = notif.createdAt;
+        if (notif.createdAt && notif.createdAt._seconds) {
+          timestamp = notif.createdAt._seconds * 1000;
+        }
+        const d = new Date(timestamp);
+        return `
+          <a href="${notif.link || '#'}" class="notification-item unread" data-id="${notif.id}">
+            <p class="notification-title">${notif.title}</p>
+            <p class="notification-message">${notif.message}</p>
+            <span class="notification-time">${d.toLocaleDateString()} a las ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          </a>
+        `;
+      }).join('');
+
+      // Mark as read onClick
+      const items = notificationsList.querySelectorAll('.notification-item');
+      items.forEach(item => {
+        item.addEventListener('click', async (e) => {
+          const id = item.getAttribute('data-id');
+          try {
+            const token = await auth.currentUser?.getIdToken();
+            const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+            
+            // Mark as read in DB (don't await to avoid blocking navigation)
+            fetch(`${API_URL}/notifications/${id}/read`, {
+              method: 'PATCH',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            // Eliminar el elemento del DOM inmediatamente
+            item.remove();
+            
+            // Recalcular conteo basado en lo que queda en el DOM
+            const remainingCount = notificationsList.querySelectorAll('.notification-item').length;
+            
+            if (notificationBadge) {
+              if (remainingCount > 0) {
+                notificationBadge.textContent = remainingCount > 99 ? '99+' : String(remainingCount);
+                notificationBadge.style.display = 'flex';
+              } else {
+                notificationBadge.style.display = 'none';
+                notificationsList.innerHTML = '<div class="notification-empty text-muted" style="padding: 1.5rem 1rem; text-align: center; font-size: 0.85rem;">No tienes notificaciones pendientes.</div>';
+              }
+            }
+          } catch (err) {
+            console.error('Error marking notification as read:', err);
+          }
+        });
+      });
+    };
+
+    let notifPoller: number | null = null;
 
     // Hydrate user data
     onAuthStateChanged(auth, (user) => {
@@ -630,6 +827,16 @@ const { title, role = 'admin' } = Astro.props;
           userAvatar.src = user.photoURL 
             ? user.photoURL 
             : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=random`;
+        }
+        
+        loadNotifications();
+        if (notifPoller === null) {
+           notifPoller = window.setInterval(loadNotifications, 60000); // refresh every min
+        }
+      } else {
+        if (notifPoller !== null) {
+          window.clearInterval(notifPoller);
+          notifPoller = null;
         }
       }
     });

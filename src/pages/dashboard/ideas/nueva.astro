@@ -1,0 +1,263 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+---
+
+<DashboardLayout title="Enviar Nueva Idea" role="client">
+  <div class="new-idea-page">
+    <div class="page-header">
+      <a href="/dashboard/herramientas" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Volver a Herramientas
+      </a>
+      <h1>💡 Cuéntame tu idea</h1>
+      <p class="text-muted">¿Qué herramienta o funcionalidad facilitaría tu trabajo diario? Estoy aquí para construirla.</p>
+    </div>
+
+    <div class="form-container">
+      <form id="ideaForm" class="idea-form">
+        <div class="form-group">
+          <label for="name">Nombre de la idea <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            placeholder="Ej: Generador automático de Facturas" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="explanation">Explicación breve <span class="required">*</span></label>
+          <textarea 
+            id="explanation" 
+            name="explanation" 
+            rows="6"
+            placeholder="Ej: Actualmente pierdo mucho tiempo copiando datos de un Excel a la plantilla de factura. Me gustaría una herramienta donde suba el Excel y me genere los PDFs automáticamente..."
+            required
+          ></textarea>
+          <p class="field-help">Describe el problema que resuelve y cómo te imaginas que funcionaría.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="image">Adjuntar imagen (opcional)</label>
+          <div class="file-input-wrapper">
+            <input type="file" id="image" name="image" accept="image/*" />
+            <div class="file-dummy">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span class="file-text">Selecciona una imagen o captura de pantalla</span>
+            </div>
+          </div>
+          <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="submitBtn" class="btn-submit" disabled>
+            Enviar idea <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  const form = document.getElementById('ideaForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const nameInput = document.getElementById('name') as HTMLInputElement;
+  const explanationInput = document.getElementById('explanation') as HTMLTextAreaElement;
+  const imageInput = document.getElementById('image') as HTMLInputElement;
+  const imagePreview = document.getElementById('imagePreview') as HTMLDivElement;
+
+  // Validación básica para habilitar botón
+  const validateForm = () => {
+    const isNameValid = nameInput.value.trim().length > 0;
+    const isExplanationValid = explanationInput.value.trim().length > 10;
+    submitBtn.disabled = !(isNameValid && isExplanationValid);
+  };
+
+  nameInput.addEventListener('input', validateForm);
+  explanationInput.addEventListener('input', validateForm);
+
+  // Preview de imagen
+  imageInput.addEventListener('change', (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.innerHTML = `<img src="${e.target?.result}" alt="Preview" />`;
+        imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      imagePreview.style.display = 'none';
+      imagePreview.innerHTML = '';
+    }
+  });
+
+  // Envío del formulario
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Enviando... <i class="fas fa-spinner fa-spin"></i>';
+
+    const formData = new FormData();
+    formData.append('name', nameInput.value);
+    formData.append('explanation', explanationInput.value);
+    if (imageInput.files?.[0]) {
+      formData.append('image', imageInput.files[0]);
+    }
+
+    try {
+      // Necesitamos el token de la cookie para la API
+      const sessionCookie = document.cookie.split('; ').find(row => row.startsWith('session='));
+      const token = sessionCookie ? sessionCookie.split('=')[1] : null;
+
+      const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/ideas`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        alert('¡Gracias! Tu idea ha sido recibida correctamente.');
+        window.location.href = '/dashboard/herramientas';
+      } else {
+        throw new Error('Error al enviar la idea');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Hubo un problema al enviar tu idea. Por favor, inténtalo de nuevo.');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Enviar idea <i class="fas fa-paper-plane"></i>';
+    }
+  });
+</script>
+
+<style>
+  .new-idea-page { max-width: 800px; margin: 0 auto; padding-bottom: 4rem; }
+  
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--color-primary); }
+
+  .page-header h1 { font-size: 2.2rem; margin: 0 0 1rem; color: var(--color-text); }
+  .text-muted { font-size: 1.1rem; color: var(--color-text-muted); }
+
+  .form-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    margin-top: 2.5rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .idea-form { display: flex; flex-direction: column; gap: 2rem; }
+  
+  .form-group { display: flex; flex-direction: column; gap: 0.75rem; }
+  .form-group label { font-weight: 600; font-size: 0.95rem; color: var(--color-text); }
+  .required { color: var(--color-primary); }
+
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  .field-help { font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+
+  /* File Input Estilizado */
+  .file-input-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 120px;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .file-input-wrapper:hover { border-color: var(--color-primary); background: rgba(var(--color-primary-rgb), 0.02); }
+  
+  .file-input-wrapper input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .file-dummy { text-align: center; color: var(--color-text-muted); }
+  .file-dummy i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+  .file-text { font-size: 0.9rem; font-weight: 500; }
+
+  .image-preview {
+    margin-top: 1rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    max-height: 300px;
+    display: none;
+    border: 1px solid var(--color-border);
+  }
+  .image-preview img { width: 100%; height: 100%; object-fit: contain; }
+
+  .btn-submit {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+  }
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(var(--color-primary-rgb), 0.4);
+  }
+  .btn-submit:disabled {
+    background: var(--color-surface-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 1;
+  }
+
+  @media (max-width: 640px) {
+    .form-container { padding: 1.5rem; }
+    .page-header h1 { font-size: 1.8rem; }
+  }
+</style>

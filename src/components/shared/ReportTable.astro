@@ -1,0 +1,416 @@
+---
+interface Props {
+  clientId?: string;
+  role: 'admin' | 'client';
+  id?: string;
+  allowDelete?: boolean;
+}
+
+const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.props;
+---
+
+<div 
+  class="reports-component" 
+  data-client-id={clientId} 
+  data-role={role} 
+  data-table-id={id}
+  data-allow-delete={allowDelete ? "true" : "false"}
+>
+  <div class="filters-bar">
+    <div class="search-input-wrapper">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="reportSearchInput" placeholder="Buscar por título..." autocomplete="off" />
+    </div>
+    <div class="filter-group">
+      <select class="reportProjectFilter select-filter">
+        <option value="">Todos los proyectos</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="report-table-container fade-in">
+    <table class="unified-report-table">
+      <thead>
+        <tr>
+          {role === 'admin' && !clientId && <th class="col-client">Cliente</th>}
+          <th class="sortable col-project" data-sort="projectName">Proyecto <i class="fas fa-sort"></i></th>
+          <th class="sortable col-title" data-sort="title">Título <i class="fas fa-sort"></i></th>
+          <th class="col-desc">Descripción</th>
+          <th class="sortable active col-date" data-sort="date">Fecha <i class="fas fa-sort-down"></i></th>
+          <th class="col-actions text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id={id}>
+        <tr>
+          <td colspan={role === 'admin' && !clientId ? "6" : "5"}>
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Cargando informes...</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  import { db, auth } from "../../lib/firebase/client";
+  import { onAuthStateChanged, type User } from "firebase/auth";
+  import { 
+    collection, 
+    query, 
+    where, 
+    orderBy, 
+    onSnapshot,
+    Timestamp,
+    getDocs
+  } from "firebase/firestore";
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+
+  // Inicializar todas las tablas de informes en la página
+  document.querySelectorAll('.reports-component').forEach(async container => {
+    const clientId = container.getAttribute('data-client-id');
+    const role = container.getAttribute('data-role');
+    const tableId = container.getAttribute('data-table-id');
+    const allowDelete = container.getAttribute('data-allow-delete') === 'true';
+    
+    const tableBody = document.getElementById(tableId!) as HTMLTableSectionElement;
+    const searchInput = container.querySelector('.reportSearchInput') as HTMLInputElement;
+    const projectFilter = container.querySelector('.reportProjectFilter') as HTMLSelectElement;
+    const sortHeaders = container.querySelectorAll('.sortable');
+
+    let allReports: any[] = [];
+    let allClients: any[] = [];
+    let currentToken = '';
+    let currentSort = { field: 'date', direction: 'desc' };
+    let unsubscribe: () => void;
+
+    // Cargar clientes en segundo plano si es admin y no hay clientId específico
+    const loadClientsPromise = (role === 'admin' && !clientId) 
+      ? getDocs(collection(db, 'users')).then(snapshot => {
+          allClients = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+          // Si ya se renderizaron informes, re-renderizar para mostrar nombres de clientes
+          if (allReports.length > 0) applyFiltersAndSort();
+        }).catch(e => console.error("Error cargando clientes:", e))
+      : Promise.resolve();
+
+    async function init() {
+      onAuthStateChanged(auth, async (user: User | null) => {
+        if (!user) {
+          if (unsubscribe) unsubscribe();
+          return;
+        }
+        currentToken = await user.getIdToken();
+        setupRealtimeListener(user.uid);
+      });
+    }
+
+    function setupRealtimeListener(userUid: string) {
+      if (unsubscribe) unsubscribe();
+
+      let reportsQuery;
+      const reportsCol = collection(db, 'reports');
+
+      if (role === 'client') {
+        reportsQuery = query(
+          reportsCol, 
+          where('clientId', '==', userUid),
+          orderBy('createdAt', 'desc')
+        );
+      } else if (role === 'admin' && clientId) {
+        reportsQuery = query(
+          reportsCol, 
+          where('clientId', '==', clientId),
+          orderBy('createdAt', 'desc')
+        );
+      } else {
+        reportsQuery = query(
+          reportsCol, 
+          orderBy('createdAt', 'desc')
+        );
+      }
+
+      unsubscribe = onSnapshot(reportsQuery, (snapshot) => {
+        allReports = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        populateProjectFilter();
+        applyFiltersAndSort();
+      }, (error) => {
+        console.error("Error en el listener de informes:", error);
+        if (tableBody) {
+          const colSpan = role === 'admin' && !clientId ? 6 : 5;
+          tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5 text-error">Error al sincronizar informes.</td></tr>`;
+        }
+      });
+    }
+
+    function populateProjectFilter() {
+      if (!projectFilter) return;
+      const projects = [...new Set(allReports.map(r => r.projectName).filter(Boolean))];
+      const options = projects.map(p => `<option value="${p}">${p}</option>`);
+      projectFilter.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
+    }
+
+    function applyFiltersAndSort() {
+      let filtered = [...allReports];
+      
+      const q = searchInput?.value.toLowerCase().trim();
+      if (q) {
+        filtered = filtered.filter(r => 
+          r.title.toLowerCase().includes(q) || 
+          (r.projectName || '').toLowerCase().includes(q)
+        );
+      }
+
+      const proj = projectFilter?.value;
+      if (proj) {
+        filtered = filtered.filter(r => r.projectName === proj);
+      }
+
+      filtered.sort((a, b) => {
+        let valA, valB;
+        
+        if (currentSort.field === 'date') {
+          valA = getTimestamp(a.createdAt);
+          valB = getTimestamp(b.createdAt);
+        } else {
+          valA = (a[currentSort.field] || '').toString().toLowerCase();
+          valB = (b[currentSort.field] || '').toString().toLowerCase();
+        }
+
+        if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderReports(filtered);
+    }
+
+    function getTimestamp(raw: any) {
+      if (raw instanceof Timestamp) return raw.toMillis();
+      if (raw?._seconds) return raw._seconds * 1000;
+      return new Date(raw).getTime();
+    }
+
+    searchInput?.addEventListener('input', applyFiltersAndSort);
+    projectFilter?.addEventListener('change', applyFiltersAndSort);
+
+    sortHeaders.forEach(h => {
+      h.addEventListener('click', () => {
+        const field = h.getAttribute('data-sort');
+        if (currentSort.field === field) {
+          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.field = field!;
+          currentSort.direction = 'asc';
+        }
+        
+        sortHeaders.forEach(header => {
+          header.classList.remove('active');
+          const icon = header.querySelector('i');
+          if (icon) icon.className = 'fas fa-sort';
+        });
+        
+        h.classList.add('active');
+        const icon = h.querySelector('i');
+        if (icon) icon.className = currentSort.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+        
+        applyFiltersAndSort();
+      });
+    });
+
+    function renderReports(reports: any[]) {
+      if (!tableBody) return;
+      const colSpan = role === 'admin' && !clientId ? 6 : 5;
+
+      if (reports.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5"><div class="empty-state"><i class="fas fa-folder-open"></i><h3>No se encontraron informes</h3></div></td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = reports.map(r => {
+        const client = allClients.find(c => c.uid === r.clientId);
+        const clientName = client ? (client.displayName || client.name) : 'Cargando...';
+        
+        return `
+        <tr>
+          ${role === 'admin' && !clientId ? `<td class="col-client" data-label="Cliente"><span class="client-name">${clientName}</span></td>` : ''}
+          <td class="col-project" data-label="Proyecto"><span class="project-badge">${r.projectName || 'General'}</span></td>
+          <td class="col-title" data-label="Título"><span class="report-title">${r.title}</span></td>
+          <td class="col-desc" data-label="Descripción"><span class="report-desc-col">${r.description || '-'}</span></td>
+          <td class="col-date col-date-data" data-label="Fecha">${fmtDate(r.createdAt)}</td>
+          <td class="col-actions text-center" data-label="Acciones">
+            <div class="td-actions">
+              <button class="btn-action-icon view-btn" data-id="${r.id}" title="Ver informe"><i class="fas fa-eye"></i></button>
+              <button class="btn-action-icon dl-btn" data-id="${r.id}" title="Descargar informe"><i class="fas fa-download"></i></button>
+              ${allowDelete ? `<button class="btn-action-icon delete-btn" data-id="${r.id}" title="Eliminar informe"><i class="fas fa-trash"></i></button>` : ''}
+            </div>
+          </td>
+        </tr>`}).join('');
+
+      tableBody.querySelectorAll('.view-btn').forEach(b =>
+        b.addEventListener('click', () => handleAction(b.getAttribute('data-id')!, 'view')));
+      tableBody.querySelectorAll('.dl-btn').forEach(b =>
+        b.addEventListener('click', () => handleAction(b.getAttribute('data-id')!, 'download')));
+      tableBody.querySelectorAll('.delete-btn').forEach(b =>
+        b.addEventListener('click', () => handleAction(b.getAttribute('data-id')!, 'delete')));
+    }
+
+    async function handleAction(id: string, action: string) {
+      if (action === 'delete') {
+        if (!confirm('¿Estás seguro de eliminar este informe?')) return;
+        try {
+          const res = await fetch(`${API_URL}/reports/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+          });
+          if (!res.ok) throw new Error();
+          // El listener actualizará la tabla
+        } catch {
+          alert('Error al eliminar el informe.');
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/reports/${id}/download`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` },
+        });
+        if (!res.ok) throw new Error();
+        const { url, fileName } = await res.json();
+        if (action === 'view') { window.open(url, '_blank'); return; }
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName; a.target = '_blank';
+        document.body.appendChild(a); a.click(); a.remove();
+      } catch {
+        alert('Error al obtener el informe.');
+      }
+    }
+
+    function fmtDate(raw: any) {
+      const d = new Date(getTimestamp(raw));
+      return d.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    init();
+  });
+</script>
+
+<style is:global>
+  /* Envolvemos en .reports-component para mantener el estilo local aunque sea global */
+  .reports-component { width: 100%; }
+  
+  .reports-component .filters-bar {
+    display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: center; flex-wrap: wrap;
+  }
+
+  .reports-component .search-input-wrapper { position: relative; flex: 1; min-width: 300px; }
+  .reports-component .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); }
+  .reports-component .search-input-wrapper input {
+    width: 100%; padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: var(--color-surface); color: var(--color-text);
+    font-family: inherit; font-size: 0.95rem; box-sizing: border-box;
+    transition: all 0.2s;
+  }
+  .reports-component .search-input-wrapper input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1); }
+
+  .reports-component .select-filter {
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: var(--color-surface); color: var(--color-text);
+    font-family: inherit; font-size: 0.95rem; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23FF0080'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.1rem;
+    cursor: pointer; min-width: 220px; transition: all 0.2s;
+  }
+  .reports-component .select-filter:focus { border-color: var(--color-primary); outline: none; }
+
+  .reports-component .report-table-container {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    overflow: hidden; margin-top: 1rem;
+  }
+
+  .reports-component .unified-report-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; }
+  
+  /* Cabeceras */
+  .reports-component .unified-report-table thead { background: rgba(0, 0, 0, 0.02); border-bottom: 2px solid var(--color-border); }
+  .reports-component .unified-report-table th {
+    padding: 1.25rem 1.5rem; font-size: 0.8rem; font-weight: 700; 
+    color: var(--color-text-muted); text-transform: uppercase; 
+    letter-spacing: 0.05em; border-right: 1px solid var(--color-border); vertical-align: middle;
+  }
+  .reports-component .unified-report-table th:last-child { border-right: none; }
+
+  /* Celda Ordenable */
+  .reports-component .sortable { cursor: pointer; transition: color 0.2s; user-select: none; }
+  .reports-component .sortable:hover { color: var(--color-primary); }
+  .reports-component .sortable.active { color: var(--color-primary); background: rgba(var(--color-primary-rgb), 0.02); }
+  .reports-component .sortable i { font-size: 0.75rem; margin-left: 0.4rem; opacity: 0.5; }
+  .reports-component .sortable.active i { opacity: 1; }
+
+  /* Celdas Body */
+  .reports-component .unified-report-table td { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); border-right: 1px solid var(--color-border); vertical-align: middle; }
+  .reports-component .unified-report-table td:last-child { border-right: none; }
+  .reports-component .unified-report-table tbody tr:last-child td { border-bottom: none; }
+  .reports-component .unified-report-table tbody tr { transition: background-color 0.2s; }
+  .reports-component .unified-report-table tbody tr:hover { background-color: rgba(var(--color-primary-rgb), 0.03); }
+
+  /* Columnas específicas con anchos más equilibrados */
+  .reports-component .col-client { width: 18%; min-width: 150px; }
+  .reports-component .col-project { width: 12%; min-width: 110px; }
+  .reports-component .col-title { width: 22%; min-width: 180px; }
+  .reports-component .col-desc { width: 25%; min-width: 200px; max-width: 300px; }
+  .reports-component .col-date { width: 11%; min-width: 110px; text-align: center; }
+  .reports-component .col-actions { width: 12%; min-width: 160px; text-align: center; }
+
+  .reports-component .project-badge { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .reports-component .client-name { font-weight: 600; color: var(--color-text); font-size: 0.9rem; }
+  
+  .reports-component .report-title { font-weight: 600; font-size: 0.95rem; color: var(--color-text); }
+  
+  .reports-component .report-desc-col { font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; display: block; width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .reports-component .col-date-data { text-align: center !important; color: var(--color-text-muted); font-size: 0.95rem; font-weight: 500; }
+
+  .reports-component .td-actions { display: flex; justify-content: center; gap: 2rem; width: 100%; }
+  
+  .reports-component .btn-action-icon {
+    background: transparent !important; border: none !important; padding: 0.5rem !important; color: var(--color-text-muted) !important;
+    cursor: pointer !important; transition: all 0.2s !important; font-size: 1.4rem !important; display: flex !important; align-items: center !important; justify-content: center !important;
+  }
+  .reports-component .btn-action-icon:hover { transform: scale(1.3) !important; }
+  
+  /* Colores específicos de hover con alta prioridad */
+  .reports-component .btn-action-icon.view-btn:hover { color: var(--color-primary) !important; filter: drop-shadow(0 0 8px rgba(var(--color-primary-rgb), 0.4)) !important; }
+  .reports-component .btn-action-icon.dl-btn:hover { color: #10b981 !important; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)) !important; }
+  .reports-component .btn-action-icon.delete-btn:hover { color: #ef4444 !important; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4)) !important; }
+
+  .reports-component .loading-state { text-align: center; padding: 3rem; color: var(--color-text-muted); }
+  .reports-component .loading-state i { font-size: 2rem; margin-bottom: 1.5rem; display: block; color: var(--color-primary); }
+  .reports-component .loading-state p { font-weight: 500; }
+
+  .reports-component .empty-state { text-align: center; padding: 3rem; color: var(--color-text-muted); }
+  .reports-component .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5; }
+  .reports-component .empty-state h3 { margin: 0; color: var(--color-text); font-size: 1.25rem; font-weight: 600; }
+
+  .reports-component .text-right { text-align: right; }
+  .reports-component .text-center { text-align: center; }
+  .reports-component .text-error { color: var(--color-error); font-weight: 600; }
+
+  @media (max-width: 1024px) {
+    .reports-component .unified-report-table thead { display: none; }
+    .reports-component .unified-report-table tr, .reports-component .unified-report-table td { display: block; width: 100%; border: none !important; }
+    .reports-component .unified-report-table tr { border-bottom: 2px solid var(--color-border) !important; padding: 1.5rem 0; }
+    .reports-component .unified-report-table td { padding: 0.5rem 1.5rem !important; }
+    .reports-component .unified-report-table td::before {
+      content: attr(data-label); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; color: var(--color-text-muted); display: block; margin-bottom: 0.25rem;
+    }
+    .reports-component .td-actions { justify-content: flex-start; margin-top: 1rem; }
+  }
+</style>

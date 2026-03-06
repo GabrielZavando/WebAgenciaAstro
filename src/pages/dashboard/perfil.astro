@@ -76,8 +76,6 @@ try {
           </div>
 
 
-          <div id="profileFeedback" class="feedback-message hidden"></div>
-
           <div class="form-actions">
             <button type="submit" class="btn-primary" id="saveProfileBtn">
               <span class="btn-text">Guardar Cambios</span>
@@ -104,8 +102,6 @@ try {
             <label for="confirmPassword">Confirmar Nueva Contraseña</label>
             <input type="password" id="confirmPassword" name="confirmPassword" required />
           </div>
-
-          <div id="passwordFeedback" class="feedback-message hidden"></div>
 
           <div class="form-actions">
             <button type="submit" class="btn-primary" id="savePasswordBtn">
@@ -136,7 +132,7 @@ try {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        if(profileFeedback) showFeedback(profileFeedback, 'La imagen supera los 2MB permitidos.', 'error');
+        (window as any).showToast('La imagen supera los 2MB permitidos.', 'error');
         avatarInput.value = '';
         return;
       }
@@ -146,17 +142,17 @@ try {
 
   profileForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if(!saveProfileBtn || !profileFeedback || !auth.currentUser) return;
+    if(!saveProfileBtn || !auth.currentUser) return;
 
     setLoading(saveProfileBtn, true);
     
     try {
       const token = await auth.currentUser.getIdToken();
       const formData = new FormData(profileForm);
-      // Opcionalmente podemos validar el size en cliente
+      
       if (avatarInput?.files?.[0]) {
         if (avatarInput.files[0].size > 2 * 1024 * 1024) {
-          showFeedback(profileFeedback, 'La imagen supera los 2MB permitidos.', 'error');
+          (window as any).showToast('La imagen supera los 2MB permitidos.', 'error');
           setLoading(saveProfileBtn, false);
           return;
         }
@@ -171,16 +167,13 @@ try {
       });
 
       if (response.ok) {
-        showFeedback(profileFeedback, 'Perfil actualizado correctamente.', 'success');
-        // Actualizar el DOM user.displayName en Firebase Client auth
-        // Esto es opcional ya que backend Firebase Admin ya lo hizo
-        // Usamos reload para que onAuthStateChanged se gatille rápido y descargue el nuevo avatar en la topbar
+        (window as any).showToast('Perfil actualizado correctamente.', 'success');
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        showFeedback(profileFeedback, 'Error al actualizar perfil.', 'error');
+        (window as any).showToast('Error al actualizar perfil.', 'error');
       }
     } catch (error) {
-      showFeedback(profileFeedback, 'Error de conexión.', 'error');
+      (window as any).showToast('Error de conexión.', 'error');
     } finally {
       setLoading(saveProfileBtn, false);
     }
@@ -194,13 +187,13 @@ try {
 
   passwordForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if(!savePasswordBtn || !passwordFeedback || !auth.currentUser) return;
+    if(!savePasswordBtn || !auth.currentUser) return;
 
     const newPassword = (document.getElementById('newPassword') as HTMLInputElement).value;
     const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement).value;
 
     if (newPassword !== confirmPassword) {
-      showFeedback(passwordFeedback, 'Las contraseñas no coinciden.', 'error');
+      (window as any).showToast('Las contraseñas no coinciden.', 'error');
       return;
     }
 
@@ -208,13 +201,13 @@ try {
     
     try {
       await updatePassword(auth.currentUser, newPassword);
-      showFeedback(passwordFeedback, 'Contraseña cambiada exitosamente.', 'success');
+      (window as any).showToast('Contraseña cambiada exitosamente.', 'success');
       passwordForm.reset();
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
-        showFeedback(passwordFeedback, 'Por seguridad, debes cerrar sesión y volver a entrar para cambiar tu contraseña.', 'error');
+        (window as any).showToast('Por seguridad, debes cerrar sesión y volver a entrar.', 'error');
       } else {
-        showFeedback(passwordFeedback, `Error: ${error.message}`, 'error');
+        (window as any).showToast(`Error: ${error.message}`, 'error');
       }
     } finally {
       setLoading(savePasswordBtn, false);
@@ -233,15 +226,6 @@ try {
       text?.classList.remove('hidden');
       loader?.classList.add('hidden');
     }
-  }
-
-  function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
-    el.textContent = message;
-    el.className = `feedback-message ${type}`;
-    // Limpiar después de unos segundos
-    setTimeout(() => {
-      el.className = 'feedback-message hidden';
-    }, 5000);
   }
 </script>
 
@@ -304,8 +288,8 @@ try {
   /* Avatar Redesign */
   .avatar-section { display: flex; align-items: center; gap: 2rem; margin-bottom: 0.5rem; }
   .avatar-container { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
-  .profile-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-background); box-shadow: var(--shadow-sm); background: var(--color-surface); }
-  .avatar-edit-btn { position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text); transition: all 0.2s; padding: 0; }
+  .profile-avatar { width: 100%; height: 100%; border-radius: 0; object-fit: cover; border: 3px solid var(--color-background); box-shadow: var(--shadow-sm); background: var(--color-surface); }
+  .avatar-edit-btn { position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 0; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text); transition: all 0.2s; padding: 0; }
   .avatar-edit-btn:hover { background: var(--color-background-hover); color: var(--color-primary); transform: translateY(-2px); }
   .hidden-file-input { display: none; }
   .user-name-display h2 { margin: 0; font-size: 2rem; color: var(--color-text); letter-spacing: -0.02em; }
@@ -362,15 +346,21 @@ try {
     display: none;
   }
 
+  .hidden {
+    display: none !important;
+  }
   .loader {
     width: 20px;
     height: 20px;
     border: 2px solid #ffffff;
     border-bottom-color: transparent;
     border-radius: 50%;
-    display: inline-block;
+    display: none;
     box-sizing: border-box;
     animation: rotation 1s linear infinite;
+  }
+  .loader:not(.hidden) {
+    display: inline-block;
   }
   @keyframes rotation {
     0% { transform: rotate(0deg); }

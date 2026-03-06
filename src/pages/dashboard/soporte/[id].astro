@@ -51,7 +51,7 @@ const getStatusInfo = (status: string) => {
   const map: Record<string, { label: string; className: string; icon: string }> = {
     open: { label: 'Enviado', className: 'status-open', icon: 'fas fa-paper-plane' },
     'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'fas fa-hourglass-half' },
-    resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check-circle' },
+    resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check' },
   };
   return map[status] || map.open;
 };
@@ -99,7 +99,7 @@ if (ticket) {
         {ticket.projectName && (
           <div class="meta-item">
             <span class="meta-label">Proyecto</span>
-            <span class="meta-value"><i class="fas fa-folder" style="color: var(--color-text-muted); margin-right: 0.25rem;"></i> {ticket.projectName}</span>
+            <span class="meta-value">{ticket.projectName}</span>
           </div>
         )}
         <div class="meta-item">
@@ -127,13 +127,17 @@ if (ticket) {
         )}
       </div>
 
-      <div class="conversation">
-        <!-- Client initial message -->
+      <div class="conversation" id="conversationBox">
+        <!-- Mensaje inicial del cliente -->
         <div class="message client-message">
           <div class="message-header">
             <div class="user-info">
-              <div class="avatar client-avatar">
-                <i class="fas fa-user"></i>
+              <div class="avatar-wrapper">
+                {ticket.clientPhotoUrl ? (
+                  <img src={ticket.clientPhotoUrl} alt="Avatar" class="msg-avatar-img" />
+                ) : (
+                  <div class="msg-avatar-placeholder client"></div>
+                )}
               </div>
               <div class="name-time">
                 <strong>Tú (Cliente)</strong>
@@ -142,54 +146,215 @@ if (ticket) {
             </div>
           </div>
           <div class="message-body">
-            {ticket.message.split('\n').map((line: string) => (
-              <p>{line}</p>
-            ))}
-            
+            {ticket.message.split('\n').map((line: string) => (<p>{line}</p>))}
             {ticket.attachmentUrl && (
               <div class="attachment-container">
                 <hr class="attachment-divider" />
                 <p class="attachment-label"><i class="fas fa-paperclip"></i> Archivo Adjunto</p>
                 <a href={ticket.attachmentUrl} target="_blank" rel="noopener noreferrer" class="attachment-link">
-                  <img src={ticket.attachmentUrl} alt="Adjunto del ticket" class="ticket-attachment-img" />
+                  <img src={ticket.attachmentUrl} alt="Adjunto" class="ticket-attachment-img" />
                 </a>
               </div>
             )}
           </div>
         </div>
-
-        <!-- Admin Response (if any) -->
-        {ticket.adminResponse ? (
-          <div class="message admin-message">
-            <div class="message-header">
-              <div class="user-info">
-                <div class="avatar admin-avatar">
-                  <i class="fas fa-headset"></i>
-                </div>
-                <div class="name-time">
-                  <strong>Equipo de Soporte</strong>
-                  <span class="time">{formatFullDate(ticket.updatedAt)}</span>
-                </div>
-              </div>
-            </div>
-            <div class="message-body">
-              {ticket.adminResponse.split('\n').map((line: string) => (
-                <p>{line}</p>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div class="waiting-response">
-            <div class="loader-pulse"></div>
-            <p>El equipo de soporte está revisando tu caso. Recibirás una respuesta pronto.</p>
-          </div>
-        )}
       </div>
+
+      <!-- Banner de ticket resuelto -->
+      {ticket.status === 'resolved' && (
+        <div class="resolved-banner">
+          <i class="fas fa-check-circle"></i>
+          <span>Este ticket está <strong>resuelto</strong>. Ya no se pueden enviar más mensajes.</span>
+        </div>
+      )}
+
+      <!-- Formulario de respuesta del cliente (solo si no está resuelto) -->
+      {ticket.status !== 'resolved' && (
+        <div class="message client-message reply-area" id="replyArea">
+          <div class="message-header">
+            <div class="user-info">
+              <div class="avatar-wrapper">
+                <div class="msg-avatar-placeholder client" id="replyAvatarContainer"></div>
+              </div>
+              <div class="name-time"><strong>Responder al Equipo de Soporte</strong></div>
+            </div>
+          </div>
+          <div class="message-body">
+            <form id="clientReplyForm" data-id={ticket.id}>
+              <textarea name="body" placeholder="Escribe tu mensaje para el equipo de soporte..." rows="4" required></textarea>
+              <div class="attachment-input-wrapper" style="margin-top: 0.5rem;">
+                <label for="clientAttachment" style="font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-surface); padding: 0.5rem; border: 1px dashed var(--color-border); width: 100%; box-sizing: border-box;">
+                  <i class="fas fa-image"></i>
+                  <span>Adjuntar imagen (opcional)</span>
+                  <input type="file" id="clientAttachment" name="attachment" accept="image/*" style="display: none;" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
+                </label>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 0.75rem;">
+                <button type="submit" class="btn-primary">
+                  <span class="btn-text"><i class="fas fa-paper-plane"></i> Enviar Mensaje</span>
+                  <span class="loader hidden"></span>
+                </button>
+              </div>
+              <div class="feedback-message hidden" id="replyFeedback"></div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )}
 </DashboardLayout>
 
-<style>
+<script>
+  import { auth } from '../../../lib/firebase/client';
+  import { onAuthStateChanged } from 'firebase/auth';
+
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  const ticketId = window.location.pathname.split('/').pop()!;
+  let token = '';
+
+  function fmtDate(raw: any): string {
+    if (!raw) return '';
+    const d = raw._seconds ? new Date(raw._seconds * 1000) : new Date(raw);
+    if (isNaN(d.getTime())) return '';
+    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+  }
+
+  function renderMessages(messages: any[]) {
+    const box = document.getElementById('conversationBox')!;
+    if (!messages.length) return;
+    
+    // Mantener el primer mensaje (el del servidor) y limpiar el resto
+    const initialMsg = box.firstElementChild;
+    box.innerHTML = '';
+    if (initialMsg) box.appendChild(initialMsg);
+    
+    const clientPhotoUrl = document.querySelector('.client-message .msg-avatar-img')?.getAttribute('src') || '';
+    
+    messages.forEach(m => {
+      const isAdmin = m.senderRole === 'admin';
+      
+      let avatarHtml = '';
+      if (m.senderPhotoUrl) {
+        avatarHtml = `<img src="${m.senderPhotoUrl}" alt="Avatar" class="msg-avatar-img" />`;
+      } else if (!isAdmin && clientPhotoUrl) {
+        avatarHtml = `<img src="${clientPhotoUrl}" alt="Avatar" class="msg-avatar-img" />`;
+      } else if (!isAdmin) {
+        avatarHtml = `<div class="msg-avatar-placeholder client"></div>`;
+      } else {
+        avatarHtml = `<div class="msg-avatar-placeholder admin"><i class="fas fa-headset"></i></div>`;
+      }
+      
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${isAdmin ? 'admin-message' : 'client-message'}`;
+      msgDiv.innerHTML = `
+          <div class="message-header">
+            <div class="user-info">
+              <div class="avatar-wrapper">
+                ${avatarHtml}
+              </div>
+              <div class="name-time">
+                <strong>${isAdmin ? 'Equipo de Soporte' : 'Tú'}</strong>
+                <span class="time">${fmtDate(m.createdAt)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="message-body">
+            ${m.body.split('\n').map((l: string) => `<p>${l}</p>`).join('')}
+            ${m.attachmentUrl ? `
+              <div class="attachment-container">
+                <p class="attachment-label"><i class="fas fa-paperclip"></i> Archivo Adjunto</p>
+                <a href="${m.attachmentUrl}" target="_blank" rel="noopener noreferrer">
+                  <img src="${m.attachmentUrl}" alt="Adjunto" class="ticket-attachment-img" />
+                </a>
+              </div>` : ''}
+          </div>`;
+      box.appendChild(msgDiv);
+    });
+  }
+
+  async function loadMessages() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/support/tickets/${ticketId}/messages`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) renderMessages(await res.json());
+    } catch {}
+  }
+
+  const form = document.getElementById('clientReplyForm') as HTMLFormElement | null;
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const feedback = document.getElementById('replyFeedback') as HTMLElement;
+      const bodyEl = form.querySelector<HTMLTextAreaElement>('[name="body"]')!;
+      const body = bodyEl.value.trim();
+      if (!body) return;
+
+      submitBtn.disabled = true;
+      submitBtn.querySelector('.btn-text')?.classList.add('hidden');
+      submitBtn.querySelector('.loader')?.classList.remove('hidden');
+
+      try {
+        const formData = new FormData();
+        formData.append('body', body);
+        formData.append('senderRole', 'client');
+        if (auth.currentUser?.photoURL) {
+          formData.append('senderPhotoUrl', auth.currentUser.photoURL);
+        }
+        const fileInput = form.querySelector<HTMLInputElement>('[name="attachment"]');
+        if (fileInput?.files?.[0]) {
+          formData.append('attachment', fileInput.files[0]);
+        }
+
+        const res = await fetch(`${API_URL}/support/tickets/${ticketId}/messages`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) throw new Error('Error al enviar el mensaje');
+        bodyEl.value = '';
+        if (fileInput) fileInput.value = '';
+        const fileLabel = form.querySelector('.attachment-input-wrapper span');
+        if (fileLabel) fileLabel.textContent = 'Adjuntar imagen (opcional)';
+        
+        feedback.textContent = 'Mensaje enviado correctamente.';
+        feedback.className = 'feedback-message success';
+        await loadMessages();
+      } catch (err: any) {
+        feedback.textContent = err.message || 'Error al enviar';
+        feedback.className = 'feedback-message error';
+        setTimeout(() => { feedback.className = 'feedback-message hidden'; }, 4000);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-text')?.classList.remove('hidden');
+        submitBtn.querySelector('.loader')?.classList.add('hidden');
+      }
+    });
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      token = await user.getIdToken();
+      
+      // Actualizar avatar en el área de respuesta
+      const replyAvatarContainer = document.getElementById('replyAvatarContainer');
+      if (replyAvatarContainer) {
+        if (user.photoURL) {
+          replyAvatarContainer.innerHTML = `<img src="${user.photoURL}" alt="Avatar" class="msg-avatar-img" />`;
+        } else {
+          replyAvatarContainer.innerHTML = `<div class="msg-avatar-placeholder client"></div>`;
+        }
+      }
+
+      await loadMessages();
+    }
+  });
+</script>
+
+<style is:global>
   .header-actions {
     margin-bottom: 1.5rem;
   }
@@ -218,7 +383,7 @@ if (ticket) {
     background: rgba(var(--color-error-rgb), 0.1);
     color: var(--color-error);
     padding: 1rem;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -236,7 +401,7 @@ if (ticket) {
   .ticket-meta-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     box-shadow: var(--shadow-sm);
     padding: 1.5rem;
     display: flex;
@@ -268,7 +433,7 @@ if (ticket) {
     font-family: monospace;
     background: rgba(150, 150, 150, 0.1);
     padding: 0.2rem 0.6rem;
-    border-radius: 4px;
+    border-radius: 0;
     letter-spacing: 1px;
     color: var(--color-text-muted);
   }
@@ -278,7 +443,7 @@ if (ticket) {
     font-size: 0.85rem;
     font-weight: 600;
     padding: 0.3rem 0.8rem;
-    border-radius: 999px;
+    border-radius: 0;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -291,32 +456,102 @@ if (ticket) {
   .priority-badge-wrapper {
     display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; font-weight: 500; color: var(--color-text); text-transform: capitalize;
   }
-  .priority-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .priority-dot { width: 12px; height: 12px; border-radius: 0; display: inline-block; }
 
   .resolved-date { color: #22c55e; font-weight: 600; }
+
+  .resolved-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 0;
+    color: #22c55e;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+  .feedback-message {
+    padding: 0.75rem 1rem;
+    border-radius: 0;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  .feedback-message.error { background: rgba(var(--color-error-rgb), 0.1); color: var(--color-error); }
+  .feedback-message.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+  .hidden { display: none !important; }
+
+  .loader {
+    width: 16px; height: 16px;
+    border: 2px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 0;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
+  }
 
   /* Conversacion */
   .conversation {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    border: 2px solid var(--color-border);
+    padding: 1.5rem;
   }
 
   .message {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    padding: 1.5rem;
+    border-radius: 0;
+    background: var(--color-background);
   }
-
   .message-header {
-    background: rgba(0, 0, 0, 0.02);
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .user-info {
@@ -328,15 +563,15 @@ if (ticket) {
   .avatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 1.1rem;
   }
-  .client-avatar { background: var(--color-primary); }
-  .admin-avatar { background: #3b82f6; }
+  .client-avatar { background: var(--color-text-muted); }
+  .admin-avatar { background: var(--color-primary); }
 
   .name-time {
     display: flex;
@@ -352,7 +587,7 @@ if (ticket) {
   }
 
   .message-body {
-    padding: 1.5rem;
+    padding: 0 1.5rem 1.5rem 1.5rem;
     color: var(--color-text);
     line-height: 1.6;
     font-size: 0.95rem;
@@ -360,6 +595,92 @@ if (ticket) {
   .message-body p {
     margin-top: 0;
     margin-bottom: 1rem;
+  }
+  .message-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .attachment-container {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+
+  .client-message {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+    align-self: flex-end !important;
+    width: 50% !important;
+  }
+
+  .admin-message {
+    border: 1px solid var(--color-border) !important;
+    align-self: flex-start !important;
+    width: 50% !important;
+    background: rgba(var(--color-neutral-rgb), 0.05) !important;
+  }
+  
+  html[data-theme="dark"] .admin-message {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .message.admin-message.focus-message,
+  .message.client-message.reply-area {
+    width: 100% !important;
+    align-self: stretch !important;
+    background: var(--color-surface) !important;
+    border: 2px solid var(--color-primary) !important;
+  }
+
+  .avatar-wrapper {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .msg-avatar-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    display: block;
+  }
+
+  .msg-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+  }
+  .msg-avatar-placeholder.client { background: #ccc; }
+  .msg-avatar-placeholder.admin { background: var(--color-primary); }
+
+  .meta-avatar-img {
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: cover;
+    margin-right: 0.5rem;
+    display: block;
+  }
+
+  .message-header {
+    border-bottom: none !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  /* Forzar diseño flat absoluto */
+  * {
+    border-radius: 0 !important;
+  }
+
+  .reply-area {
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    align-self: flex-start;
+    width: 50%;
   }
   .message-body p:last-child {
     margin-bottom: 0;
@@ -382,7 +703,7 @@ if (ticket) {
   .ticket-attachment-img {
     max-width: 100%;
     max-height: 400px;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     border: 1px solid var(--color-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -393,8 +714,12 @@ if (ticket) {
 
   /* Distingue mensaje de admin */
   .admin-message {
-    border-left: 4px solid #3b82f6;
-    margin-left: 2rem;
+    border: 1px solid var(--color-border);
+    align-self: flex-end;
+    width: 50%;
+    border-radius: 0;
+    border-top-right-radius: 0;
+    background: #f8fafc;
   }
 
   .waiting-response {
@@ -403,7 +728,7 @@ if (ticket) {
     text-align: center;
     background: rgba(var(--color-primary-rgb), 0.03);
     border: 1px dashed var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     color: var(--color-text-muted);
     display: flex;
     flex-direction: column;
@@ -415,7 +740,7 @@ if (ticket) {
     width: 12px;
     height: 12px;
     background-color: var(--color-primary);
-    border-radius: 50%;
+    border-radius: 0;
     animation: pulse 1.5s infinite ease-in-out;
   }
 
