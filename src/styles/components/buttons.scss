@@ -1,5 +1,6 @@
 // Importación del sistema de configuración (solo para funciones)
-@use '../config' as *;
+@use "sass:color";
+@use "../config" as *;
 
 // Estilos base para todos los botones
 .btn {
@@ -408,7 +409,7 @@
   box-shadow: var(--shadow-sm);
   
   &:hover {
-    background-color: darken(#ef4444, 10%);
+    background-color: color.adjust(#ef4444, $lightness: -10%);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
