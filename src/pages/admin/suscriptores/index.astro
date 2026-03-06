@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import ModalConfirm from "../../../components/shared/ModalConfirm.astro";
 
 // Obtenemos el endpoint desde el env o formamos uno por default
 const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -128,6 +129,23 @@ const formatDate = (dateValue: any) => {
       )}
     </main>
   </div>
+  <ModalConfirm 
+    slot="modals"
+    id="confirmCampaignModal"
+    title="¿Enviar Campaña?"
+    message="¿Estás seguro de que deseas enviar el email de re-confirmación a todos los suscriptores no confirmados? Esto puede tardar unos minutos."
+    confirmText="Enviar ahora"
+    type="info"
+  />
+
+  <ModalConfirm 
+    slot="modals"
+    id="confirmCleanupModal"
+    title="¿Limpiar Inactivos?"
+    message="¿Estás seguro de que deseas marcar como INACTIVOS a los suscriptores que no han confirmado en los últimos 7 días? Esta acción no borra los registros, solo cambia su estado."
+    confirmText="Limpiar ahora"
+    type="danger"
+  />
 </DashboardLayout>
 
 <style>
@@ -407,54 +425,62 @@ const formatDate = (dateValue: any) => {
   // Campaña de Re-confirmación
   document.getElementById('btnCampaign')?.addEventListener('click', async () => {
     const btn = document.getElementById('btnCampaign');
-    if (!confirm('¿Enviar email de re-confirmación a todos los suscriptores no confirmados?\nEsto puede tardar unos minutos.')) return;
-    setLoading(btn, true);
-    try {
-      const res = await fetch(
-        `${API}/forms/admin/subscribers/reconfirmation-campaign`,
-        { method: 'POST' },
-      );
-      const data = await res.json();
-      const lines = [
-        `✅ Enviados: ${data.sent}`,
-        `⚠️  Omitidos: ${data.skipped}`,
-        `❌ Errores: ${data.errors}`,
-        '',
-        ...(data.details ?? []),
-      ].join('\n');
-      showResult('📧 Resultado de la Campaña', lines);
-    } catch (e) {
-      showResult('❌ Error', `No se pudo ejecutar la campaña: ${e.message}`);
-    } finally {
-      setLoading(btn, false);
-    }
+    
+    if (!window.confirmModalHelpers) return;
+    
+    window.confirmModalHelpers.open('confirmCampaignModal', async () => {
+      setLoading(btn, true);
+      try {
+        const res = await fetch(
+          `${API}/forms/admin/subscribers/reconfirmation-campaign`,
+          { method: 'POST' },
+        );
+        const data = await res.json();
+        const lines = [
+          `✅ Enviados: ${data.sent}`,
+          `⚠️  Omitidos: ${data.skipped}`,
+          `❌ Errores: ${data.errors}`,
+          '',
+          ...(data.details ?? []),
+        ].join('\n');
+        showResult('📧 Resultado de la Campaña', lines);
+      } catch (e) {
+        showResult('❌ Error', `No se pudo ejecutar la campaña: ${e.message}`);
+      } finally {
+        setLoading(btn, false);
+      }
+    });
   });
 
   // Limpieza de Inactivos
   document.getElementById('btnCleanup')?.addEventListener('click', async () => {
     const btn = document.getElementById('btnCleanup');
-    if (!confirm('¿Marcar como INACTIVOS a los suscriptores que no confirmaron en los últimos 7 días?\nEsta acción no borra registros, solo cambia su estado.')) return;
-    setLoading(btn, true);
-    try {
-      const res = await fetch(
-        `${API}/forms/admin/subscribers/cleanup-inactive`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ daysThreshold: 7 }),
-        },
-      );
-      const data = await res.json();
-      const lines = [
-        `🗑️  Marcados como inactivos: ${data.marked} de ${data.total}`,
-        '',
-        ...(data.details ?? []),
-      ].join('\n');
-      showResult('🧹 Resultado de la Limpieza', lines);
-    } catch (e) {
-      showResult('❌ Error', `No se pudo ejecutar la limpieza: ${e.message}`);
-    } finally {
-      setLoading(btn, false);
-    }
+    
+    if (!window.confirmModalHelpers) return;
+
+    window.confirmModalHelpers.open('confirmCleanupModal', async () => {
+      setLoading(btn, true);
+      try {
+        const res = await fetch(
+          `${API}/forms/admin/subscribers/cleanup-inactive`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ daysThreshold: 7 }),
+          },
+        );
+        const data = await res.json();
+        const lines = [
+          `🗑️  Marcados como inactivos: ${data.marked} de ${data.total}`,
+          '',
+          ...(data.details ?? []),
+        ].join('\n');
+        showResult('🧹 Resultado de la Limpieza', lines);
+      } catch (e) {
+        showResult('❌ Error', `No se pudo ejecutar la limpieza: ${e.message}`);
+      } finally {
+        setLoading(btn, false);
+      }
+    });
   });
 </script>

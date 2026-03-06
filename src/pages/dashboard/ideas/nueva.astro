@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -62,6 +63,22 @@ if (!token) {
       </form>
     </div>
   </div>
+
+  <ModalMessage 
+    slot="modals"
+    id="successIdeaModal"
+    title="¡Idea Recibida!"
+    message="¡Gracias! Tu idea ha sido recibida correctamente. La revisaremos pronto."
+    type="success"
+  />
+
+  <ModalMessage 
+    slot="modals"
+    id="errorIdeaModal"
+    title="Hubo un Problema"
+    message="Hubo un problema al enviar tu idea. Por favor, inténtalo de nuevo más tarde."
+    type="error"
+  />
 </DashboardLayout>
 
 <script>
@@ -125,14 +142,25 @@ if (!token) {
       });
 
       if (response.ok) {
-        alert('¡Gracias! Tu idea ha sido recibida correctamente.');
-        window.location.href = '/dashboard/herramientas';
+        if (window.modalHelpers) {
+          window.modalHelpers.openModal('successIdeaModal');
+          setTimeout(() => {
+            window.location.href = '/dashboard/herramientas';
+          }, 2500);
+        } else {
+          alert('¡Gracias! Tu idea ha sido recibida correctamente.');
+          window.location.href = '/dashboard/herramientas';
+        }
       } else {
         throw new Error('Error al enviar la idea');
       }
     } catch (error) {
       console.error(error);
-      alert('Hubo un problema al enviar tu idea. Por favor, inténtalo de nuevo.');
+      if (window.modalHelpers) {
+        window.modalHelpers.openModal('errorIdeaModal');
+      } else {
+        alert('Hubo un problema al enviar tu idea. Por favor, inténtalo de nuevo.');
+      }
       submitBtn.disabled = false;
       submitBtn.innerHTML = 'Enviar idea <i class="fas fa-paper-plane"></i>';
     }

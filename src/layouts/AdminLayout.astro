@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Logo from "../assets/img/logo-medium.png";
+import ToastContainer from "../components/shared/ToastContainer.astro";
 
 interface Props {
   title: string;
@@ -95,6 +96,9 @@ const { title } = Astro.props;
         </div>
       </main>
     </div>
+
+    <slot name="modals" />
+    <ToastContainer />
 
     <script>
       import { signOut, onAuthStateChanged } from "firebase/auth";

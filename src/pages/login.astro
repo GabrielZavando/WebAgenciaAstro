@@ -3,6 +3,7 @@ import AuthLayout from '../layouts/AuthLayout.astro';
 import { Image } from 'astro:assets';
 import banner from '../assets/img/banner-web.jpg';
 import logo from '../assets/img/logo-full.png';
+import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
 ---
 
 <AuthLayout title="Iniciar Sesión | Agencia Digital">
@@ -45,7 +46,7 @@ import logo from '../assets/img/logo-full.png';
           />
         </div>
         
-        <div class="form-group">
+        <div class="form-group password-group">
           <label for="password" class="form-label">Contraseña</label>
           <input 
             type="password" 
@@ -54,6 +55,9 @@ import logo from '../assets/img/logo-full.png';
             placeholder="••••••••" 
             class="form-input"
           />
+          <div class="forgot-password-wrapper">
+            <button type="button" id="openForgotBtn" class="forgot-link">¿Olvidaste tu contraseña?</button>
+          </div>
         </div>
 
         <div id="errorMessage" class="error-message"></div>
@@ -63,6 +67,8 @@ import logo from '../assets/img/logo-full.png';
         </button>
       </div>
     </div>
+
+    <ForgotPasswordModal />
 
     <!-- Footer pegado al borde inferior -->
     <footer class="login-footer">
@@ -81,6 +87,7 @@ import logo from '../assets/img/logo-full.png';
   const loginForm = document.getElementById('loginForm');
   const emailInput = document.getElementById('email') as HTMLInputElement;
   const passwordInput = document.getElementById('password') as HTMLInputElement;
+  const openForgotBtn = document.getElementById('openForgotBtn');
 
   // Función para validar campos y habilitar/deshabilitar botón
   const validateFields = () => {
@@ -174,10 +181,14 @@ import logo from '../assets/img/logo-full.png';
       
       errorMessage.textContent = msg;
       
-      // Reset button
-      loginBtn.disabled = false;
-      loginBtn.classList.remove('loading');
       validateFields();
+    }
+  });
+
+  // Abrir modal de recuperación
+  openForgotBtn?.addEventListener('click', () => {
+    if ((window as any).openForgotPasswordModal) {
+      (window as any).openForgotPasswordModal();
     }
   });
 </script>
@@ -297,6 +308,33 @@ import logo from '../assets/img/logo-full.png';
 
   .form-group {
     margin-bottom: 1.5rem;
+    
+    &.password-group {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .forgot-password-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .forgot-link {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s;
+    font-family: var(--font-primary);
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
   }
 
   .form-label {

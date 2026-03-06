@@ -3,6 +3,8 @@ import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import TicketManagementSystem from '../../../components/admin/TicketManagementSystem.astro';
 import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
 import ReportTable from '../../../components/shared/ReportTable.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
@@ -198,18 +200,66 @@ if (!user && !errorMsg) {
               </div>
               <div class="form-group">
                 <label for="password">Nueva Contraseña (Opcional)</label>
-                <input type="password" id="password" name="password" placeholder="Dejar en blanco para no cambiar" />
+                <input type="password" id="password" name="password" placeholder="Ej: Admin123!" minlength="8" />
+                <p class="help-text-mini">Mínimo 8 caracteres, incluyendo mayúsculas, números y caracteres especiales.</p>
               </div>
             </div>
             <p class="form-legend">(*) Campos obligatorios</p>
             <div id="formFeedback" class="feedback-message hidden"></div>
-            <div class="form-actions">
-              <button type="button" class="btn-secondary btn-cancel-profile">Cancelar</button>
-              <button type="submit" class="btn-primary" id="submitBtn" disabled>Guardar Cambios</button>
+            <div class="form-actions" style="justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 2rem;">
+              <button type="button" class="btn-danger-outline btn-delete-user" id="openDeleteModal">
+                <i class="fas fa-user-times"></i> Eliminar Usuario
+              </button>
+              <div class="main-form-actions" style="display: flex; gap: 1rem;">
+                <button type="button" class="btn-secondary btn-cancel-profile">Cancelar</button>
+                <button type="submit" class="btn-primary" id="submitBtn" disabled>Guardar Cambios</button>
+              </div>
             </div>
           </form>
         </div>
       </div>
+
+      <ModalConfirm 
+        slot="modals"
+        id="deleteUserModal"
+        title="¿Eliminar Usuario?"
+        message="¿Estás seguro de que deseas eliminar permanentemente a este usuario? Esta acción no se puede deshacer y el usuario perderá el acceso inmediatamente."
+        confirmText="Eliminar permanentemente"
+        type="danger"
+      />
+
+      <ModalConfirm 
+        slot="modals"
+        id="confirmDeleteProjectModal"
+        title="¿Eliminar Proyecto?"
+        message="¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer."
+        confirmText="Eliminar proyecto"
+        type="danger"
+      />
+
+      <ModalMessage 
+        slot="modals"
+        id="errorServerModal"
+        title="Error de Conexión"
+        message="Hubo un problema al conectar con el servidor. Por favor, inténtalo de nuevo más tarde."
+        type="error"
+      />
+
+      <ModalMessage 
+        slot="modals"
+        id="successStorageModal"
+        title="Cuota Actualizada"
+        message="La cuota de almacenamiento ha sido actualizada correctamente."
+        type="success"
+      />
+
+      <ModalMessage 
+        slot="modals"
+        id="errorGenericModal"
+        title="Error"
+        message="Ocurrió un error inesperado al procesar la solicitud."
+        type="error"
+      />
 
       <!-- Sección: Proyectos Detallado -->
       <div id="section-projects" class="detail-section hidden">
@@ -386,6 +436,7 @@ if (!user && !errorMsg) {
 
     document.addEventListener('DOMContentLoaded', async () => {
       const API_URL = (import.meta as any).env.PUBLIC_API_URL || 'http://localhost:8080';
+      const { validatePassword } = await import('../../../lib/utils/security');
       const summaryView = document.getElementById('summaryView');
       const interactiveCards = document.querySelectorAll('.interactive-card');
       const detailSections = document.querySelectorAll('.detail-section');
@@ -459,7 +510,16 @@ if (!user && !errorMsg) {
           const formData = new FormData(editForm);
           const data = Object.fromEntries(formData.entries());
 
-          if (!data.password) delete data.password;
+          if (data.password) {
+            const validation = validatePassword(data.password as string);
+            if (!validation.isValid) {
+              showFeedback('formFeedback', validation.errors[0], 'error');
+              setLoading(profileSubmitBtn, false, 'Guardar Cambios');
+              return;
+            }
+          } else {
+            delete data.password;
+          }
           
           setLoading(profileSubmitBtn, true, 'Guardar Cambios');
           try {
@@ -482,6 +542,29 @@ if (!user && !errorMsg) {
           } finally {
             setLoading(profileSubmitBtn, false, 'Guardar Cambios');
           }
+        });
+
+        // --- Borrado de Usuario ---
+        const openDeleteBtn = document.getElementById('openDeleteModal');
+        openDeleteBtn?.addEventListener('click', () => {
+          const userId = editForm.dataset.userid;
+          (window as any).confirmModalHelpers.open('deleteUserModal', async () => {
+            try {
+              const { auth } = await import('../../../lib/firebase/client');
+              const token = await auth.currentUser?.getIdToken();
+              const res = await fetch(`${API_URL}/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              
+              if (!res.ok) throw new Error('Error al eliminar usuario');
+              
+              (window as any).showToast('Usuario eliminado correctamente', 'success');
+              setTimeout(() => window.location.href = '/admin/usuarios', 1500);
+            } catch (err: any) {
+              (window as any).showToast(err.message, 'error');
+            }
+          });
         });
       }
 
@@ -575,19 +658,24 @@ if (!user && !errorMsg) {
       document.querySelectorAll('.btn-delete-project').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const projectId = (btn as HTMLElement).dataset.id;
-          if (!projectId || !confirm('¿Eliminar este proyecto?')) return;
+          if (!projectId) return;
 
-          try {
-            const { auth } = await import('../../../lib/firebase/client');
-            const token = await auth.currentUser?.getIdToken();
-            const res = await fetch(`${API_URL}/projects/${projectId}`, {
-              method: 'DELETE',
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) window.location.reload();
-          } catch (err) {
-            alert('Error al conectar con el servidor.');
-          }
+          if (!(window as any).confirmModalHelpers) return;
+
+          (window as any).confirmModalHelpers.open('confirmDeleteProjectModal', async () => {
+            try {
+              const { auth } = await import('../../../lib/firebase/client');
+              const token = await auth.currentUser?.getIdToken();
+              const res = await fetch(`${API_URL}/projects/${projectId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (res.ok) window.location.reload();
+              else throw new Error('No se pudo eliminar el proyecto.');
+            } catch (err) {
+              if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorServerModal');
+            }
+          });
         });
       });
 
@@ -628,10 +716,20 @@ if (!user && !errorMsg) {
           });
 
           if (!res.ok) throw new Error('Error al actualizar almacenamiento.');
-          alert('Cuota actualizada correctamente.');
-          window.location.reload();
+          
+          if ((window as any).modalHelpers) {
+            (window as any).modalHelpers.openModal('successStorageModal');
+            setTimeout(() => window.location.reload(), 2000);
+          } else {
+            window.location.reload();
+          }
         } catch (err: any) {
-          alert(err.message);
+          if ((window as any).modalHelpers) {
+            (window as any).modalHelpers.updateModalMessage('errorGenericModal', err.message);
+            (window as any).modalHelpers.openModal('errorGenericModal');
+          } else {
+            alert(err.message);
+          }
         } finally {
           setLoading(btn, false, 'Actualizar Cuota');
         }

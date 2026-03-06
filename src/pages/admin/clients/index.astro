@@ -1,6 +1,7 @@
 
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
@@ -8,7 +9,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
       <h2>Clientes</h2>
       <!-- Crear cliente podría ser invitando por email o creando user. Por ahora solo listamos existentes -->
-      <button class="btn btn-primary" onclick="alert('Funcionalidad de invitación pendiente')">Invitar Cliente</button>
+      <button class="btn btn-primary" id="btnInviteClient">Invitar Cliente</button>
   </div>
 
   <div id="clientsList">Cargando clientes...</div>
@@ -60,5 +61,17 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
     }
 
     loadClients();
+
+    document.getElementById('btnInviteClient')?.addEventListener('click', () => {
+        if (window.modalHelpers) window.modalHelpers.openModal('pendingFeatureModal');
+    });
   </script>
+
+  <ModalMessage 
+    slot="modals"
+    id="pendingFeatureModal"
+    title="Próximamente"
+    message="La funcionalidad de invitación de clientes está pendiente de implementación."
+    type="info"
+  />
 </AdminLayout>

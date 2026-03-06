@@ -1,5 +1,7 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -76,6 +78,23 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     </div>
   </div>
 
+  <ModalConfirm 
+    slot="modals"
+    id="deleteCategoryModal"
+    title="¿Eliminar Categoría?"
+    message="¿Estás seguro de que deseas eliminar esta categoría? Si tiene artículos asociados, estos podrían quedar sin categoría."
+    confirmText="Eliminar Categoría"
+    type="danger"
+  />
+
+  <ModalMessage 
+    slot="modals"
+    id="errorCategoryModal"
+    title="Error"
+    message="Ocurrió un error al procesar la categoría."
+    type="error"
+  />
+</DashboardLayout>
 <style>
   .categories-page {
     width: 100%;
@@ -268,22 +287,43 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   };
 
   window.deleteCat = async (id) => {
-    if(!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) return;
-    
+    if (!window.confirmModalHelpers) {
+      if (!confirm('¿Estás seguro?')) return;
+      return executeDeleteCat(id);
+    }
+
+    window.confirmModalHelpers.open('deleteCategoryModal', () => {
+      executeDeleteCat(id);
+    });
+  };
+
+  async function executeDeleteCat(id) {
     try {
       const res = await fetch(`${API_URL}/blog-categories/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if(res.ok) {
+        if (window.showToast) window.showToast('Categoría eliminada.', 'success');
         await loadCategories();
       } else {
-        alert('Error al eliminar');
+        const err = await res.json();
+        if (window.modalHelpers) {
+          window.modalHelpers.updateModalMessage('errorCategoryModal', err.message || 'Error al eliminar');
+          window.modalHelpers.openModal('errorCategoryModal');
+        } else {
+          alert(err.message || 'Error al eliminar');
+        }
       }
     } catch(e) {
-      alert('Error de conexión');
+      if (window.modalHelpers) {
+        window.modalHelpers.updateModalMessage('errorCategoryModal', 'Error de conexión');
+        window.modalHelpers.openModal('errorCategoryModal');
+      } else {
+        alert('Error de conexión');
+      }
     }
-  };
+  }
 
   // Init
   loadCategories();

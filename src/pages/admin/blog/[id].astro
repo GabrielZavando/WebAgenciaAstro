@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -145,7 +146,7 @@ try {
         <div class="form-actions" style="justify-content: space-between;">
           <div class="left-actions">
             {!isNew && (
-              <button type="button" class="btn btn-danger" id="deleteBtn" style="background: var(--color-error); color: white; padding: 0.875rem 2rem; border: none; border-radius: 0; font-weight: 600; cursor: pointer;">
+              <button type="button" class="btn-danger" id="deleteBtn">
                 <i class="fas fa-trash-alt"></i> Eliminar Post
               </button>
             )}
@@ -160,26 +161,14 @@ try {
     </div>
   )}
 
-  <!-- Modal Selector de Imágenes -->
-  <div id="imageSelectModal" class="modal-backdrop hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3><i class="fas fa-images"></i> Seleccionar Imagen de Portada</h3>
-        <button type="button" class="modal-close" id="closeImageModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" id="imageSearchInput" placeholder="Buscar imagen por nombre..." />
-        </div>
-        <div id="imageGallery" class="image-gallery">
-          <div class="loading-state">
-            <i class="fas fa-spinner fa-spin"></i> Cargando imágenes...
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <ModalConfirm 
+    slot="modals"
+    id="deletePostDetailModal"
+    title="¿Eliminar Artículo?"
+    message="¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer."
+    confirmText="Eliminar permanentemente"
+    type="danger"
+  />
 </DashboardLayout>
 
 <script>
@@ -421,11 +410,18 @@ try {
     });
 
     // Delete Post Logic
-    deleteBtn?.addEventListener('click', async () => {
-      if (!confirm('¿Estás seguro de eliminar este post de forma permanente?')) return;
+    deleteBtn?.addEventListener('click', () => {
+      if (!(window as any).confirmModalHelpers) {
+        if (!confirm('¿Estás seguro?')) return;
+        return executeDelete();
+      }
       
+      (window as any).confirmModalHelpers.open('deletePostDetailModal', executeDelete);
+    });
+
+    async function executeDelete() {
       deleteBtn.disabled = true;
-      submitBtn.disabled = true;
+      if (submitBtn) submitBtn.disabled = true;
 
       import('../../../lib/firebase/client').then(async ({ auth }) => {
         const currentUser = auth.currentUser;
@@ -439,21 +435,21 @@ try {
           });
           
           if (response.ok) {
-            showFeedback('Post eliminado.', 'success');
+            if ((window as any).showToast) (window as any).showToast('Post eliminado.', 'success');
             setTimeout(() => { window.location.href = '/admin/blog'; }, 1000);
           } else {
             const result = await response.json();
             showFeedback(result.message || 'Error al eliminar', 'error');
             deleteBtn.disabled = false;
-            submitBtn.disabled = false;
+            if (submitBtn) submitBtn.disabled = false;
           }
         } catch (e) {
           showFeedback('Error de conexión', 'error');
           deleteBtn.disabled = false;
-          submitBtn.disabled = false;
+          if (submitBtn) submitBtn.disabled = false;
         }
       });
-    });
+    }
 
 
     // Submit Logic

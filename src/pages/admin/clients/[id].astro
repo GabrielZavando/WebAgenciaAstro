@@ -1,6 +1,7 @@
 
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 const { id } = Astro.params;
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
@@ -38,11 +39,19 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 
         } catch (error) {
             console.error(error);
-            alert('Error cargando datos');
+            if (window.modalHelpers) window.modalHelpers.openModal('errorLoadingClientModal');
         }
     }
 
 
     loadData();
   </script>
+
+  <ModalMessage 
+    slot="modals"
+    id="errorLoadingClientModal"
+    title="Error de Carga"
+    message="Hubo un problema al cargar los datos del cliente."
+    type="error"
+  />
 </AdminLayout>

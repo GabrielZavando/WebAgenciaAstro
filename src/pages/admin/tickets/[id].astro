@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -74,14 +75,19 @@ if (ticket) {
 ---
 
 <DashboardLayout title="Ver Ticket" role="admin">
-  <div class="header-actions">
-    <div>
-      <a href="/admin/tickets" class="back-link">
-        <i class="fas fa-arrow-left"></i> Volver a la Lista de Tickets
-      </a>
-      {ticket && <h1>Asunto: {ticket.subject}</h1>}
+    <div class="header-actions" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap;">
+      <div>
+        <a href="/admin/tickets" class="back-link">
+          <i class="fas fa-arrow-left"></i> Volver a la Lista de Tickets
+        </a>
+        {ticket && <h1>Asunto: {ticket.subject}</h1>}
+      </div>
+      {ticket && (
+        <button type="button" class="btn btn-danger btn-delete-ticket" id="openDeleteTicketModal">
+          <i class="fas fa-trash"></i> Eliminar Ticket
+        </button>
+      )}
     </div>
-  </div>
 
   {errorMsg && (
     <div class="error-banner">
@@ -90,7 +96,7 @@ if (ticket) {
   )}
 
   {!errorMsg && ticket && (
-    <div class="ticket-details-container fade-in">
+    <div class="ticket-details-container">
       <div class="ticket-meta-card">
         <div class="meta-item">
           <span class="meta-label">ID Ticket</span>
@@ -220,6 +226,15 @@ if (ticket) {
       )}
     </div>
   )}
+
+  <ModalConfirm 
+    slot="modals"
+    id="deleteTicketModal"
+    title="¿Eliminar Ticket?"
+    message="¿Estás seguro de que deseas eliminar este ticket permanentemente? Se eliminarán todos los mensajes y archivos adjuntos asociados. Esta acción no se puede deshacer."
+    confirmText="Eliminar permanentemente"
+    type="danger"
+  />
 </DashboardLayout>
 
 <script>
@@ -380,6 +395,26 @@ if (ticket) {
     el.className = `feedback-message ${type}`;
     if (type === 'error') setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
   }
+
+  // --- Borrado de Ticket ---
+  const openDeleteBtn = document.getElementById('openDeleteTicketModal');
+  openDeleteBtn?.addEventListener('click', () => {
+    (window as any).confirmModalHelpers.open('deleteTicketModal', async () => {
+      try {
+        const res = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Error al eliminar ticket');
+        
+        if ((window as any).showToast) (window as any).showToast('Ticket eliminado correctamente', 'success');
+        setTimeout(() => window.location.href = '/admin/tickets', 1500);
+      } catch (err: any) {
+        if ((window as any).showToast) (window as any).showToast(err.message, 'error');
+      }
+    });
+  });
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -677,8 +712,8 @@ if (ticket) {
     padding-bottom: 0.5rem !important;
   }
   
-  /* Forzar diseño flat absoluto */
-  * {
+  /* Forzar diseño flat para elementos específicos si es necesario, pero permitir el sistema de diseño */
+  .ticket-id, .status-badge, .priority-dot {
     border-radius: 0 !important;
   }
   /* Formulario de Respuesta en el Admin */
@@ -763,6 +798,15 @@ if (ticket) {
   }
   .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2); }
   .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;}
+  .btn-danger {
+    background-color: var(--color-error) !important;
+    color: white !important;
+    border: none !important;
+  }
+  .btn-danger:hover {
+    background-color: #dc2626 !important;
+    transform: translateY(-2px);
+  }
 
   .feedback-message {
     padding: 0.75rem 1rem;

@@ -1,6 +1,8 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -111,6 +113,33 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         </tbody>
       </table>
     </div>
+
+    <!-- Modales en slot -->
+    <ModalConfirm 
+      slot="modals"
+      id="deleteConfirmModal"
+      title="¿Eliminar archivo?"
+      message="Esta acción no se puede deshacer. El archivo se borrará permanentemente del sistema."
+      confirmText="Eliminar permanentemente"
+      cancelText="Cancelar"
+      type="danger"
+    />
+
+    <ModalMessage 
+      slot="modals"
+      id="errorFileRequestModal"
+      title="Error de Solicitud"
+      message="Hubo un problema al procesar la solicitud del archivo."
+      type="error"
+    />
+
+    <ModalMessage 
+      slot="modals"
+      id="errorFileDeleteModal"
+      title="Error al Eliminar"
+      message="No se pudo eliminar el archivo. Por favor, inténtalo de nuevo."
+      type="error"
+    />
   </div>
 </DashboardLayout>
 
@@ -250,26 +279,53 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
   async function handleDl(id: string, action: 'view' | 'download') {
     try {
-      const res = await fetch(`${API}/files/${id}/download`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const isDl = action === 'download';
+      const res = await fetch(`${API}/files/${id}/download?download=${isDl}`, { 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
       if (!res.ok) throw new Error();
-      const { url, fileName } = await res.json();
-      if (action === 'view') { window.open(url, '_blank'); return; }
-      const a = document.createElement('a');
-      a.href = url; a.download = fileName; a.target = '_blank';
-      document.body.appendChild(a); a.click(); a.remove();
-    } catch { alert('Error al procesar la solicitud.'); }
+      const { url } = await res.json();
+      
+      if (action === 'view') {
+        window.open(url, '_blank');
+      } else {
+        if ((window as any).showToast) (window as any).showToast('Iniciando descarga...', 'info');
+        const a = document.createElement('a');
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch { 
+      if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorFileRequestModal');
+      else alert('Error al procesar la solicitud.'); 
+    }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este archivo de forma permanente?')) return;
+    if (!(window as any).confirmModalHelpers) {
+      if (!confirm('¿Estás seguro de eliminar este archivo?')) return;
+      return executeDelete(id);
+    }
+
+    (window as any).confirmModalHelpers.open('deleteConfirmModal', () => {
+      executeDelete(id);
+    });
+  }
+
+  async function executeDelete(id: string) {
     try {
       const res = await fetch(`${API}/files/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) throw new Error();
+      if ((window as any).showToast) (window as any).showToast('Archivo eliminado.', 'success');
       await Promise.all([loadQuota(), loadFiles()]);
-    } catch { alert('Error al eliminar el archivo.'); }
+    } catch { 
+      if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorFileDeleteModal');
+      else alert('Error al eliminar el archivo.'); 
+    }
   }
 
   // Lógica del modal de subida

@@ -44,8 +44,8 @@ if (!token) {
 
         <div class="form-group">
           <label for="password">Contraseña (opcional)</label>
-          <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" minlength="6" />
-          <small class="help-text">Si se deja vacío, se generará una contraseña segura por defecto.</small>
+          <input type="password" id="password" name="password" placeholder="Ej: Admin123!" minlength="8" />
+          <small class="help-text">Mínimo 8 caracteres, incluyendo mayúsculas, números y caracteres especiales.</small>
         </div>
       </div>
 
@@ -62,6 +62,7 @@ if (!token) {
 
 <script>
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  import { validatePassword } from '../../../lib/utils/security';
   const form = document.getElementById('createUserForm') as HTMLFormElement;
   const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
   const btnText = submitBtn?.querySelector('.btn-text');
@@ -85,6 +86,15 @@ if (!token) {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
       
+      // Validar contraseña si se proporcionó una
+      if (data.password) {
+        const validation = validatePassword(data.password as string);
+        if (!validation.isValid) {
+          showFeedback(validation.errors[0], 'error');
+          return;
+        }
+      }
+
       // Limpiar contraseña si viene vacía para usar el default del backend
       if (!data.password) delete data.password;
 

@@ -1,4 +1,7 @@
 ---
+import ModalConfirm from './ModalConfirm.astro';
+import ModalMessage from './ModalMessage.astro';
+
 interface Props {
   clientId?: string;
   role: 'admin' | 'client';
@@ -52,7 +55,24 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
       </tbody>
     </table>
   </div>
-</div>
+  
+  {allowDelete && (
+    <ModalConfirm 
+      id={`deleteReportModal-${id}`}
+      title="¿Eliminar Informe?"
+      message="¿Estás seguro de que deseas eliminar este informe permanentemente? Esta acción no se puede deshacer."
+      confirmText="Eliminar permanentemente"
+      type="danger"
+    />
+  )}
+
+    <ModalMessage 
+      id={`errorReportModal-${id}`}
+      title="Error"
+      message="Hubo un problema al procesar el informe."
+      type="error"
+    />
+  </div>
 
 <script>
   import { db, auth } from "../../lib/firebase/client";
@@ -263,32 +283,53 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
 
     async function handleAction(id: string, action: string) {
       if (action === 'delete') {
-        if (!confirm('¿Estás seguro de eliminar este informe?')) return;
-        try {
-          const res = await fetch(`${API_URL}/reports/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${currentToken}` },
-          });
-          if (!res.ok) throw new Error();
-          // El listener actualizará la tabla
-        } catch {
-          alert('Error al eliminar el informe.');
-        }
+        const modalId = `deleteReportModal-${tableId}`;
+        (window as any).confirmModalHelpers.open(modalId, async () => {
+          try {
+            const res = await fetch(`${API_URL}/reports/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${currentToken}` },
+            });
+            if (!res.ok) throw new Error();
+            if ((window as any).showToast) (window as any).showToast('Informe eliminado correctamente', 'success');
+          } catch {
+            if ((window as any).showToast) (window as any).showToast('Error al eliminar el informe.', 'error');
+          }
+        });
         return;
       }
 
       try {
-        const res = await fetch(`${API_URL}/reports/${id}/download`, {
+        const isDownload = action === 'download';
+        const res = await fetch(`${API_URL}/reports/${id}/download?download=${isDownload}`, {
           headers: { 'Authorization': `Bearer ${currentToken}` },
         });
         if (!res.ok) throw new Error();
-        const { url, fileName } = await res.json();
-        if (action === 'view') { window.open(url, '_blank'); return; }
-        const a = document.createElement('a');
-        a.href = url; a.download = fileName; a.target = '_blank';
-        document.body.appendChild(a); a.click(); a.remove();
-      } catch {
-        alert('Error al obtener el informe.');
+        const { url } = await res.json();
+        
+        if (action === 'view') {
+          window.open(url, '_blank');
+        } else {
+          // Ya no usamos fetch blob por problemas de CORS con Google Storage.
+          // El backend ahora devuelve una URL con responseDisposition=attachment
+          // lo cual fuerza la descarga directamente al navegar a ella.
+          if ((window as any).showToast) (window as any).showToast('Iniciando descarga...', 'info');
+          
+          const a = document.createElement('a');
+          a.href = url;
+          // El atributo download es ignorado en cross-origin, pero el header
+          // Content-Disposition del signed URL forzará la descarga.
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (err) {
+        console.error('Error al procesar el informe:', err);
+        if ((window as any).modalHelpers) {
+          (window as any).modalHelpers.openModal(`errorReportModal-${tableId}`);
+        } else {
+          alert('Error al obtener el informe.');
+        }
       }
     }
 

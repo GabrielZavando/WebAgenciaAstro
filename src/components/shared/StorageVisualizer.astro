@@ -89,7 +89,7 @@ const isWarning = pct >= 90;
 
   .circle-bg {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.05);
+    stroke: var(--color-border);
     stroke-width: 3.8;
   }
 
@@ -106,7 +106,7 @@ const isWarning = pct >= 90;
   }
 
   .percentage {
-    fill: var(--color-white);
+    fill: var(--color-text);
     font-family: inherit;
     font-size: 8px;
     font-weight: 700;
@@ -137,7 +137,7 @@ const isWarning = pct >= 90;
 
   .info-item .dot.used { background: var(--color-primary); }
   .warning .info-item .dot.used { background: #f59e0b; }
-  .info-item .dot.total { background: rgba(255, 255, 255, 0.1); }
+  .info-item .dot.total { background: var(--color-border); }
 
   .info-text {
     display: flex;
@@ -154,13 +154,13 @@ const isWarning = pct >= 90;
   .info-text .value {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--color-white);
+    color: var(--color-text);
   }
 
   .mini-percent {
     font-size: 1.1rem;
     font-weight: 800;
-    color: var(--color-white);
+    color: var(--color-text);
   }
 
   .warning .mini-percent {
