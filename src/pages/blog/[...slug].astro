@@ -80,9 +80,9 @@ try {
                 <div class="post-meta">
                     <span class="post-author">Por {post.author || 'Administrador'}</span>
                     {post.category && (
-                        <span class="post-category">
-                            <i class="fas fa-tag"></i> {post.category}
-                        </span>
+                        <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category">
+                            <i class="fas fa-layer-group"></i> {post.category}
+                        </a>
                     )}
                 </div>
             </header>
@@ -90,7 +90,9 @@ try {
     </section>
 
     <div class="container">
-        <Search placeholder="Buscar artículos..." />
+        <div style="margin-top: 2rem;">
+            <Search placeholder="Buscar artículos..." />
+        </div>
     </div>
 
     <article class="single-post fade-in">
@@ -230,17 +232,24 @@ try {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+
+        &:hover {
+           background: rgba(255, 0, 128, 0.2);
+           transform: translateY(-2px);
+        }
     }
 
     .single-post {
         padding: var(--space-3xl) 0;
-        background: var(--color-surface);
+        background: transparent;
         margin-bottom: 8rem; // Espacio extra para separación visual
     }
 
     .container--narrow {
         width: 90%;
-        max-width: 1200px;
+        max-width: 1440px;
     }
 
     .post-content {
@@ -248,19 +257,28 @@ try {
         line-height: 1.8;
         color: var(--color-text);
 
+        /* Sobreescribir posibles estilos en línea del editor de texto rico para modo oscuro */
+        :global(h1), :global(h2), :global(h3), :global(h4), :global(h5), :global(h6), :global(strong), :global(b) {
+            color: var(--color-headings) !important;
+            background-color: transparent !important;
+        }
+
+        :global(p), :global(span), :global(li), :global(div), :global(td), :global(th) {
+            color: var(--color-text) !important;
+            background-color: transparent !important;
+        }
+
         // Estilos básicos para contenido markdown
         :global(h2) {
             font-size: 2rem;
             margin-top: var(--space-2xl);
             margin-bottom: var(--space-md);
-            color: var(--color-headings);
         }
 
         :global(h3) {
             font-size: 1.5rem;
             margin-top: var(--space-xl);
             margin-bottom: var(--space-sm);
-            color: var(--color-headings);
         }
 
         :global(p) {
@@ -297,13 +315,13 @@ try {
         }
 
         :global(a) {
-            color: var(--color-primary);
+            color: var(--color-primary) !important;
             text-decoration: underline;
             text-underline-offset: 3px;
 
             &:hover {
                 text-decoration: none;
-                color: var(--color-primary-dark);
+                color: var(--color-primary-dark) !important;
             }
         }
     }

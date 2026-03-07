@@ -1,6 +1,7 @@
 
 ---
 import Layout from '../../layouts/MainLayout.astro';
+import Search from '../../components/shared/Search.astro';
 
 // Fetch posts from API (Server Side)
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
@@ -43,11 +44,18 @@ const getExcerpt = (post: any) => {
       <h1 class="page-title fade-in">Blog</h1>
       <p class="page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
 
+      <Search />
+
+      <div id="noResultsMsg" class="no-results-message" style="display: none;">
+        <i class="fas fa-search"></i>
+        <p>No hay coincidencias con la búsqueda.</p>
+      </div>
+
       {error && <div class="error-message">{error}</div>}
 
       <div class="posts-grid">
         {posts.map((post: any) => (
-          <article class="post-card fade-in">
+          <article class="post-card fade-in" data-title={post.title.toLowerCase()} data-category={post.category ? post.category.toLowerCase() : ''}>
              {post.coverImage && (
                  <div class="post-image">
                      <img src={post.coverImage} alt={post.title} />
@@ -59,7 +67,7 @@ const getExcerpt = (post: any) => {
               </h2>
               <div class="post-meta">
                   <span class="post-author"><i class="fas fa-pen-nib"></i> {post.author || 'Administrador'}</span>
-                  {post.category && <span class="post-category"><i class="fas fa-folder"></i> {post.category}</span>}
+                  {post.category && <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category"><i class="fas fa-layer-group"></i> {post.category}</a>}
               </div>
               <p class="post-excerpt">
                 {getExcerpt(post)}
@@ -158,13 +166,17 @@ const getExcerpt = (post: any) => {
       margin-bottom: 1.25rem;
   }
 
-  .post-meta span {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+  .post-category {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+  }
+  
+  .post-category:hover {
+      color: var(--color-primary);
   }
 
-  .post-meta span i {
+  .post-meta span i, .post-meta a i {
       width: 14px;
       color: var(--color-primary);
       text-align: center;
@@ -183,5 +195,22 @@ const getExcerpt = (post: any) => {
       text-align: center;
       color: var(--color-error);
       padding: 2rem;
+  }
+
+  .no-results-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+  }
+
+  .no-results-message i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
   }
 </style>

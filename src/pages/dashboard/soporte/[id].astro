@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -202,6 +203,15 @@ if (ticket) {
       )}
     </div>
   )}
+
+  <Fragment slot="modals">
+    <ModalMessage 
+      id="ticketResponseErrorModal"
+      type="error"
+      title="Error"
+      message="Ocurrió un error."
+    />
+  </Fragment>
 </DashboardLayout>
 
 <script>
@@ -314,19 +324,27 @@ if (ticket) {
           headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         });
-        if (!res.ok) throw new Error('Error al enviar el mensaje');
+        
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || 'Error al enviar el mensaje al servidor.');
+        }
+
         bodyEl.value = '';
         if (fileInput) fileInput.value = '';
         const fileLabel = form.querySelector('.attachment-input-wrapper span');
         if (fileLabel) fileLabel.textContent = 'Adjuntar imagen (opcional)';
-        
-        feedback.textContent = 'Mensaje enviado correctamente.';
-        feedback.className = 'feedback-message success';
+
         await loadMessages();
       } catch (err: any) {
-        feedback.textContent = err.message || 'Error al enviar';
-        feedback.className = 'feedback-message error';
-        setTimeout(() => { feedback.className = 'feedback-message hidden'; }, 4000);
+        if ((window as any).modalHelpers) {
+          (window as any).modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al enviar');
+          (window as any).modalHelpers.openModal('ticketResponseErrorModal');
+        } else {
+          feedback.textContent = err.message || 'Error al enviar';
+          feedback.className = 'feedback-message error';
+          setTimeout(() => { feedback.className = 'feedback-message hidden'; }, 4000);
+        }
       } finally {
         submitBtn.disabled = false;
         submitBtn.querySelector('.btn-text')?.classList.remove('hidden');
@@ -506,7 +524,7 @@ if (ticket) {
     width: 16px; height: 16px;
     border: 2px solid #fff;
     border-bottom-color: transparent;
-    border-radius: 0;
+    border-radius: 50%;
     display: inline-block;
     animation: spin 1s linear infinite;
   }

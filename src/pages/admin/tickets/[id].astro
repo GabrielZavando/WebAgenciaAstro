@@ -1,6 +1,7 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -227,14 +228,21 @@ if (ticket) {
     </div>
   )}
 
-  <ModalConfirm 
-    slot="modals"
-    id="deleteTicketModal"
-    title="¿Eliminar Ticket?"
-    message="¿Estás seguro de que deseas eliminar este ticket permanentemente? Se eliminarán todos los mensajes y archivos adjuntos asociados. Esta acción no se puede deshacer."
-    confirmText="Eliminar permanentemente"
-    type="danger"
-  />
+  <Fragment slot="modals">
+    <ModalConfirm 
+      id="deleteTicketModal"
+      title="¿Eliminar Ticket?"
+      message="¿Estás seguro de que deseas eliminar este ticket permanentemente? Se eliminarán todos los mensajes y archivos adjuntos asociados. Esta acción no se puede deshacer."
+      confirmText="Eliminar permanentemente"
+      type="danger"
+    />
+    <ModalMessage 
+      id="ticketResponseErrorModal"
+      type="error"
+      title="Error"
+      message="Ocurrió un error."
+    />
+  </Fragment>
 </DashboardLayout>
 
 <script>
@@ -356,7 +364,11 @@ if (ticket) {
           headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         });
-        if (!msgRes.ok) throw new Error('Error al enviar el mensaje');
+        
+        if (!msgRes.ok) {
+          const errData = await msgRes.json().catch(() => ({}));
+          throw new Error(errData.message || 'Error al enviar el mensaje al servidor.');
+        }
 
         // 2. Actualizar estado del ticket si cambió
         await fetch(`${API_URL}/support/tickets/${ticketId}`, {
@@ -391,9 +403,22 @@ if (ticket) {
   }
 
   function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
-    el.textContent = message;
-    el.className = `feedback-message ${type}`;
-    if (type === 'error') setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
+    if (type === 'success') {
+      // Sólo para éxito, no usamos el modal; el frontend recarga la conversación fluida.
+      return;
+    }
+
+    if ((window as any).modalHelpers) {
+      if (type === 'error') {
+        (window as any).modalHelpers.updateModalMessage('ticketResponseErrorModal', message);
+        (window as any).modalHelpers.openModal('ticketResponseErrorModal');
+      }
+    } else {
+      // Fallback
+      el.textContent = message;
+      el.className = `feedback-message ${type}`;
+      setTimeout(() => { el.className = 'feedback-message hidden'; }, 4000);
+    }
   }
 
   // --- Borrado de Ticket ---
@@ -835,7 +860,7 @@ if (ticket) {
     height: 16px;
     border: 2px solid #fff;
     border-bottom-color: transparent;
-    border-radius: 0;
+    border-radius: 50%;
     display: inline-block;
     animation: spin 1s linear infinite;
   }
