@@ -50,9 +50,9 @@ function formatFullDate(raw: { _seconds?: number } | string): string {
 
 const getStatusInfo = (status: string) => {
   const map: Record<string, { label: string; className: string; icon: string }> = {
-    open: { label: 'Enviado', className: 'status-open', icon: 'fas fa-paper-plane' },
-    'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'fas fa-hourglass-half' },
-    resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'fas fa-check' },
+    open: { label: 'Enviado', className: 'status-open', icon: 'send' },
+    'in-progress': { label: 'En progreso', className: 'status-progress', icon: 'schedule' },
+    resolved: { label: 'Resuelto', className: 'status-resolved', icon: 'check' },
   };
   return map[status] || map.open;
 };
@@ -77,16 +77,16 @@ if (ticket) {
 <DashboardLayout title="Ver Ticket" role="client">
   <div class="header-actions">
     <div>
-      <a href="/dashboard/soporte" class="back-link">
-        <i class="fas fa-arrow-left"></i> Volver a Mis Tickets
-      </a>
+        <a href="/dashboard/soporte" class="back-link">
+          <span class="material-symbols-outlined">arrow_back</span> Volver a Mis Tickets
+        </a>
       {ticket && <h1>Asunto: {ticket.subject}</h1>}
     </div>
   </div>
 
   {errorMsg && (
     <div class="error-banner">
-      <i class="fas fa-exclamation-triangle"></i> {errorMsg}
+      <span class="material-symbols-outlined">report</span> {errorMsg}
     </div>
   )}
 
@@ -106,7 +106,7 @@ if (ticket) {
         <div class="meta-item">
           <span class="meta-label">Estado</span>
           <span class={`status-badge ${statusInfo?.className}`}>
-            <i class={statusInfo?.icon}></i> {statusInfo?.label}
+            <span class="material-symbols-outlined">{statusInfo?.icon}</span> {statusInfo?.label}
           </span>
         </div>
         <div class="meta-item">
@@ -118,12 +118,12 @@ if (ticket) {
         </div>
         <div class="meta-item">
           <span class="meta-label">Fecha de Envío</span>
-          <span class="meta-value"><i class="far fa-calendar-alt"></i> {formatFullDate(ticket.createdAt)}</span>
+          <span class="meta-value"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.2rem;">calendar_today</span> {formatFullDate(ticket.createdAt)}</span>
         </div>
         {ticket.status === 'resolved' && (
           <div class="meta-item resolved-meta">
             <span class="meta-label">Resuelto el</span>
-            <span class="meta-value resolved-date"><i class="fas fa-check-double"></i> {formatFullDate(ticket.updatedAt)}</span>
+            <span class="meta-value resolved-date"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.2rem;">done_all</span> {formatFullDate(ticket.updatedAt)}</span>
           </div>
         )}
       </div>
@@ -151,7 +151,7 @@ if (ticket) {
             {ticket.attachmentUrl && (
               <div class="attachment-container">
                 <hr class="attachment-divider" />
-                <p class="attachment-label"><i class="fas fa-paperclip"></i> Archivo Adjunto</p>
+                <p class="attachment-label"><span class="material-symbols-outlined">attach_file</span> Archivo Adjunto</p>
                 <a href={ticket.attachmentUrl} target="_blank" rel="noopener noreferrer" class="attachment-link">
                   <img src={ticket.attachmentUrl} alt="Adjunto" class="ticket-attachment-img" />
                 </a>
@@ -164,7 +164,7 @@ if (ticket) {
       <!-- Banner de ticket resuelto -->
       {ticket.status === 'resolved' && (
         <div class="resolved-banner">
-          <i class="fas fa-check-circle"></i>
+          <span class="material-symbols-outlined">check_circle</span>
           <span>Este ticket está <strong>resuelto</strong>. Ya no se pueden enviar más mensajes.</span>
         </div>
       )}
@@ -185,14 +185,14 @@ if (ticket) {
               <textarea name="body" placeholder="Escribe tu mensaje para el equipo de soporte..." rows="4" required></textarea>
               <div class="attachment-input-wrapper" style="margin-top: 0.5rem;">
                 <label for="clientAttachment" style="font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-surface); padding: 0.5rem; border: 1px dashed var(--color-border); width: 100%; box-sizing: border-box;">
-                  <i class="fas fa-image"></i>
+                  <span class="material-symbols-outlined">image</span>
                   <span>Adjuntar imagen (opcional)</span>
                   <input type="file" id="clientAttachment" name="attachment" accept="image/*" style="display: none;" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
                 </label>
               </div>
               <div style="display: flex; justify-content: flex-end; margin-top: 0.75rem;">
                 <button type="submit" class="btn-primary">
-                  <span class="btn-text"><i class="fas fa-paper-plane"></i> Enviar Mensaje</span>
+                  <span class="btn-text"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.25rem;">send</span> Enviar Mensaje</span>
                   <span class="loader hidden"></span>
                 </button>
               </div>
@@ -252,7 +252,7 @@ if (ticket) {
       } else if (!isAdmin) {
         avatarHtml = `<div class="msg-avatar-placeholder client"></div>`;
       } else {
-        avatarHtml = `<div class="msg-avatar-placeholder admin"><i class="fas fa-headset"></i></div>`;
+        avatarHtml = `<div class="msg-avatar-placeholder admin"><span class="material-symbols-outlined">headset_mic</span></div>`;
       }
       
       const msgDiv = document.createElement('div');
@@ -273,7 +273,7 @@ if (ticket) {
             ${m.body.split('\n').map((l: string) => `<p>${l}</p>`).join('')}
             ${m.attachmentUrl ? `
               <div class="attachment-container">
-                <p class="attachment-label"><i class="fas fa-paperclip"></i> Archivo Adjunto</p>
+                <p class="attachment-label"><span class="material-symbols-outlined">attach_file</span> Archivo Adjunto</p>
                 <a href="${m.attachmentUrl}" target="_blank" rel="noopener noreferrer">
                   <img src="${m.attachmentUrl}" alt="Adjunto" class="ticket-attachment-img" />
                 </a>

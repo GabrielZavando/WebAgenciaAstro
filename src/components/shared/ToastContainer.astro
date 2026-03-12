@@ -14,11 +14,11 @@
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
       
-      const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+      const icon = type === 'success' ? 'check_circle' : (type === 'error' ? 'error' : 'info');
       
       toast.innerHTML = `
         <div class="toast-content">
-          <i class="fas ${icon}"></i>
+          <span class="material-symbols-outlined">${icon}</span>
           <span>${message}</span>
         </div>
       `;
@@ -87,20 +87,24 @@
     font-weight: 500;
   }
 
+  .toast-content .material-symbols-outlined {
+    font-size: 1.5rem;
+  }
+
   .toast-success {
     border-left: 4px solid var(--color-success);
   }
-  .toast-success i { color: var(--color-success); }
+  .toast-success i, .toast-success .material-symbols-outlined { color: var(--color-success); }
 
   .toast-error {
     border-left: 4px solid var(--color-error);
   }
-  .toast-error i { color: var(--color-error); }
+  .toast-error i, .toast-error .material-symbols-outlined { color: var(--color-error); }
 
   .toast-info {
     border-left: 4px solid var(--color-primary);
   }
-  .toast-info i { color: var(--color-primary); }
+  .toast-info i, .toast-info .material-symbols-outlined { color: var(--color-primary); }
 
   /* Dark mode adjustments if needed based on root variables */
   html[data-theme="dark"] .toast {

@@ -21,7 +21,7 @@ const API_BASE_URL =
             <!-- Success State -->
             <div id="successState" class="state-content hidden">
                 <div class="icon-circle success">
-                    <i class="fas fa-check"></i>
+                    <span class="material-symbols-outlined">check</span>
                 </div>
                 <h2 class="state-title">¡Te has desuscrito correctamente!</h2>
                 <p class="state-text">
@@ -29,20 +29,20 @@ const API_BASE_URL =
                     exitosamente de nuestra base de datos. Ya no recibirás más
                     correos de nosotros.
                 </p>
-                <a href="/" class="btn-cta__solid">Volver al inicio</a>
+                <a href="/" class="btn-cta">Volver al inicio</a>
             </div>
 
             <!-- Error State -->
             <div id="errorState" class="state-content hidden">
                 <div class="icon-circle error">
-                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="material-symbols-outlined">warning</span>
                 </div>
                 <h2 class="state-title" id="errorTitle">Ups, algo salió mal</h2>
                 <p class="state-text" id="errorMessage">
                     No pudimos procesar tu solicitud. Puede que el enlace haya
                     expirado o sea inválido.
                 </p>
-                <a href="/" class="btn-cta__solid">Volver al inicio</a>
+                <a href="/" class="btn-cta">Volver al inicio</a>
             </div>
         </div>
     </div>
@@ -146,27 +146,6 @@ const API_BASE_URL =
         }
     }
 
-    // Botón volver
-    .btn-cta__solid {
-        display: inline-block;
-        background-color: var(--color-primary);
-        color: var(--color-white);
-        text-decoration: none;
-        padding: var(--space-sm) var(--space-xl);
-        font-weight: 600;
-        margin-top: var(--space-md);
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-
-        &:hover {
-            background-color: var(
-                --color-primary-hover,
-                #d6006c
-            ); // Fallback color
-            transform: translateY(-2px);
-        }
-    }
 </style>
 
 <script define:vars={{ apiBaseUrl: API_BASE_URL }}>

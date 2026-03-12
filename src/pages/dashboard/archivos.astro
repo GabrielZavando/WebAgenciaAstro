@@ -32,11 +32,11 @@ if (!token) {
     <!-- Acciones -->
     <div class="actions-row">
       <div class="search-input-wrapper">
-        <i class="fas fa-search search-icon"></i>
+        <span class="material-symbols-outlined search-icon">search</span>
         <input type="text" id="searchInput" placeholder="Buscar por título, nombre o descripción..." autocomplete="off" />
       </div>
       <button class="btn-upload" id="uploadBtn">
-        <i class="fas fa-cloud-upload-alt"></i> Subir Archivo
+        <span class="material-symbols-outlined">cloud_upload</span> Subir Archivo
       </button>
     </div>
 
@@ -45,7 +45,7 @@ if (!token) {
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-content">
         <div class="modal-header">
-          <h3><i class="fas fa-file-upload"></i> Subir Archivo</h3>
+          <h3><span class="material-symbols-outlined">upload_file</span> Subir Archivo</h3>
           <button class="modal-close" id="closeModal">&times;</button>
         </div>
         <form id="uploadForm" class="upload-form">
@@ -69,15 +69,14 @@ if (!token) {
           <div class="form-group">
             <label>Archivo</label>
             <div class="file-drop" id="fileDrop">
-              <i class="fas fa-cloud-upload-alt"></i>
+              <span class="material-symbols-outlined" style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-text-muted); opacity: 0.6;">cloud_upload</span>
               <p id="fileLabel">Haz clic o arrastra un archivo aquí</p>
               <span class="file-types">Permitidos: PDF, Word, Excel, Imágenes, CSV, TXT</span>
               <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.txt,.csv" required class="file-input-hidden" />
             </div>
           </div>
-          <div id="uploadFeedback" class="feedback-msg hidden"></div>
           <div class="form-actions">
-            <button type="submit" class="btn-primary" id="submitUpload">
+            <button type="submit" class="btn-cta" id="submitUpload">
               <span class="btn-text">Subir</span>
               <span class="loader hidden"></span>
             </button>
@@ -103,7 +102,7 @@ if (!token) {
           <tr>
             <td colspan="6">
               <div class="loading-state">
-                <i class="fas fa-spinner fa-spin"></i>
+                <span class="material-symbols-outlined spinning">sync</span>
                 <p>Cargando archivos...</p>
               </div>
             </td>
@@ -138,6 +137,22 @@ if (!token) {
       message="No se pudo eliminar el archivo. Por favor, inténtalo de nuevo."
       type="error"
     />
+
+    <ModalMessage 
+      slot="modals"
+      id="successUploadModal"
+      title="Subida Exitosa"
+      message="El archivo se ha subido correctamente."
+      type="success"
+    />
+
+    <ModalMessage 
+      slot="modals"
+      id="errorUploadModal"
+      title="Error de Subida"
+      message="No se pudo subir el archivo. Por favor, inténtalo de nuevo."
+      type="error"
+    />
   </div>
 </DashboardLayout>
 
@@ -146,24 +161,6 @@ if (!token) {
   import { onAuthStateChanged } from "firebase/auth";
 
   const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
-  const tableBody = document.getElementById('filesListBody');
-  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-  const storageBanner = document.getElementById('storageBanner');
-  // Target the elements inside the component for JS updates
-  const storageCircle = storageBanner?.querySelector('.chart-progress');
-  const storagePercent = storageBanner?.querySelector('.percentage');
-  const usedValue = storageBanner?.querySelector('.used-value');
-  const limitValue = storageBanner?.querySelector('.limit-value');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const uploadModal = document.getElementById('uploadModal');
-  const closeModal = document.getElementById('closeModal');
-  const modalBackdrop = document.getElementById('modalBackdrop');
-  const uploadForm = document.getElementById('uploadForm') as HTMLFormElement;
-  const submitUpload = document.getElementById('submitUpload') as HTMLButtonElement;
-  const uploadFeedback = document.getElementById('uploadFeedback');
-  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-  const fileLabel = document.getElementById('fileLabel');
-  const fileDrop = document.getElementById('fileDrop');
 
   interface FileItem {
     id: string;
@@ -176,17 +173,22 @@ if (!token) {
   }
 
   let allFiles: FileItem[] = [];
-  let token = '';
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    token = await user.getIdToken();
-    await Promise.all([loadQuota(), loadFiles()]);
-  });
-
+  async function getFreshToken() {
+    if (!auth.currentUser) return null;
+    return await auth.currentUser.getIdToken();
+  }
   async function loadQuota() {
+    const storageBanner = document.getElementById('storageBanner');
+    const storageCircle = storageBanner?.querySelector('.chart-progress');
+    const storagePercent = storageBanner?.querySelector('.percentage');
+    const usedValue = storageBanner?.querySelector('.used-value');
+    const limitValue = storageBanner?.querySelector('.limit-value');
+
     try {
-      const res = await fetch(`${API}/files/storage/quota`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const t = await getFreshToken();
+      if (!t) return;
+      const res = await fetch(`${API}/files/storage/quota`, { headers: { 'Authorization': `Bearer ${t}` } });
       if (!res.ok) throw new Error();
       const q = await res.json();
       const pct = q.limitBytes > 0 ? (q.usedBytes / q.limitBytes) * 100 : 0;
@@ -201,34 +203,28 @@ if (!token) {
   }
 
   async function loadFiles() {
+    const tableBody = document.getElementById('filesListBody');
     try {
-      const res = await fetch(`${API}/files`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const t = await getFreshToken();
+      if (!t) return;
+      const res = await fetch(`${API}/files`, { headers: { 'Authorization': `Bearer ${t}` } });
       if (!res.ok) throw new Error();
       allFiles = await res.json();
       renderFiles(allFiles);
     } catch {
-      if (tableBody) tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar los archivos.</p></div></td></tr>`;
+      if (tableBody) tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">report</span><p>Error al cargar los archivos.</p></div></td></tr>`;
     }
   }
 
-  searchInput?.addEventListener('input', () => {
-    const q = searchInput.value.toLowerCase().trim();
-    if (!q) { renderFiles(allFiles); return; }
-    renderFiles(allFiles.filter(f => 
-      f.title.toLowerCase().includes(q) || 
-      f.fileName.toLowerCase().includes(q) || 
-      (f.description && f.description.toLowerCase().includes(q))
-    ));
-  });
-
   function renderFiles(files: FileItem[]) {
+    const tableBody = document.getElementById('filesListBody');
     if (!tableBody) return;
     if (files.length === 0) {
       tableBody.innerHTML = `
         <tr>
           <td colspan="6">
             <div class="empty-state">
-              <i class="fas fa-folder-open"></i>
+              <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">folder_open</span>
               <h3>Sin archivos</h3>
               <p>No hay archivos que coincidan con tu búsqueda o aún no has subido ninguno.</p>
             </div>
@@ -239,60 +235,44 @@ if (!token) {
 
     tableBody.innerHTML = files.map(f => `
       <tr class="file-row">
-        <td class="col-type-data">
-          ${getFileIcon(f.mimeType)}
-        </td>
+        <td class="col-type-data">${getFileIcon(f.mimeType)}</td>
         <td class="col-name-data">
           <div class="name-wrapper">
             <span class="file-title" title="${f.title}">${f.title}</span>
             ${f.title !== f.fileName ? `<span class="file-name-sub">(${f.fileName})</span>` : ''}
           </div>
         </td>
-        <td class="col-desc-data">
-          <span class="file-desc-text" title="${f.description || ''}">${f.description || '-'}</span>
-        </td>
-        <td class="col-size-data">
-          ${fmtSize(f.size)}
-        </td>
-        <td class="col-date-data">
-          ${fmtDate(f.createdAt)}
-        </td>
+        <td class="col-desc-data"><span class="file-desc-text" title="${f.description || ''}">${f.description || '-'}</span></td>
+        <td class="col-size-data">${fmtSize(f.size)}</td>
+        <td class="col-date-data">${fmtDate(f.createdAt)}</td>
         <td class="col-actions-data">
           <div class="td-actions">
-            <button class="btn-action view-btn" data-id="${f.id}" title="Ver en el navegador"><i class="fas fa-external-link-alt"></i></button>
-            <button class="btn-action dl-btn" data-id="${f.id}" title="Descargar"><i class="fas fa-download"></i></button>
-            <button class="btn-action del-btn" data-id="${f.id}" title="Eliminar archivo"><i class="fas fa-trash-alt"></i></button>
+            <button class="btn-action view-btn" data-id="${f.id}" title="Ver en el navegador"><span class="material-symbols-outlined">visibility</span></button>
+            <button class="btn-action dl-btn" data-id="${f.id}" title="Descargar"><span class="material-symbols-outlined">download</span></button>
+            <button class="btn-action del-btn" data-id="${f.id}" title="Eliminar archivo"><span class="material-symbols-outlined">delete_outline</span></button>
           </div>
         </td>
       </tr>
     `).join('');
 
-    tableBody.querySelectorAll('.view-btn').forEach(b =>
-      b.addEventListener('click', () => handleDl(b.getAttribute('data-id')!, 'view')));
-    tableBody.querySelectorAll('.dl-btn').forEach(b =>
-      b.addEventListener('click', () => handleDl(b.getAttribute('data-id')!, 'download')));
-    tableBody.querySelectorAll('.del-btn').forEach(b =>
-      b.addEventListener('click', () => handleDelete(b.getAttribute('data-id')!)));
+    tableBody.querySelectorAll('.view-btn').forEach(b => b.addEventListener('click', () => handleDl(b.getAttribute('data-id')!, 'view')));
+    tableBody.querySelectorAll('.dl-btn').forEach(b => b.addEventListener('click', () => handleDl(b.getAttribute('data-id')!, 'download')));
+    tableBody.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', () => handleDelete(b.getAttribute('data-id')!)));
   }
 
+  // Handlers
   async function handleDl(id: string, action: 'view' | 'download') {
     try {
+      const t = await getFreshToken();
+      if (!t) return;
       const isDl = action === 'download';
-      const res = await fetch(`${API}/files/${id}/download?download=${isDl}`, { 
-        headers: { 'Authorization': `Bearer ${token}` } 
-      });
+      const res = await fetch(`${API}/files/${id}/download?download=${isDl}`, { headers: { 'Authorization': `Bearer ${t}` } });
       if (!res.ok) throw new Error();
       const { url } = await res.json();
-      
-      if (action === 'view') {
-        window.open(url, '_blank');
-      } else {
+      if (action === 'view') window.open(url, '_blank');
+      else {
         if ((window as any).showToast) (window as any).showToast('Iniciando descarga...', 'info');
-        const a = document.createElement('a');
-        a.href = url;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const a = document.createElement('a'); a.href = url; document.body.appendChild(a); a.click(); document.body.removeChild(a);
       }
     } catch { 
       if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorFileRequestModal');
@@ -303,20 +283,16 @@ if (!token) {
   async function handleDelete(id: string) {
     if (!(window as any).confirmModalHelpers) {
       if (!confirm('¿Estás seguro de eliminar este archivo?')) return;
-      return executeDelete(id);
+      return await executeDelete(id);
     }
-
-    (window as any).confirmModalHelpers.open('deleteConfirmModal', () => {
-      executeDelete(id);
-    });
+    (window as any).confirmModalHelpers.open('deleteConfirmModal', async () => await executeDelete(id));
   }
 
   async function executeDelete(id: string) {
     try {
-      const res = await fetch(`${API}/files/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const t = await getFreshToken();
+      if (!t) return;
+      const res = await fetch(`${API}/files/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${t}` } });
       if (!res.ok) throw new Error();
       if ((window as any).showToast) (window as any).showToast('Archivo eliminado.', 'success');
       await Promise.all([loadQuota(), loadFiles()]);
@@ -326,74 +302,126 @@ if (!token) {
     }
   }
 
-  // Lógica del modal de subida
-  uploadBtn?.addEventListener('click', () => uploadModal?.classList.remove('hidden'));
-  closeModal?.addEventListener('click', closeUploadModal);
-  modalBackdrop?.addEventListener('click', closeUploadModal);
-  function closeUploadModal() {
-    uploadModal?.classList.add('hidden');
-    uploadForm?.reset();
-    if (fileLabel) fileLabel.textContent = 'Haz clic o arrastra un archivo aquí';
-    fileDrop?.classList.remove('has-file');
-    if (uploadFeedback) uploadFeedback.className = 'feedback-msg hidden';
+  function initFiles() {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadModal = document.getElementById('uploadModal');
+    const closeModal = document.getElementById('closeModal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const uploadForm = document.getElementById('uploadForm') as HTMLFormElement;
+    const submitUpload = document.getElementById('submitUpload') as HTMLButtonElement;
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    const fileLabel = document.getElementById('fileLabel');
+    const fileDrop = document.getElementById('fileDrop');
+
+    // Modal de subida
+    uploadBtn?.addEventListener('click', () => uploadModal?.classList.remove('hidden'));
+    closeModal?.addEventListener('click', closeUploadModal);
+    modalBackdrop?.addEventListener('click', closeUploadModal);
+    function closeUploadModal() {
+        uploadModal?.classList.add('hidden');
+        uploadForm?.reset();
+        if (fileLabel) fileLabel.textContent = 'Haz clic o arrastra un archivo aquí';
+        fileDrop?.classList.remove('has-file');
+    }
+
+    fileInput?.addEventListener('change', () => {
+        if (fileInput.files?.length && fileLabel) {
+            fileLabel.textContent = fileInput.files[0].name;
+            fileDrop?.classList.add('has-file');
+        }
+    });
+
+    fileDrop?.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('drag-over'); });
+    fileDrop?.addEventListener('dragleave', () => fileDrop?.classList.remove('drag-over'));
+    fileDrop?.addEventListener('drop', (e) => {
+        e.preventDefault(); fileDrop?.classList.remove('drag-over');
+        const files = (e as DragEvent).dataTransfer?.files;
+        if (files?.length && fileInput) {
+            fileInput.files = files;
+            if (fileLabel) fileLabel.textContent = files[0].name;
+            fileDrop?.classList.add('has-file');
+        }
+    });
+
+    uploadForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!submitUpload) return;
+        const titleVal = (document.getElementById('fileTitle') as HTMLInputElement).value;
+        const descVal = (document.getElementById('fileDesc') as HTMLInputElement).value;
+        const isPublicVal = (document.getElementById('fileIsPublic') as HTMLInputElement).checked;
+        const fileVal = fileInput?.files?.[0];
+
+        if (!fileVal) {
+            if ((window as any).modalHelpers) {
+                (window as any).modalHelpers.updateModalMessage('errorUploadModal', 'Selecciona un archivo para subir.');
+                (window as any).modalHelpers.openModal('errorUploadModal');
+            }
+            return;
+        }
+
+        setLoading(submitUpload, true);
+        try {
+            const t = await getFreshToken();
+            if (!t) throw new Error('No se pudo obtener el token de autenticación');
+            const fd = new FormData();
+            fd.append('file', fileVal);
+            fd.append('title', titleVal);
+            fd.append('description', descVal);
+            if (isPublicVal) fd.append('isPublic', 'true');
+
+            const res = await fetch(`${API}/files`, { method: 'POST', headers: { 'Authorization': `Bearer ${t}` }, body: fd });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'Error del servidor'); }
+
+            if ((window as any).modalHelpers) {
+                (window as any).modalHelpers.openModal('successUploadModal');
+            }
+
+            closeUploadModal();
+            await Promise.all([loadQuota(), loadFiles()]);
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : 'Error de conexión';
+            if ((window as any).modalHelpers) {
+                (window as any).modalHelpers.updateModalMessage('errorUploadModal', msg);
+                (window as any).modalHelpers.openModal('errorUploadModal');
+            }
+        } finally { setLoading(submitUpload, false); }
+    });
+
+    searchInput?.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim();
+        if (!q) { renderFiles(allFiles); return; }
+        renderFiles(allFiles.filter(f => f.title.toLowerCase().includes(q) || f.fileName.toLowerCase().includes(q) || (f.description && f.description.toLowerCase().includes(q))));
+    });
   }
 
-  fileInput?.addEventListener('change', () => {
-    if (fileInput.files?.length && fileLabel) {
-      fileLabel.textContent = fileInput.files[0].name;
-      fileDrop?.classList.add('has-file');
-    }
-  });
-  fileDrop?.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('drag-over'); });
-  fileDrop?.addEventListener('dragleave', () => fileDrop?.classList.remove('drag-over'));
-  fileDrop?.addEventListener('drop', (e) => {
-    e.preventDefault(); fileDrop?.classList.remove('drag-over');
-    const files = e.dataTransfer?.files;
-    if (files?.length && fileInput) {
-      fileInput.files = files;
-      if (fileLabel) fileLabel.textContent = files[0].name;
-      fileDrop?.classList.add('has-file');
+  // Firebase integration
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    
+    // Inicializar elementos del DOM y listeners
+    if (document.getElementById('filesListBody')) {
+        initFiles();
+        // Carga inicial de datos
+        await Promise.all([loadQuota(), loadFiles()]);
     }
   });
 
-  uploadForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!submitUpload || !uploadFeedback) return;
-    const title = (document.getElementById('fileTitle') as HTMLInputElement).value;
-    const desc = (document.getElementById('fileDesc') as HTMLInputElement).value;
-    const isPublic = (document.getElementById('fileIsPublic') as HTMLInputElement).checked;
-    const file = fileInput?.files?.[0];
-    if (!file) { showFb(uploadFeedback, 'Selecciona un archivo para subir.', 'error'); return; }
-
-    setLoading(submitUpload, true);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('title', title);
-      fd.append('description', desc);
-      if (isPublic) fd.append('isPublic', 'true');
-      const res = await fetch(`${API}/files`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: fd,
-      });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'Error del servidor'); }
-      showFb(uploadFeedback, '¡Archivo subido con éxito!', 'success');
-      setTimeout(closeUploadModal, 1200);
-      await Promise.all([loadQuota(), loadFiles()]);
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Error de conexión';
-      showFb(uploadFeedback, msg, 'error');
-    } finally { setLoading(submitUpload, false); }
+  document.addEventListener('astro:page-load', () => {
+    if (document.getElementById('filesListBody') && auth.currentUser) {
+        initFiles();
+        loadQuota();
+        loadFiles();
+    }
   });
 
   function getFileIcon(mime: string): string {
-    if (mime.includes('pdf')) return '<i class="fas fa-file-pdf" style="color:#ef4444"></i>';
-    if (mime.includes('image')) return '<i class="fas fa-file-image" style="color:#3b82f6"></i>';
-    if (mime.includes('word') || mime.includes('document')) return '<i class="fas fa-file-word" style="color:#2563eb"></i>';
-    if (mime.includes('sheet') || mime.includes('excel')) return '<i class="fas fa-file-excel" style="color:#22c55e"></i>';
-    if (mime.includes('csv')) return '<i class="fas fa-file-csv" style="color:#f59e0b"></i>';
-    return '<i class="fas fa-file-alt" style="color:#6b7280"></i>';
+    if (mime.includes('pdf')) return '<span class="material-symbols-outlined" style="color:#ef4444">picture_as_pdf</span>';
+    if (mime.includes('image')) return '<span class="material-symbols-outlined" style="color:#3b82f6">image</span>';
+    if (mime.includes('word') || mime.includes('document')) return '<span class="material-symbols-outlined" style="color:#2563eb">description</span>';
+    if (mime.includes('sheet') || mime.includes('excel')) return '<span class="material-symbols-outlined" style="color:#22c55e">table_chart</span>';
+    if (mime.includes('csv')) return '<span class="material-symbols-outlined" style="color:#f59e0b">csv</span>';
+    return '<span class="material-symbols-outlined" style="color:#6b7280">draft</span>';
   }
   function fmtDate(raw: { _seconds?: number } | string): string {
     let d: Date;
@@ -415,14 +443,11 @@ if (!token) {
     btn.querySelector('.btn-text')?.classList.toggle('hidden', on);
     btn.querySelector('.loader')?.classList.toggle('hidden', !on);
   }
-  function showFb(el: HTMLElement, msg: string, type: 'error' | 'success') {
-    el.textContent = msg;
-    el.className = `feedback-msg ${type}`;
-    setTimeout(() => { el.className = 'feedback-msg hidden'; }, 5000);
-  }
+
 </script>
 
 <style>
+  /* Estilos de la página de archivos */
   .files-page { width: 100%; }
   .page-header { margin-bottom: 2rem; }
   .page-header h1 { margin: 0 0 0.5rem; font-size: 2rem; font-weight: 700; color: var(--color-text); }
@@ -523,7 +548,7 @@ if (!token) {
 
   /* Cabeceras */
   .files-table thead {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--color-surface-secondary);
     border-bottom: 2px solid var(--color-border);
   }
   .files-table th {
@@ -603,18 +628,20 @@ if (!token) {
   .files-table :global(.btn-action) {
     background: transparent;
     border: none;
-    color: var(--color-text-muted);
     cursor: pointer;
     font-size: 1.1rem;
     padding: 0.25rem;
-    transition: color 0.2s, transform 0.2s;
+    transition: transform 0.2s, filter 0.2s;
   }
   .files-table :global(.btn-action:hover) {
     transform: scale(1.1);
   }
-  .files-table :global(.view-btn:hover) { color: #3b82f6; }
-  .files-table :global(.dl-btn:hover) { color: #22c55e; }
-  .files-table :global(.del-btn:hover) { color: #ef4444; }
+  .files-table :global(.view-btn) { color: #3b82f6; }
+  .files-table :global(.view-btn:hover) { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4)); }
+  .files-table :global(.dl-btn) { color: #10b981; }
+  .files-table :global(.dl-btn:hover) { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+  .files-table :global(.del-btn) { color: #ef4444; }
+  .files-table :global(.del-btn:hover) { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4)); }
 
   /* Estados vacíos y carga */
   .files-table :global(.loading-state), .files-table :global(.empty-state) {
@@ -666,9 +693,7 @@ if (!token) {
   .file-input-hidden { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   
   .form-actions { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
-  .feedback-msg { padding: 0.875rem; border-radius: var(--radius-md); text-align: center; font-weight: 500; font-size: 0.95rem; }
-  .feedback-msg.error { background: rgba(var(--color-error-rgb),0.1); color: var(--color-error); border: 1px solid rgba(var(--color-error-rgb),0.2); }
-  .feedback-msg.success { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+
   .hidden { display: none !important; }
   .loader { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-bottom-color: #fff; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }

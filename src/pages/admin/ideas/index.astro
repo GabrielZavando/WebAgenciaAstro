@@ -11,14 +11,14 @@ if (!token) {
   <div class="ideas-admin">
     <div class="header-actions">
       <div>
-        <h1><i class="fas fa-lightbulb text-primary"></i> Banco de Ideas</h1>
+        <h1><span class="material-symbols-outlined text-primary" style="font-size: 2.2rem;">lightbulb</span> Banco de Ideas</h1>
         <p class="text-muted">Propuestas y sugerencias de herramientas enviadas por los clientes.</p>
       </div>
     </div>
 
     <div class="ideas-container" id="ideasContainer">
       <div class="loading-state">
-        <i class="fas fa-spinner fa-spin"></i>
+        <span class="material-symbols-outlined spinner">sync</span>
         <p>Cargando ideas...</p>
       </div>
     </div>
@@ -47,7 +47,7 @@ if (!token) {
       if (container) {
         container.innerHTML = `
           <div class="error-state">
-            <i class="fas fa-exclamation-circle"></i>
+            <span class="material-symbols-outlined">error</span>
             <p>Error al cargar las ideas. Por favor, intenta de nuevo.</p>
           </div>`;
       }
@@ -60,7 +60,7 @@ if (!token) {
     if (ideas.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-lightbulb"></i>
+          <span class="material-symbols-outlined">lightbulb</span>
           <h3>No hay ideas aún</h3>
           <p>Las propuestas de los clientes aparecerán aquí.</p>
         </div>`;
@@ -75,7 +75,7 @@ if (!token) {
               <span class="date-badge">${new Date(idea.createdAt).toLocaleDateString()}</span>
               ${idea.imageUrl ? `
                 <a href="${idea.imageUrl}" target="_blank" class="btn-image-link" title="Ver imagen adjunta">
-                  <i class="fas fa-image"></i>
+                  <span class="material-symbols-outlined">image</span>
                 </a>
               ` : ''}
             </div>
@@ -85,7 +85,7 @@ if (!token) {
             </div>
             <div class="idea-card-footer">
               <div class="client-info">
-                <i class="fas fa-user-circle"></i>
+                <span class="material-symbols-outlined">account_circle</span>
                 <span>ID Cliente: ${idea.clientId.substring(0, 8)}...</span>
               </div>
             </div>
@@ -95,142 +95,4 @@ if (!token) {
   }
 </script>
 
-<style is:global>
-  .ideas-admin { max-width: 1200px; margin: 0 auto; }
-  .header-actions { margin-bottom: 3rem; }
-  .header-actions h1 { 
-    font-size: 2.2rem; 
-    font-weight: 800; 
-    margin-bottom: 0.5rem; 
-    color: var(--color-text); 
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .header-actions .text-primary { color: var(--color-primary); }
-  .text-muted { color: var(--color-text-muted); font-size: 1.1rem; }
 
-  .ideas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-  }
-
-  .idea-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .idea-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--color-primary), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .idea-card:hover { 
-    transform: translateY(-5px); 
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-primary);
-  }
-  
-  .idea-card:hover::before {
-    opacity: 1;
-  }
-
-  .idea-card-header { display: flex; justify-content: space-between; align-items: center; }
-  .date-badge { 
-    font-size: 0.75rem; 
-    color: var(--color-text-muted); 
-    background: var(--color-bg); 
-    padding: 0.4rem 1rem; 
-    border-radius: 999px; 
-    font-weight: 600;
-  }
-  
-  .btn-image-link {
-    width: 40px; 
-    height: 40px; 
-    background: rgba(var(--color-primary-rgb), 0.1); 
-    color: var(--color-primary);
-    border-radius: var(--radius-md); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.2s;
-  }
-  .btn-image-link:hover { 
-    background: var(--color-primary); 
-    color: white; 
-    transform: scale(1.1);
-  }
-
-  .idea-card-body h3 { 
-    margin: 0 0 1rem; 
-    font-size: 1.4rem; 
-    color: var(--color-text); 
-    font-weight: 700; 
-  }
-  .explanation { 
-    color: var(--color-text-secondary); 
-    font-size: 1rem; 
-    line-height: 1.6; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 5; 
-    -webkit-box-orient: vertical; 
-    overflow: hidden; 
-  }
-
-  .idea-card-footer { 
-    margin-top: auto; 
-    padding-top: 1.5rem; 
-    border-top: 1px solid var(--color-border); 
-  }
-  .client-info { 
-    display: flex; 
-    align-items: center; 
-    gap: 0.75rem; 
-    color: var(--color-text-muted); 
-    font-size: 0.9rem; 
-    font-weight: 500;
-  }
-  .client-info i { color: var(--color-primary); font-size: 1.1rem; }
-
-  .loading-state, .empty-state, .error-state {
-    text-align: center; 
-    padding: 6rem 2rem; 
-    color: var(--color-text-muted);
-    background: var(--color-surface); 
-    border-radius: var(--radius-xl); 
-    border: 2px dashed var(--color-border);
-    grid-column: 1 / -1;
-  }
-  .loading-state i, .empty-state i, .error-state i { 
-    font-size: 3.5rem; 
-    margin-bottom: 1.5rem; 
-    display: block; 
-    color: var(--color-primary); 
-  }
-  .empty-state h3 { color: var(--color-text); font-size: 1.5rem; margin-bottom: 0.5rem; }
-
-  .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-  @keyframes fadeIn { 
-    from { opacity: 0; transform: translateY(20px); } 
-    to { opacity: 1; transform: translateY(0); } 
-  }
-</style>

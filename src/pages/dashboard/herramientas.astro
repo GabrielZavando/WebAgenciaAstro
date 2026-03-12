@@ -11,7 +11,7 @@ const tools = [
   {
     title: "Firmas de Correo Corporativas",
     description: "Diseña firmas profesionales y consistentes para los correos electrónicos de todo tu equipo. Próximamente disponible.",
-    icon: "fas fa-signature",
+    icon: "draw",
     status: "coming-soon",
     category: "Productividad"
   }
@@ -32,7 +32,7 @@ const tools = [
         <div class="tool-card coming-soon">
           <div class="tool-card-header">
             <div class="tool-icon-wrapper">
-              <i class={tool.icon}></i>
+              <span class="material-symbols-outlined">{tool.icon}</span>
             </div>
             <span class="tool-status-badge">Próximamente</span>
           </div>
@@ -43,7 +43,7 @@ const tools = [
           </div>
           <div class="tool-card-footer">
             <button disabled class="btn-tool-disabled">
-              En desarrollo <i class="fas fa-hammer"></i>
+              En desarrollo <span class="material-symbols-outlined">construction</span>
             </button>
           </div>
         </div>
@@ -52,7 +52,7 @@ const tools = [
       <!-- Placeholder para futuras mentes creativas -->
       <div class="tool-card placeholder-card">
         <div class="placeholder-content">
-          <i class="fas fa-plus-circle"></i>
+          <span class="material-symbols-outlined">add_circle</span>
           <p>Nuevas herramientas en camino...</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ const tools = [
     <div class="idea-mailbox">
       <div class="mailbox-header">
         <div class="icon-bulb">
-          <i class="fas fa-lightbulb"></i>
+          <span class="material-symbols-outlined">lightbulb</span>
         </div>
         <div>
           <h3>Buzón de ideas</h3>
@@ -71,7 +71,7 @@ const tools = [
       </div>
       <div class="mailbox-actions">
         <a href="/dashboard/ideas/nueva" class="btn-primary btn-small">
-          Enviar idea <i class="fas fa-paper-plane"></i>
+          Enviar idea <span class="material-symbols-outlined">send</span>
         </a>
       </div>
     </div>
@@ -126,6 +126,9 @@ const tools = [
     justify-content: center;
     font-size: 1.75rem;
     border-radius: var(--radius-md);
+  }
+  .tool-icon-wrapper span {
+    font-size: 2rem;
   }
 
   .tool-status-badge {
@@ -235,16 +238,19 @@ const tools = [
   }
 
   .icon-bulb {
-    width: 72px;
-    height: 72px;
+    width: 160px;
+    height: 160px;
     background: rgba(245, 158, 11, 0.1);
     color: #f59e0b;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.2rem;
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+  }
+
+  .icon-bulb span {
+    font-size: 6.6rem;
   }
 
   .mailbox-header h3 {

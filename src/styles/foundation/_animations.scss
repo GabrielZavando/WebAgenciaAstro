@@ -166,3 +166,14 @@
 .contact-field.fade-in-delay-4.animate { transition-delay: 0.4s; }
 .contact-field.fade-in-delay-5.animate { transition-delay: 0.6s; }
 .contact-field.fade-in-delay-6.animate { transition-delay: 0.8s; }
+
+// Spinner / Loading animation
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+

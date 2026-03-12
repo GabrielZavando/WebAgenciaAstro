@@ -20,17 +20,17 @@ const STATUS_MAP: Record<string, StatusInfo> = {
   open: {
     label: 'Enviado',
     className: 'status-open',
-    icon: 'fas fa-paper-plane',
+    icon: 'send',
   },
   'in-progress': {
     label: 'En progreso',
     className: 'status-progress',
-    icon: 'fas fa-hourglass-half',
+    icon: 'hourglass_empty',
   },
   resolved: {
     label: 'Resuelto',
     className: 'status-resolved',
-    icon: 'fas fa-check',
+    icon: 'check_circle',
   },
 }
 

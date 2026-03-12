@@ -7,13 +7,13 @@ export interface Props {
   title: string;
 }
 
-const { type, id, message, icon } = Astro.props;
+const { type, id, message, icon, title } = Astro.props;
 
-// Iconos de FontAwesome por defecto
+// Iconos de Material Symbols por defecto
 const defaultIcons = {
-  success: 'fa-check-circle',
-  error: 'fa-times-circle',
-  info: 'fa-circle-info'
+  success: 'check_circle',
+  error: 'error',
+  info: 'info'
 };
 
 const modalIcon = icon || defaultIcons[type];
@@ -25,10 +25,11 @@ const modalClass = type === 'success' ? 'success-modal' : type === 'error' ? 'er
     <div class="modal-message__content" tabindex="-1">
       <button class="modal-message__close" aria-label="Cerrar modal">&times;</button>
       <div class="modal-message__icon">
-        <i class={`fas ${modalIcon}`}></i>
+        <span class="material-symbols-outlined">{modalIcon}</span>
       </div>
+      {title && <h3 class="modal-message__title">{title}</h3>}
       <p class="modal-message__text">{message}</p>
-      <button class="modal-btn btn-cta__solid">Entendido</button>
+      <button class="modal-btn btn-cta">Entendido</button>
     </div>
   </div>
 </div>
@@ -136,6 +137,14 @@ const modalClass = type === 'success' ? 'success-modal' : type === 'error' ? 'er
     }
   }
 
+  .modal-message__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-headings);
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
   .modal-message__text {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -143,7 +152,7 @@ const modalClass = type === 'success' ? 'success-modal' : type === 'error' ? 'er
     color: var(--color-text);
   }
 
-  // Removido .modal-btn ya que usamos .btn-cta__solid
+  // Removido .modal-btn ya que usamos .btn-cta
 </style>
 
 <script is:inline>

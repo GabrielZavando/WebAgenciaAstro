@@ -20,25 +20,25 @@ if (!token) {
       <!-- Acciones principales -->
       <div class="actions-row">
         <div class="search-input-wrapper">
-          <i class="fas fa-search search-icon"></i>
+          <span class="material-symbols-outlined search-icon">search</span>
           <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
         </div>
         <div class="filter-group">
-          <i class="fas fa-filter filter-icon"></i>
+          <span class="material-symbols-outlined filter-icon">filter_list</span>
           <select id="projectQuerySelect">
             <option value="">Todos los proyectos</option>
           </select>
         </div>
         <button class="btn-primary" id="toggleFormBtn">
-          <i class="fas fa-plus"></i> Nuevo Ticket
+          <span class="material-symbols-outlined">add</span> Nuevo Ticket
         </button>
       </div>
     </div>
 
     <div class="content-card form-container hidden" id="formContainer">
       <div class="card-header">
-        <h3><i class="fas fa-plus-circle"></i> Nuevo Ticket</h3>
-        <button type="button" class="btn-close" id="closeFormBtn" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+        <h3><span class="material-symbols-outlined">add_circle</span> Nuevo Ticket</h3>
+        <button type="button" class="btn-close" id="closeFormBtn" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
       </div>
       <div class="card-body">
         <form id="ticketForm" class="ticket-form">
@@ -49,7 +49,7 @@ if (!token) {
               <select id="projectSelect" name="projectId" required>
                 <option value="" disabled selected>Selecciona un proyecto</option>
               </select>
-              <i class="fas fa-chevron-down select-field-arrow"></i>
+              <span class="material-symbols-outlined select-field-arrow">expand_more</span>
             </div>
             <input type="hidden" id="projectName" name="projectName" value="" />
           </div>
@@ -84,7 +84,7 @@ if (!token) {
               <label for="attachment">Adjuntar Imagen (Opcional)</label>
               <div class="file-upload-wrapper">
                 <label for="attachment" class="file-upload-icon-btn" title="Adjuntar imagen">
-                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span class="material-symbols-outlined">cloud_upload</span>
                   <span id="fileNameLabel">Seleccionar imagen</span>
                 </label>
                 <input 
@@ -105,7 +105,7 @@ if (!token) {
                   <option value="medium" selected>Media</option>
                   <option value="high">Alta</option>
                 </select>
-                <i class="fas fa-chevron-down select-field-arrow"></i>
+                <span class="material-symbols-outlined select-field-arrow">expand_more</span>
               </div>
             </div>
           </div>
@@ -136,34 +136,17 @@ if (!token) {
 
   const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-  const ticketForm = document.getElementById('ticketForm') as HTMLFormElement;
-  const submitBtn = document.getElementById('submitTicketBtn') as HTMLButtonElement;
-  const ticketsListBody = document.getElementById('ticketsListBody');
-  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-  const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
-  const subjectInput = document.getElementById('subject') as HTMLInputElement;
-  const messageInput = document.getElementById('message') as HTMLTextAreaElement;
-  const prioritySelect = document.getElementById('priority') as HTMLSelectElement;
-  const attachmentInput = document.getElementById('attachment') as HTMLInputElement;
-  const fileNameLabel = document.getElementById('fileNameLabel');
-  const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
-  const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
-  const feedback = document.getElementById('ticketFeedback') as HTMLDivElement;
-
-  // Nodos UI
-  const toggleFormBtn = document.getElementById('toggleFormBtn');
-  const closeFormBtn = document.getElementById('closeFormBtn');
-  const cancelTicketBtn = document.getElementById('cancelTicketBtn');
-  const formContainer = document.getElementById('formContainer');
-  const listView = document.getElementById('listView');
+  interface FirebaseTimestamp {
+    _seconds: number;
+  }
 
   interface Ticket {
     id: string;
     subject: string;
     priority: 'low' | 'medium' | 'high';
     status: 'open' | 'in-progress' | 'resolved';
-    createdAt: { _seconds?: number } | string;
-    updatedAt: { _seconds?: number } | string;
+    createdAt: FirebaseTimestamp | string;
+    updatedAt: FirebaseTimestamp | string;
     projectId?: string;
   }
 
@@ -179,267 +162,169 @@ if (!token) {
   let allProjects: Project[] = [];
   let currentToken = '';
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    currentToken = await user.getIdToken();
-    await Promise.all([
-      loadProjects(currentToken),
-      loadTickets(currentToken),
-    ]);
-  });
+  function initSupport() {
+    const ticketForm = document.getElementById('ticketForm') as HTMLFormElement;
+    const submitBtn = document.getElementById('submitTicketBtn') as HTMLButtonElement;
+    const ticketsListBody = document.getElementById('ticketsListBody');
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
+    const subjectInput = document.getElementById('subject') as HTMLInputElement;
+    const messageInput = document.getElementById('message') as HTMLTextAreaElement;
+    const prioritySelect = document.getElementById('priority') as HTMLSelectElement;
+    const attachmentInput = document.getElementById('attachment') as HTMLInputElement;
+    const fileNameLabel = document.getElementById('fileNameLabel');
+    const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
+    const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
+    const feedback = document.getElementById('ticketFeedback') as HTMLDivElement;
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    const closeFormBtn = document.getElementById('closeFormBtn');
+    const cancelTicketBtn = document.getElementById('cancelTicketBtn');
+    const formContainer = document.getElementById('formContainer');
+    const listView = document.getElementById('listView');
 
-  async function loadTickets(token: string) {
-    try {
-      const res = await fetch(`${API_URL}/support/tickets/my`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error();
-      allTickets = await res.json();
-      applyFilters(); // Renders the table
-    } catch {
-      if (ticketsListBody) {
-        ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar tickets.</p></div></td></tr>`;
-      }
-    }
-  }
+    if (!ticketsListBody) return;
 
-  async function loadProjects(token: string) {
-    try {
-      const res = await fetch(`${API_URL}/projects/my`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        allProjects = await res.json();
-        populateProjectSelect();
-      }
-    } catch (e) {
-      console.error('Error cargando proyectos', e);
-    }
-  }
-
-  function populateProjectSelect() {
-    if (!projectSelect) return;
-    const defaultOption = '<option value="" disabled selected>Selecciona un proyecto</option>';
-    const options = allProjects.map(p => `<option value="${p.id}">${p.name}</option>`);
-    projectSelect.innerHTML = defaultOption + options.join('');
-
-    // También poblar el filtro de consulta
-    if (projectQuerySelect) {
-      projectQuerySelect.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
-    }
-
-    projectSelect.addEventListener('change', () => {
-      if (projectNameInput) {
-        if (projectSelect.value) {
-          const selectedProject = allProjects.find(p => p.id === projectSelect.value);
-          projectNameInput.value = selectedProject?.name || '';
-        } else {
-          projectNameInput.value = '';
+    async function loadTickets(token: string) {
+        try {
+            const res = await fetch(`${API_URL}/support/tickets/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            allTickets = await res.json();
+            applyFilters();
+        } catch {
+            if (ticketsListBody) ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
         }
-      }
-      validateForm();
-    });
-  }
-
-  // Validación de formulario
-  function validateForm() {
-    const isProjectValid = !!projectSelect.value;
-    const isSubjectValid = !!subjectInput.value.trim();
-    const isMessageValid = !!messageInput.value.trim();
-    const isPriorityValid = !!prioritySelect.value;
-
-    const isValid = isProjectValid && isSubjectValid && isMessageValid && isPriorityValid;
-    
-    if (submitBtn) {
-      submitBtn.disabled = !isValid;
-      submitBtn.title = isValid ? 'Enviar Ticket' : 'Completa todos los campos obligatorios';
-    }
-  }
-
-  // Listeners para validación
-  [subjectInput, messageInput].forEach(el => {
-    el?.addEventListener('input', validateForm);
-  });
-  prioritySelect?.addEventListener('change', validateForm);
-
-  // Manejo de archivo (Label icon)
-  attachmentInput?.addEventListener('change', () => {
-    if (fileNameLabel && attachmentInput.files && attachmentInput.files.length > 0) {
-      fileNameLabel.textContent = attachmentInput.files[0].name;
-      fileNameLabel.classList.add('file-selected');
-    } else if (fileNameLabel) {
-      fileNameLabel.textContent = 'Seleccionar imagen';
-      fileNameLabel.classList.remove('file-selected');
-    }
-  });
-
-  searchInput?.addEventListener('input', applyFilters);
-  projectQuerySelect?.addEventListener('change', applyFilters);
-
-  function applyFilters() {
-    if (!ticketsListBody) return;
-    
-    const query = searchInput?.value.toLowerCase().trim() || '';
-    const selectedProjectId = projectQuerySelect?.value || '';
-    
-    let filtered = [...allTickets];
-
-    if (query) {
-      filtered = filtered.filter(t => t.subject.toLowerCase().includes(query));
     }
 
-    if (selectedProjectId) {
-      filtered = filtered.filter(t => t.projectId === selectedProjectId);
+    async function loadProjects(token: string) {
+        try {
+            const res = await fetch(`${API_URL}/projects/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                allProjects = await res.json();
+                populateProjectSelect();
+            }
+        } catch (e) { console.error('Error cargando proyectos', e); }
     }
 
-    renderTickets(filtered);
-  }
-
-  function openForm() {
-    formContainer?.classList.remove('hidden');
-    listView?.classList.add('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function closeForm() {
-    formContainer?.classList.add('hidden');
-    listView?.classList.remove('hidden');
-    ticketForm?.reset();
-    if(fileNameLabel) fileNameLabel.textContent = 'Seleccionar imagen';
-    validateForm();
-    if(feedback) feedback.className = 'feedback-message hidden';
-  }
-
-  toggleFormBtn?.addEventListener('click', openForm);
-  closeFormBtn?.addEventListener('click', closeForm);
-  cancelTicketBtn?.addEventListener('click', closeForm);
-
-  function renderTickets(tickets: Ticket[]) {
-    if (!ticketsListBody) return;
-
-    if (tickets.length === 0) {
-      ticketsListBody.innerHTML = `
-        <tr>
-      <td colspan="8">
-        <div class="empty-state">
-          <i class="fas fa-inbox"></i>
-          <h3>Sin resultados</h3>
-          <p>No se encontraron tickets en tu historial o con la búsqueda actual.</p>
-        </div>
-      </td>
-    </tr>`;
-      return;
+    function populateProjectSelect() {
+        if (!projectSelect) return;
+        const options = allProjects.map(p => `<option value="${p.id}">${p.name}</option>`);
+        projectSelect.innerHTML = '<option value="" disabled selected>Selecciona un proyecto</option>' + options.join('');
+        if (projectQuerySelect) projectQuerySelect.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
+        
+        projectSelect.addEventListener('change', () => {
+            if (projectNameInput) {
+                const selectedProject = allProjects.find(p => p.id === projectSelect.value);
+                projectNameInput.value = selectedProject?.name || '';
+            }
+            validateForm();
+        });
     }
 
-    // Calcula cuotas consumidas este mes por cada proyecto
-    const projectUsage: Record<string, number> = {};
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    allTickets.forEach(t => {
-      const tDate = getRawDate(t.createdAt);
-      if (tDate >= startOfMonth && t.projectId) {
-        projectUsage[t.projectId] = (projectUsage[t.projectId] || 0) + 1;
-      }
+    function validateForm() {
+        if (!submitBtn) return;
+        const isValid = !!projectSelect?.value && !!subjectInput?.value.trim() && !!messageInput?.value.trim() && !!prioritySelect?.value;
+        submitBtn.disabled = !isValid;
+        submitBtn.title = isValid ? 'Enviar Ticket' : 'Completa todos los campos obligatorios';
+    }
+
+    [subjectInput, messageInput].forEach(el => el?.addEventListener('input', validateForm));
+    prioritySelect?.addEventListener('change', validateForm);
+
+    attachmentInput?.addEventListener('change', () => {
+        if (fileNameLabel) {
+            fileNameLabel.textContent = attachmentInput.files?.length ? attachmentInput.files[0].name : 'Seleccionar imagen';
+            fileNameLabel.classList.toggle('file-selected', !!attachmentInput.files?.length);
+        }
     });
 
-    ticketsListBody.innerHTML = tickets.map(ticket => {
-      const dateCreated = formatDate(ticket.createdAt);
-      const dateResolved = ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-';
-      const statusInfo = getStatusInfo(ticket.status);
-      const priorityInfo = getPriorityInfo(ticket.priority);
+    searchInput?.addEventListener('input', applyFilters);
+    projectQuerySelect?.addEventListener('change', applyFilters);
 
-      const proj = ticket.projectId ? allProjects.find(p => p.id === ticket.projectId) : null;
-      const limit = proj?.monthlyTicketLimit || 10;
-      const used = ticket.projectId ? (projectUsage[ticket.projectId] || 0) : 0;
-      
-      const badgeHtml = proj ? `<span class="project-badge">${proj.name}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`;
-      const quotaHtml = proj ? `<strong>${used}</strong> de ${limit}` : '-';
-
-      return `
-        <tr>
-          <td data-label="Proyecto">${badgeHtml}</td>
-          <td style="text-align: center;" data-label="Tickets">${quotaHtml}</td>
-          <td data-label="Estado">
-            <span class="status-badge ${statusInfo.className}" title="${statusInfo.label}">
-              <i class="${statusInfo.icon}"></i> ${statusInfo.label}
-            </span>
-          </td>
-          <td data-label="Prioridad">
-            <div class="priority-badge-wrapper" title="${priorityInfo.label}">
-              <span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}
-            </div>
-          </td>
-          <td data-label="Asunto">
-            <div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div>
-          </td>
-          <td class="col-date-data" data-label="Fecha Enviado">${dateCreated}</td>
-          <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${dateResolved}</td>
-          <td class="col-actions-data" data-label="Ver Ticket">
-            <div class="td-actions">
-              <a href="/dashboard/soporte/${ticket.id}" class="btn-action view-btn" title="Ver Ticket">
-                <i class="fas fa-eye"></i> Ver
-              </a>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // Enviar nuevo ticket
-  ticketForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!submitBtn || !feedback || !currentToken) return;
-
-    setLoading(submitBtn, true);
-
-    try {
-      const formData = new FormData(ticketForm);
-      if (!formData.get('projectId')) {
-        throw new Error('Debes seleccionar un proyecto válido');
-      }
-
-      const res = await fetch(`${API_URL}/support/tickets`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${currentToken}` },
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Error creando ticket');
-      }
-
-      showFeedback(feedback, 'Ticket creado exitosamente.', 'success');
-      await loadTickets(currentToken);
-      setTimeout(() => { closeForm(); }, 1500);
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Error de conexión';
-      showFeedback(feedback, msg, 'error');
-    } finally {
-      setLoading(submitBtn, false);
+    function applyFilters() {
+        if (!ticketsListBody) return;
+        const query = searchInput?.value.toLowerCase().trim() || '';
+        const selectedProjectId = projectQuerySelect?.value || '';
+        let filtered = allTickets.filter(t => (!query || t.subject.toLowerCase().includes(query)) && (!selectedProjectId || t.projectId === selectedProjectId));
+        renderTickets(filtered);
     }
-  });
+
+    function openForm() { formContainer?.classList.remove('hidden'); listView?.classList.add('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function closeForm() { formContainer?.classList.add('hidden'); listView?.classList.remove('hidden'); ticketForm?.reset(); if(fileNameLabel) fileNameLabel.textContent = 'Seleccionar imagen'; validateForm(); if(feedback) feedback.className = 'feedback-message hidden'; }
+
+    toggleFormBtn?.addEventListener('click', openForm);
+    closeFormBtn?.addEventListener('click', closeForm);
+    cancelTicketBtn?.addEventListener('click', closeForm);
+
+    function renderTickets(tickets: Ticket[]) {
+        if (!ticketsListBody) return;
+        if (tickets.length === 0) {
+            ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+            return;
+        }
+
+        const projectUsage: Record<string, number> = {};
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        allTickets.forEach(t => { if (getRawDate(t.createdAt) >= startOfMonth && t.projectId) projectUsage[t.projectId] = (projectUsage[t.projectId] || 0) + 1; });
+
+        ticketsListBody.innerHTML = tickets.map(ticket => {
+            const statusInfo = getStatusInfo(ticket.status);
+            const priorityInfo = getPriorityInfo(ticket.priority);
+            const proj = ticket.projectId ? allProjects.find(p => p.id === ticket.projectId) : null;
+            const limit = proj?.monthlyTicketLimit || 10;
+            const used = ticket.projectId ? (projectUsage[ticket.projectId] || 0) : 0;
+            
+            return `
+                <tr>
+                    <td data-label="Proyecto">${proj ? `<span class="project-badge">${proj.name}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`}</td>
+                    <td style="text-align: center;" data-label="Tickets"><strong>${used}</strong> de ${limit}</td>
+                    <td data-label="Estado"><span class="status-badge ${statusInfo.className}" title="${statusInfo.label}"><span class="material-symbols-outlined" style="font-size:1rem;margin-right:0.25rem">${statusInfo.icon}</span> ${statusInfo.label}</span></td>
+                    <td data-label="Prioridad"><div class="priority-badge-wrapper" title="${priorityInfo.label}"><span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}</div></td>
+                    <td data-label="Asunto"><div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div></td>
+                    <td class="col-date-data" data-label="Fecha Enviado">${formatDate(ticket.createdAt)}</td>
+                    <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-'}</td>
+                    <td class="col-actions-data" data-label="Ver Ticket"><div class="td-actions"><a href="/dashboard/soporte/${ticket.id}" class="btn-action view-btn" title="Ver Ticket"><span class="material-symbols-outlined">visibility</span> Ver</a></div></td>
+                </tr>`;
+        }).join('');
+    }
+
+    ticketForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!submitBtn || !feedback || !currentToken) return;
+        setLoading(submitBtn, true);
+        try {
+            const res = await fetch(`${API_URL}/support/tickets`, { method: 'POST', headers: { 'Authorization': `Bearer ${currentToken}` }, body: new FormData(ticketForm) });
+            if (!res.ok) throw new Error((await res.json()).message || 'Error creando ticket');
+            showFeedback(feedback, 'Ticket creado exitosamente.', 'success');
+            await loadTickets(currentToken);
+            setTimeout(closeForm, 1500);
+        } catch (error: any) { showFeedback(feedback, error.message || 'Error de conexión', 'error'); }
+        finally { setLoading(submitBtn, false); }
+    });
+
+    if (currentToken) { loadProjects(currentToken); loadTickets(currentToken); }
+  }
 
   function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
-    const text = btn.querySelector('.btn-text');
-    const loader = btn.querySelector('.loader');
     btn.disabled = isLoading;
-    if (isLoading) {
-      text?.classList.add('hidden');
-      loader?.classList.remove('hidden');
-    } else {
-      text?.classList.remove('hidden');
-      loader?.classList.add('hidden');
-    }
+    btn.querySelector('.btn-text')?.classList.toggle('hidden', isLoading);
+    btn.querySelector('.loader')?.classList.toggle('hidden', !isLoading);
   }
 
   function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
     el.textContent = message;
     el.className = `feedback-message ${type}`;
-    setTimeout(() => { el.className = 'feedback-message hidden'; }, 5000);
+    setTimeout(() => { if (el) el.className = 'feedback-message hidden'; }, 5000);
   }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    currentToken = await user.getIdToken();
+    if (document.getElementById('ticketsListBody')) initSupport();
+  });
+
+  document.addEventListener('astro:page-load', () => {
+    if (document.getElementById('ticketsListBody')) initSupport();
+  });
 </script>
 
 <style>

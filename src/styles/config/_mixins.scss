@@ -141,3 +141,69 @@
   position: relative;
   @include z-layer($layer);
 }
+
+// =========================
+// BUTTON UTILITIES
+// =========================
+
+// Botón de ancho completo
+@mixin btn-full {
+  width: 100%;
+}
+
+// Estado de carga universal para botones
+@mixin btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+  cursor: not-allowed;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+// =========================
+// FORM UTILITIES
+// =========================
+
+@mixin form-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--color-surface-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: 0; // Estética Flat
+  color: var(--color-text);
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  transition: all var(--transition-normal) ease;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.5;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--color-surface-secondary);
+  }
+}

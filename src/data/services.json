@@ -6,7 +6,7 @@
   "services": [
     {
       "id": 1,
-      "icon": "<i class='fas fa-bolt'></i>",
+      "icon": "<span class='material-symbols-outlined'>bolt</span>",
       "title": "Sitios Web Estáticos",
       "description": "Crea presencia en línea con sitios web rápidos, optimizados y hechos a medida para tus necesidades.",
       "modalContent": {
@@ -33,7 +33,7 @@
     },
     {
       "id": 2,
-      "icon": "<i class='fas fa-edit'></i>",
+      "icon": "<span class='material-symbols-outlined'>edit</span>",
       "title": "Sitios Web Auto Administrados",
       "description": "Gestión fácil y autónoma para blogs y sitios dinámicos. Publica y edita contenido cuando lo necesites.",
       "modalContent": {
@@ -61,7 +61,7 @@
     },
     {
       "id": 3,
-      "icon": "<i class='fas fa-shopping-cart'></i>",
+      "icon": "<span class='material-symbols-outlined'>shopping_cart</span>",
       "title": "Tiendas Online",
       "description": "Empieza a vender en línea con tiendas online modernas, rápidas y personalizadas.",
       "modalContent": {
@@ -90,7 +90,7 @@
     },
     {
       "id": 4,
-      "icon": "<i class='fas fa-robot'></i>",
+      "icon": "<span class='material-symbols-outlined'>smart_toy</span>",
       "title": "Agentes con IA",
       "description": "Mejora la experiencia de tus clientes con Agentes inteligentes que responden y gestionan consultas al instante",
       "modalContent": {

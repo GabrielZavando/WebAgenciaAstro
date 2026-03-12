@@ -1,7 +1,9 @@
 
 ---
 import Layout from '../../layouts/MainLayout.astro';
+import Banner from '../../components/sections/Banner.astro';
 import Search from '../../components/shared/Search.astro';
+import bannerBlogImg from '../../assets/img/banner-blog.jpg';
 
 // Fetch posts from API (Server Side)
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
@@ -38,16 +40,19 @@ const getExcerpt = (post: any) => {
 };
 ---
 
-<Layout title="Blog | Agencia Digital" alwaysScrolledNav={true}>
-  <section class="blog-section">
-    <div class="container">
+<Layout title="Blog | Agencia Digital">
+  <!-- Banner Utilizando el componente unificado -->
+  <Banner image={bannerBlogImg} size="half" align="end">
       <h1 class="page-title fade-in">Blog</h1>
       <p class="page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
-
+      
       <Search />
+  </Banner>
 
+  <section class="blog-section">
+    <div class="container">
       <div id="noResultsMsg" class="no-results-message" style="display: none;">
-        <i class="fas fa-search"></i>
+        <span class="material-symbols-outlined">search</span>
         <p>No hay coincidencias con la búsqueda.</p>
       </div>
 
@@ -66,13 +71,13 @@ const getExcerpt = (post: any) => {
                 <a href={`/blog/${post.slug}`}>{post.title}</a>
               </h2>
               <div class="post-meta">
-                  <span class="post-author"><i class="fas fa-pen-nib"></i> {post.author || 'Administrador'}</span>
-                  {post.category && <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category"><i class="fas fa-layer-group"></i> {post.category}</a>}
+                  <span class="post-author"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1rem; margin-right: 0.2rem;">edit_note</span> {post.author || 'Administrador'}</span>
+                  {post.category && <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1rem; margin-right: 0.2rem;">label</span> {post.category}</a>}
               </div>
               <p class="post-excerpt">
                 {getExcerpt(post)}
               </p>
-              <a href={`/blog/${post.slug}`} class="btn-cta__solid">Leer más</a>
+              <a href={`/blog/${post.slug}`} class="btn-cta">Leer más</a>
             </div>
           </article>
         ))}
@@ -81,29 +86,34 @@ const getExcerpt = (post: any) => {
   </section>
 </Layout>
 
-<style>
+<style lang="scss">
+  @use "../../styles/config" as *;
+
   .blog-section {
-    padding: 8rem 0 4rem 0;
-    min-height: 80vh;
+    padding: 4rem 0 4rem 0;
+    min-height: 50vh;
   }
   
   .container {
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 0 1.5rem;
   }
 
   .page-title {
-    font-size: 2.5rem;
-    color: var(--color-text);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: var(--color-white);
     margin-bottom: 0.5rem;
     text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .page-subtitle {
      text-align: center;
-     color: var(--color-text-muted);
+     color: var(--color-accent); // Cambiado a accent (#00FFE0) como solicitado
+     opacity: 0.9;
      margin-bottom: 3rem;
+     font-size: 1.2rem;
   }
 
   .posts-grid {

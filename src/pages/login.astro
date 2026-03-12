@@ -1,9 +1,10 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
 import { Image } from 'astro:assets';
-import banner from '../assets/img/banner-web.jpg';
+import banner from '../assets/img/banner-login.jpg';
 import logo from '../assets/img/logo-full.png';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
+import ModalMessage from '../components/shared/ModalMessage.astro';
 ---
 
 <AuthLayout title="Iniciar Sesión | Agencia Digital">
@@ -60,7 +61,7 @@ import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
           </div>
         </div>
 
-        <div id="errorMessage" class="error-message"></div>
+        <!-- El error ahora se muestra solo en el modal según requerimiento -->
         
         <button type="button" class="btn-primary" id="loginBtn" disabled>
             <span class="btn-text">Iniciar sesión</span>
@@ -68,7 +69,15 @@ import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
       </div>
     </div>
 
+
     <ForgotPasswordModal />
+    
+    <ModalMessage 
+      id="errorModal"
+      type="error"
+      title="Error de Acceso"
+      message="Credenciales incorrectas o ha ocurrido un error."
+    />
 
     <!-- Footer pegado al borde inferior -->
     <footer class="login-footer">
@@ -82,7 +91,6 @@ import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
   import { signInWithEmailAndPassword } from "firebase/auth";
   import { auth } from "../lib/firebase/client";
 
-  const errorMessage = document.getElementById('errorMessage');
   const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
   const loginForm = document.getElementById('loginForm');
   const emailInput = document.getElementById('email') as HTMLInputElement;
@@ -115,12 +123,11 @@ import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
   });
 
   loginBtn?.addEventListener('click', async () => {
-    if (!loginBtn || !errorMessage) return;
+    if (!loginBtn) return;
 
     // Loading state
     loginBtn.disabled = true;
     loginBtn.classList.add('loading');
-    errorMessage.textContent = '';
     
     const email = emailInput?.value?.trim() || '';
     const password = passwordInput?.value || '';
@@ -179,7 +186,13 @@ import ForgotPasswordModal from '../components/auth/ForgotPasswordModal.astro';
         msg = "Demasiados intentos. Intenta más tarde.";
       }
       
-      errorMessage.textContent = msg;
+      loginBtn.classList.remove('loading');
+      
+      // Mostrar modal de error
+      if ((window as any).modalHelpers) {
+        (window as any).modalHelpers.updateModalMessage('errorModal', msg);
+        (window as any).modalHelpers.openModal('errorModal');
+      }
       
       validateFields();
     }

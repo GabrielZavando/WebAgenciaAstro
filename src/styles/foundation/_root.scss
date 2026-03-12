@@ -8,11 +8,13 @@
 :root {
   /* Colores de marca */
   --color-primary: #{color(primary)};
+  --color-primary-rgb: 255, 0, 128; /* RGB para #FF0080 */
   --color-secondary: #{color(secondary)};
   --color-accent: #{color(accent)};
   --color-dark: #{color(dark)};
   --color-white: #{color(white)};
   --color-neutral: #{color(neutral)};
+  --color-error-rgb: 239, 68, 68; /* RGB para #ef4444 */
   
   /* Espaciado */
   --space-xs: #{space(xs)};

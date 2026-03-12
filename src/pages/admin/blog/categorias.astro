@@ -19,7 +19,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         <p class="text-muted" style="margin-top: 0.5rem;">Gestiona las categorías de tus artículos del blog.</p>
       </div>
       <button class="btn btn-cta" id="openCreateModal" style="border-radius: 0;">
-        <i class="fas fa-plus"></i> Nueva Categoría
+        <span class="material-symbols-outlined">add</span> Nueva Categoría
       </button>
     </div>
 
@@ -28,7 +28,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       <div class="modal-backdrop" id="modalBackdrop"></div>
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="modalTitle"><i class="fas fa-tag"></i> Nueva Categoría</h3>
+          <h3 id="modalTitle"><span class="material-symbols-outlined">label</span> Nueva Categoría</h3>
           <button class="modal-close" id="closeModal">&times;</button>
         </div>
         <form id="categoryForm" class="category-form">
@@ -201,8 +201,8 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         <td class="text-muted">${cat.description || '-'}</td>
         <td>
           <div class="action-buttons">
-            <button class="btn-icon edit" onclick="window.editCat('${cat.id}')" title="Editar"><i class="fas fa-edit"></i></button>
-            <button class="btn-icon delete" onclick="window.deleteCat('${cat.id}')" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+            <button class="btn-icon edit" onclick="window.editCat('${cat.id}')" title="Editar"><span class="material-symbols-outlined">edit</span></button>
+            <button class="btn-icon delete" onclick="window.deleteCat('${cat.id}')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
           </div>
         </td>
       </tr>
@@ -218,7 +218,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const resetForm = () => {
     catForm.reset();
     idInput.value = '';
-    modalTitle.innerHTML = '<i class="fas fa-tag"></i> Nueva Categoría';
+    modalTitle.innerHTML = '<span class="material-symbols-outlined">tag</span> Nueva Categoría';
     feedback.classList.add('hidden');
   };
 
@@ -281,7 +281,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       nameInput.value = cat.name;
       slugInput.value = cat.slug;
       descInput.value = cat.description || '';
-      modalTitle.innerHTML = '<i class="fas fa-edit"></i> Editar Categoría';
+      modalTitle.innerHTML = '<span class="material-symbols-outlined">edit</span> Editar Categoría';
       openModal();
     }
   };

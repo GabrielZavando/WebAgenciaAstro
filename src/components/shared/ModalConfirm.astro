@@ -18,9 +18,9 @@ const {
 } = Astro.props;
 
 const iconMap = {
-  danger: 'fa-exclamation-triangle',
-  warning: 'fa-exclamation-circle',
-  info: 'fa-info-circle'
+  danger: 'report',
+  warning: 'warning',
+  info: 'info'
 };
 
 const modalClass = `confirm-modal ${type}-modal`;
@@ -32,7 +32,7 @@ const modalClass = `confirm-modal ${type}-modal`;
       <button class="modal-confirm__close" aria-label="Cerrar modal" data-close>&times;</button>
       
       <div class="modal-confirm__icon">
-        <i class={`fas ${iconMap[type]}`}></i>
+        <span class="material-symbols-outlined">{iconMap[type]}</span>
       </div>
       
       <h3 class="modal-confirm__title">{title}</h3>

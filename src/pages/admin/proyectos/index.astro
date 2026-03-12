@@ -1,0 +1,44 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import ProjectTable from '../../../components/shared/ProjectTable.astro';
+import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+---
+
+<DashboardLayout title="Gestión de Proyectos" role="admin">
+  <div class="project-form-container projects-admin">
+    <div class="page-header">
+      <div>
+        <h1>Proyectos</h1>
+        <p class="text-muted">Administración de proyectos y asignaciones.</p>
+      </div>
+      <a href="/admin/proyectos/nuevo" class="btn btn-cta">
+        <span class="material-symbols-outlined">add</span> Nuevo Proyecto
+      </a>
+    </div>
+
+    <ProjectTable id="projectsListBody" />
+  </div>
+
+  <!-- Modal Confirmar Borrado -->
+  <ModalConfirm 
+    slot="modals"
+    id="deleteProjectConfirm"
+    title="Eliminar Proyecto"
+    message="¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer."
+    confirmText="Eliminar Proyecto"
+    type="danger"
+  />
+
+</DashboardLayout>
+
+<script>
+  import { initProjectList } from "../../../scripts/proyectos/list"
+  initProjectList()
+</script>
+
+

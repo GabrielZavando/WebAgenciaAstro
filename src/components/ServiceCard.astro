@@ -16,7 +16,7 @@ const { id, icon, title, description, class: className = '' } = Astro.props;
   <p class="service-card__description">{description}</p>
   <button 
     type="button"
-    class="btn-cta__solid"
+    class="btn-cta"
     data-modal={`modal-${id}`}
     aria-label={`Ver más sobre ${title}`}
     aria-haspopup="dialog"
@@ -60,19 +60,29 @@ const { id, icon, title, description, class: className = '' } = Astro.props;
       margin-bottom: var(--space-lg);
       color: var(--color-primary); // Color primario por defecto
       transition: all var(--transition-normal) ease;
-      font-size: 2rem; // Tamaño del icono Font Awesome
+      font-size: 4rem; // Tamaño base para iconos Font Awesome (Aproximadamente duplicado)
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-      // Estilos para iconos Font Awesome insertados con set:html
-      i {
-        color: inherit; // Hereda el color del contenedor
+      // Estilos específicos para Material Symbols (span) y Font Awesome (i)
+      // Se usa :global porque son inyectados vía set:html
+      :global(span), :global(i) {
+        font-size: 3.5rem !important; // Tamaño móvil
+        color: inherit;
+        display: block;
       }
 
-      @media (min-width: #{container(narrow)}) {
-        font-size: 2.25rem;
+      @media (min-width: #{$breakpoint-md}) {
+        :global(span), :global(i) {
+          font-size: 50px !important; // Tamaño exacto solicitado para escritorio
+        }
       }
 
       @media (min-width: #{container(max)}) {
-        font-size: 2.5rem;
+        :global(span), :global(i) {
+          font-size: 60px !important; // Un poco más grande en pantallas muy anchas
+        }
       }
     }
 
@@ -107,12 +117,5 @@ const { id, icon, title, description, class: className = '' } = Astro.props;
       }
     }
 
-    // Botón siempre al final con espaciado consistente
-    .btn-cta__solid {
-      margin-top: var(--space-lg); // Espacio entre descripción y botón
-      margin-bottom: 0; // Sin margen inferior - el padding del card lo maneja
-      flex-shrink: 0; // Evita que se comprima
-      min-height: 44px; // Altura mínima consistente
-    }
   }
 </style>

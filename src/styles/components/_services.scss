@@ -1,0 +1,91 @@
+@use '../config' as *;
+
+.services {
+  padding: var(--space-xl) 0;
+  background-color: var(--color-surface);
+}
+
+.services-content {
+  // Container usando el nuevo sistema
+  width: 100%;
+  max-width: #{container(max)};
+  margin: 0 auto;
+  padding: 0 var(--padding-container);
+}
+
+.services-content__description {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--color-text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.services-content__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+
+  // Desde 480px - Dos columnas
+  @include respond-to(xs) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // Desde 1200px - Cuatro columnas (una fila horizontal)
+  @include respond-to(lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Estilos para el contenido del modal
+.modal-content {
+  &__description {
+    margin-bottom: var(--space-lg);
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+
+  &__benefits,
+  &__implementation {
+    margin-bottom: var(--space-lg);
+
+    h4 {
+      color: var(--color-primary);
+      font-family: var(--font-headings);
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      font-size: 1.125rem;
+    }
+
+    ul, ol {
+      padding-left: var(--space-md);
+      
+      li {
+        margin-bottom: var(--space-xs);
+        color: var(--color-text);
+        line-height: 1.5;
+      }
+    }
+  }
+
+  &__video {
+    margin-bottom: var(--space-lg);
+    
+    iframe {
+      border-radius: 0;
+      box-shadow: var(--shadow-md);
+    }
+  }
+
+  &__cta {
+    margin-top: var(--space-lg);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+}

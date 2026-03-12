@@ -4,8 +4,9 @@ import ModalMessage from "../shared/ModalMessage.astro";
 const API_BASE_URL =
   import.meta.env.PUBLIC_API_BASE_URL ||
   "https://api-agencia-201828783555.southamerica-west1.run.app";
-const TURNSTILE_SITE_KEY =
-  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
+const TURNSTILE_SITE_KEY = import.meta.env.DEV
+  ? "1x00000000000000000000AA"
+  : import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 <!-- Cloudflare Turnstile SDK -->
@@ -94,7 +95,7 @@ const TURNSTILE_SITE_KEY =
 
       <button
         type="submit"
-        class="btn-cta__solid contact-field fade-in fade-in-delay-6"
+        class="btn-cta contact-field fade-in fade-in-delay-6"
       >
         Enviar mensaje
       </button>
@@ -123,244 +124,7 @@ const TURNSTILE_SITE_KEY =
   type="error"
   title="Error al Enviar"
   message="Lo siento, ha ocurrido un error al enviar tu mensaje. Por favor, inténtalo de nuevo o contáctame directamente."
-/><style lang="scss">
-  @use "../../styles/config" as *;
-
-  .contact {
-    padding: var(--space-2xl) 0; /* más espacio vertical según sugerencia */
-    background-color: var(--contact-bg, var(--color-surface));
-    border-top: 1px solid var(--contact-border, transparent);
-  }
-
-  /* Themed variables locales para inputs, tarjetas y spinner */
-  html[data-theme="light"] .contact {
-    --card-bg: var(--color-white);
-    --input-bg: var(--color-white);
-    --input-border: var(
-      --color-secondary
-    ); /* usar color secondary en modo claro */
-    --input-text: var(--color-input-text);
-    --input-focus-shadow: rgba(var(--color-primary-rgb, 255, 0, 128), 0.1);
-    --placeholder: var(--color-text-muted);
-    --btn-spinner-color: var(--color-white);
-    --error-shadow: rgba(var(--color-error-rgb, 239, 68, 68), 0.12);
-    --success-shadow: rgba(var(--color-success-rgb, 16, 185, 129), 0.12);
-    --contact-bg: var(--color-background); /* más contraste en light */
-    --contact-border: var(--color-border);
-  }
-
-  html[data-theme="dark"] .contact {
-    --card-bg: var(--color-surface);
-    --input-bg: var(--color-surface-secondary);
-    --input-border: var(--color-border-secondary);
-    --input-text: var(
-      --color-text
-    ); /* texto claro en inputs para mejor contraste en dark */
-    --input-focus-shadow: rgba(var(--color-primary-rgb, 255, 0, 128), 0.14);
-    --placeholder: rgba(var(--color-text, 249, 250, 251), 0.56);
-    --btn-spinner-color: var(--color-surface);
-    --error-shadow: rgba(var(--color-error-rgb, 239, 68, 68), 0.18);
-    --success-shadow: rgba(var(--color-success-rgb, 16, 185, 129), 0.18);
-    --contact-bg: var(--color-background);
-    --contact-border: var(--color-border-secondary);
-  }
-
-  .contact__container {
-    // Container usando el nuevo sistema
-    width: 100%;
-    max-width: #{container(max)};
-    margin: 0 auto;
-    padding: 0 var(--padding-container);
-    text-align: center;
-  }
-
-  .contact__subtitle {
-    color: var(--color-text-secondary);
-    font-size: 1.125rem;
-    line-height: 1.6;
-    margin-bottom: var(--space-xl);
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  // Formulario de contacto
-  .contact-form {
-    max-width: 600px;
-    margin: 0 auto;
-    text-align: left;
-
-    @include respond-to(xs) {
-      width: 100%;
-      max-width: 75%; // Mismo ancho que las tarjetas de planes desde 480px
-    }
-
-    @media (min-width: #{container(narrow)}) {
-      max-width: 600px; // Volver al ancho original en desktop
-    }
-  }
-
-  .form-group {
-    margin-bottom: var(--space-lg);
-    position: relative;
-  }
-
-  .form-label {
-    display: block;
-    font-family: var(--font-headings);
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: var(--space-sm);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: var(--space-md);
-    border: 1px solid var(--input-border);
-    border-radius: 0; // Flat design
-    background: var(--input-bg);
-    font-family: var(--font-primary);
-    font-size: 1rem;
-    color: var(--input-text, var(--color-input-text));
-    transition: all var(--transition-normal) ease;
-    outline: none;
-
-    &::placeholder {
-      color: var(--placeholder);
-      opacity: 0.9;
-    }
-
-    &:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px var(--input-focus-shadow);
-    }
-
-    &:invalid:not(:placeholder-shown) {
-      border-color: var(--color-error, #dc2626);
-    }
-
-    &:valid:not(:placeholder-shown) {
-      border-color: var(--color-success, #059669);
-    }
-  }
-
-  .form-textarea {
-    min-height: 120px;
-    resize: vertical;
-    font-family: var(--font-primary);
-    line-height: 1.5;
-  }
-
-  // Contador de caracteres
-  .character-counter {
-    text-align: right;
-    margin-top: var(--space-xs);
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    font-family: var(--font-primary);
-
-    #currentCount {
-      font-weight: 600;
-      color: var(--color-text-secondary);
-    }
-
-    &.warning #currentCount {
-      color: var(--color-warning, #f59e0b);
-    }
-
-    &.error #currentCount {
-      color: var(--color-error, #dc2626);
-    }
-  }
-
-  // Botón de envío
-  .contact-form .btn-cta__solid {
-    width: 100%;
-    margin-top: var(--space-2xl); /* mayor separación antes del botón */
-    padding: var(--space-md) var(--space-lg);
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      filter: grayscale(0.2);
-    }
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-    }
-
-    // Efecto de loading
-    &.loading {
-      color: transparent;
-
-      &::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-        border-top: 2px solid var(--btn-spinner-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-    }
-  }
-
-  // Animación de loading
-  @keyframes spin {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-
-  // Estados de validación visual
-  .form-group.error .form-input {
-    border-color: var(--color-error, #dc2626);
-    box-shadow: 0 0 0 3px var(--error-shadow);
-  }
-
-  .form-group.success .form-input {
-    border-color: var(--color-success, #059669);
-    box-shadow: 0 0 0 3px var(--success-shadow);
-  }
-
-  // Mensajes de error
-  span.error-message {
-    border: 1px solid #ef4444 !important;
-    font-size: 0.8rem;
-    margin-top: var(--space-xs);
-    display: block;
-    font-family: var(--font-primary);
-  }
-
-  // Responsive design - Solo para inputs más pequeños en móvil
-  @media (max-width: #{container(narrow)}) {
-    .form-input {
-      padding: var(--space-sm);
-    }
-
-    .contact-form .btn-cta__solid {
-      padding: var(--space-sm) var(--space-md);
-      font-size: 1rem;
-    }
-  }
-</style>
-
+/>
 <script type="module">
   // CONFIG API - Usar configuración inyectada desde el servidor
   function getAPIBaseURL() {
@@ -439,7 +203,7 @@ const TURNSTILE_SITE_KEY =
     // WARMUP DE LA API (Anti Cold Start)
     // =====================
     // Precalentar la API cuando el usuario hace scroll a la sección de contacto
-    const contactSection = document.getElementById("contact");
+    const contactSection = document.getElementById("contacto");
     if (contactSection && "IntersectionObserver" in window) {
       const warmupObserver = new IntersectionObserver(
         (entries) => {

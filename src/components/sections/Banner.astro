@@ -2,209 +2,53 @@
 import { Image } from 'astro:assets';
 import banner from '../../assets/img/banner-web.jpg';
 
+interface Props {
+    image?: any;
+    size?: 'full' | 'half';
+    align?: 'center' | 'end';
+}
+
+const { image = banner, size = 'full', align = 'center' } = Astro.props;
+
 const name = "Gabriel Zavando";
 const charge = "Full Stack Developer";
 const subtitle = "Tu futuro digital, construido con soluciones a medida.";
 ---
 
-<section class="banner">
+<section id="inicio" class={`banner banner--${size}`}>
     <div class="banner__background">
-        <Image 
-            src={banner} 
-            alt="Gabriel Zavando - Desarrollador Full Stack"
-            width={1920}
-            height={1080}
-            class="banner__image"
-        />
+        {image && typeof image === 'string' ? (
+            <img src={image} alt="Banner background" class="banner__image" />
+        ) : image ? (
+            <Image 
+                src={image} 
+                alt="Banner background"
+                width={1920}
+                height={1080}
+                class="banner__image"
+            />
+        ) : null}
     </div>
     
-    <div class="banner__container">
-        <h1 class="banner__title fade-in">
-            <span class="title-xl">{name}</span>
-            <span class="title-md">{charge}</span>
-        </h1>
-        <p class="parrafo fade-in fade-in-delay-1">
-            {subtitle}
-        </p>
-        <div class="banner__actions fade-in fade-in-delay-2">
-            <a href="/#contacto" class="btn-cta__solid">
-                Hablemos de tu proyecto
-            </a>
-            <a href="/#servicios" class="btn-cta__border">
-                Ver Servicios
-            </a>
-        </div>
+    <div class={`banner__container align-${align}`}>
+        <slot>
+            <h1 class="banner__title fade-in">
+                <span class="title-xl">{name}</span>
+                <span class="title-md">{charge}</span>
+            </h1>
+            <p class="parrafo fade-in fade-in-delay-1">
+                {subtitle}
+            </p>
+            <div class="banner__actions fade-in fade-in-delay-2">
+                <a href="/#contacto" class="btn-cta">
+                    Hablemos de tu proyecto
+                </a>
+                <a href="/#servicios" class="btn-cta__border">
+                    Ver Servicios
+                </a>
+            </div>
+        </slot>
     </div>
 </section>
 
-<style lang="scss">
-    @use '../../styles/config' as *;
-
-    .banner {
-        // Contenedor base
-        position: relative;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        padding-top: 5rem; // Más espacio en móviles muy pequeños
-        // Asegurar que el banner esté por debajo del header
-        isolation: isolate;
-
-        // Ajuste para móviles pequeños (480px en adelante)
-        @include respond-to(xs) {
-            padding-top: var(--space-2xl); // 3rem = 48px
-        }
-
-        // Ajuste para tablets y más grandes
-        @include respond-to(sm) {
-            padding-top: var(--space-xl); // 2rem = 32px (valor original)
-        }
-
-        // Fondo con imagen
-        &__background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: var(--z-background);
-            // Fallback si la imagen no carga (usar variables del sistema de diseño)
-            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
-            
-            .banner__image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                filter: blur(2px);
-                // Asegurar que la imagen se renderice
-                opacity: 1;
-                backface-visibility: hidden;
-            }
-        }
-
-        // Capa degradada
-        &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
-            z-index: var(--z-base);
-        }
-
-        // Contenido principal
-        &__container {
-            // Layout de contenedor
-            width: 100%;
-            max-width: #{container(max)};
-            margin: 0 auto;
-            padding: var(--space-md);
-            
-            // Flexbox
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            
-            // Posicionamiento
-            position: relative;
-            z-index: var(--z-content);
-            text-align: center;
-            min-height: 60vh;
-        }
-
-        // Título
-        &__title {
-            margin-bottom: var(--space-md);
-            line-height: 1.2;
-            
-            // Nombre principal - responsivo
-            .title-xl {
-                color: var(--color-white);
-                display: block;
-                font-family: var(--font-headings);
-                font-weight: 700;
-                font-size: 2.5rem; // Base para móviles muy pequeños
-                
-                // Móviles pequeños (400px+)
-                @include respond-to(xxs) {
-                    font-size: 3rem;
-                }
-                
-                // Móviles medianos (480px+)
-                @include respond-to(xs) {
-                    font-size: 3.5rem;
-                }
-                
-                // Tablets/móviles grandes (768px+)
-                @include respond-to(sm) {
-                    font-size: 4rem;
-                }
-                
-                // Desktop (992px+)
-                @include respond-to(md) {
-                    font-size: 4.5rem;
-                }
-            }
-            
-            // Subtítulo profesional - responsivo
-            .title-md {
-                color: var(--color-accent);
-                display: block;
-                margin-top: var(--space-xs);
-                font-family: var(--font-headings);
-                font-weight: 500;
-                font-size: 1.125rem; // Base para móviles muy pequeños
-                
-                // Móviles pequeños (400px+)
-                @include respond-to(xxs) {
-                    font-size: 1.25rem;
-                }
-                
-                // Móviles medianos (480px+) - AUMENTO SIGNIFICATIVO
-                @include respond-to(xs) {
-                    font-size: 1.75rem;
-                }
-                
-                // Tablets/móviles grandes (768px+)
-                @include respond-to(sm) {
-                    font-size: 2rem;
-                }
-                
-                // Desktop (992px+)
-                @include respond-to(md) {
-                    font-size: 2.25rem;
-                }
-            }
-        }
-
-        // Subtítulo
-        & .parrafo {
-            margin-bottom: var(--space-xl);
-            max-width: 672px; // Limitar ancho para mejor legibilidad
-            color: var(--color-white);
-            font-size: 1.125rem;
-            line-height: 1.6;
-        }
-
-        // Acciones
-        &__actions {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: var(--space-lg);
-            width: 100%;
-            
-            @media (min-width: #{container(narrow)}) {
-                flex-direction: row;
-            }
-        }
-    }
-</style>
 

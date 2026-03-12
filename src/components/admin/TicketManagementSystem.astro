@@ -35,233 +35,187 @@ const { clientId, clientEmail } = Astro.props;
   import { formatDate, getStatusInfo, getPriorityInfo } from "../../lib/support-utils";
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
-  const container = document.querySelector('.ticket-management-system') as HTMLElement;
-  const clientId = container?.dataset.clientId;
-  const clientEmailFilter = container?.dataset.clientEmail;
-  
-  const ticketsListBody = document.getElementById('ticketsListBody');
-  const clientSelect = document.getElementById('clientSelect') as HTMLSelectElement;
-  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 
-  interface Ticket {
-    id: string;
-    subject: string;
-    message: string;
-    priority: 'low' | 'medium' | 'high';
-    status: 'open' | 'in-progress' | 'resolved';
-    adminResponse: string;
-    createdAt: { _seconds?: number } | string;
-    updatedAt: { _seconds?: number } | string;
-    clientEmail?: string;
-    clientId?: string;
-    projectId?: string;
-    projectName?: string;
-  }
+  async function initTicketManagement() {
+    const container = document.querySelector('.ticket-management-system') as HTMLElement;
+    if (!container) return;
 
-  interface Client {
-    id: string;
-    displayName: string;
-    email: string;
-  }
-  
-  interface Project {
-    id: string;
-    name: string;
-    clientId: string;
-  }
-
-  let allTickets: Ticket[] = [];
-  let allClients: Client[] = [];
-  let allProjects: Project[] = [];
-  let token = '';
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    token = await user.getIdToken();
-    const promises = [loadProjects(), loadTickets()];
-    if (!clientId) promises.push(loadClients());
-    await Promise.all(promises);
-  });
-
-  async function loadClients() {
-    try {
-      const res = await fetch(`${API_URL}/clients`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error();
-      const rawClients = await res.json();
-      allClients = rawClients.map((c: any) => ({
-        id: c.uid || c.id || '',
-        displayName: c.displayName || c.name || 'Sin nombre',
-        email: c.email
-      }));
-      populateClientSelect();
-    } catch {
-      console.error("No se pudieron cargar los clientes");
-      if (clientSelect) clientSelect.innerHTML = '<option value="">Todos los clientes</option>';
-    }
-  }
-  
-  async function loadProjects() {
-    try {
-      const res = await fetch(`${API_URL}/projects`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).catch(() => null);
-      if (res && res.ok) allProjects = await res.json();
-    } catch {
-      console.error("No se pudieron cargar los proyectos");
-    }
-  }
-
-  function populateClientSelect() {
-    if (!clientSelect) return;
-    const defaultOption = '<option value="">Todos los clientes</option>';
-    const options = allClients.map(c => `<option value="${c.email}">${c.displayName} (${c.email})</option>`);
-    clientSelect.innerHTML = defaultOption + options.join('');
-    clientSelect.addEventListener('change', applyFilters);
-  }
-
-  async function loadTickets() {
-    try {
-      const url = clientId ? `${API_URL}/support/tickets/client/${clientId}` : `${API_URL}/support/tickets`;
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error();
-      allTickets = await res.json();
-      applyFilters();
-    } catch {
-      if (ticketsListBody) {
-        ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar tickets.</p></div></td></tr>`;
-      }
-    }
-  }
-
-  const btnSearch = document.getElementById('btnSearchTicket');
-  btnSearch?.addEventListener('click', applyFilters);
-  searchInput?.addEventListener('input', applyFilters);
-
-  function applyFilters() {
-    if (!ticketsListBody) return;
-    const query = searchInput?.value.toLowerCase().trim() || '';
-    const selectedClientEmail = clientSelect?.value || clientEmailFilter || '';
+    const clientId = container.dataset.clientId;
+    const clientEmailFilter = container.dataset.clientEmail;
     
-    let filtered = [...allTickets];
-    if (query) filtered = filtered.filter(t => t.subject.toLowerCase().includes(query));
-    if (selectedClientEmail) filtered = filtered.filter(t => t.clientEmail === selectedClientEmail);
+    const ticketsListBody = document.getElementById('ticketsListBody');
+    const clientSelect = document.getElementById('clientSelect') as HTMLSelectElement;
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const btnSearch = document.getElementById('btnSearchTicket');
 
-    renderTickets(filtered);
-  }
-
-  function renderTickets(tickets: Ticket[]) {
-    if (!ticketsListBody) return;
-    if (tickets.length === 0) {
-      ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><i class="fas fa-inbox"></i><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
-      return;
+    interface Ticket {
+      id: string;
+      subject: string;
+      message: string;
+      priority: 'low' | 'medium' | 'high';
+      status: 'open' | 'in-progress' | 'resolved';
+      adminResponse: string;
+      createdAt: { _seconds: number } | string;
+      updatedAt: { _seconds: number } | string;
+      clientEmail?: string;
+      clientId?: string;
+      projectId?: string;
+      projectName?: string;
     }
 
-    ticketsListBody.innerHTML = tickets.map(ticket => {
-      const dateCreated = formatDate(ticket.createdAt);
-      const dateResolved = ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-';
-      const statusInfo = getStatusInfo(ticket.status);
-      const priorityInfo = getPriorityInfo(ticket.priority);
-      const projectName = ticket.projectName || (allProjects.find(p => p.id === ticket.projectId)?.name || 'S/P');
-      const badgeHtml = projectName !== 'S/P' ? `<span class="project-badge">${projectName}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`;
+    interface Client {
+      id: string;
+      displayName: string;
+      email: string;
+    }
+    
+    interface Project {
+      id: string;
+      name: string;
+      clientId: string;
+    }
 
-      return `
-        <tr>
-          ${!clientId ? `<td class="col-client-data" data-label="Cliente"><div style="font-size: 0.9rem; font-weight: 500;">${ticket.clientEmail || 'Desconocido'}</div></td>` : ''}
-          <td data-label="Proyecto">${badgeHtml}</td>
-          <td data-label="Estado">
-            <span class="status-badge ${statusInfo.className}" title="${statusInfo.label}">
-              <i class="${statusInfo.icon}"></i> ${statusInfo.label}
-            </span>
-          </td>
-          <td data-label="Prioridad">
-            <div class="priority-badge-wrapper" title="${priorityInfo.label}">
-              <span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}
-            </div>
-          </td>
-          <td data-label="Asunto">
-            <div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div>
-          </td>
-          <td class="col-date-data" data-label="Fecha Enviado">${dateCreated}</td>
-          <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${dateResolved}</td>
-          <td class="col-actions-data" data-label="Ver Ticket">
-            <div class="td-actions">
-              <a href="/admin/tickets/${ticket.id}" class="btn-action view-btn" title="Ver Ticket completo"><i class="fas fa-eye"></i> Ver</a>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
+    let allTickets: Ticket[] = [];
+    let allClients: Client[] = [];
+    let allProjects: Project[] = [];
+    let token = '';
+
+    const loadClients = async () => {
+      try {
+        const res = await fetch(`${API_URL}/clients`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        const rawClients = await res.json();
+        allClients = rawClients.map((c: any) => ({
+          id: c.uid || c.id || '',
+          displayName: c.displayName || c.name || 'Sin nombre',
+          email: c.email
+        }));
+        populateClientSelect();
+      } catch {
+        console.error("No se pudieron cargar los clientes");
+        if (clientSelect) clientSelect.innerHTML = '<option value="">Todos los clientes</option>';
+      }
+    };
+    
+    const loadProjects = async () => {
+      try {
+        const res = await fetch(`${API_URL}/projects`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => null);
+        if (res && res.ok) allProjects = await res.json();
+      } catch {
+        console.error("No se pudieron cargar los proyectos");
+      }
+    };
+
+    const populateClientSelect = () => {
+      if (!clientSelect) return;
+      const defaultOption = '<option value="">Todos los clientes</option>';
+      const options = allClients.map(c => `<option value="${c.email}">${c.displayName} (${c.email})</option>`);
+      clientSelect.innerHTML = defaultOption + options.join('');
+      clientSelect.addEventListener('change', applyFilters);
+    };
+
+    const loadTickets = async () => {
+      try {
+        const url = clientId ? `${API_URL}/support/tickets/client/${clientId}` : `${API_URL}/support/tickets`;
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        allTickets = await res.json();
+        applyFilters();
+      } catch {
+        if (ticketsListBody) {
+          ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
+        }
+      }
+    };
+
+    const applyFilters = () => {
+      if (!ticketsListBody) return;
+      const query = searchInput?.value.toLowerCase().trim() || '';
+      const selectedClientEmail = clientSelect?.value || clientEmailFilter || '';
+      
+      let filtered = [...allTickets];
+      if (query) filtered = filtered.filter(t => t.subject.toLowerCase().includes(query));
+      if (selectedClientEmail) filtered = filtered.filter(t => t.clientEmail === selectedClientEmail);
+
+      renderTickets(filtered);
+    };
+
+    const renderTickets = (tickets: Ticket[]) => {
+      if (!ticketsListBody) return;
+      if (tickets.length === 0) {
+        ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+        return;
+      }
+
+      ticketsListBody.innerHTML = tickets.map(ticket => {
+        const dateCreated = formatDate(ticket.createdAt);
+        const dateResolved = ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-';
+        const statusInfo = getStatusInfo(ticket.status);
+        const priorityInfo = getPriorityInfo(ticket.priority);
+        const projectName = ticket.projectName || (allProjects.find(p => p.id === ticket.projectId)?.name || 'S/P');
+        const badgeHtml = projectName !== 'S/P' ? `<span class="project-badge">${projectName}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`;
+        const clientObj = allClients.find(c => c.email === ticket.clientEmail || (ticket.clientId && c.id === ticket.clientId));
+        const clientNameDisplay = clientObj && clientObj.displayName && clientObj.displayName !== clientObj.email 
+          ? clientObj.displayName 
+          : ((ticket as any).clientName || 'Sin nombre');
+
+        return `
+          <tr>
+            ${!clientId ? `<td class="col-client-data" data-label="Cliente"><div style="font-size: 0.9rem; font-weight: 500;">${clientNameDisplay}</div></td>` : ''}
+            <td data-label="Proyecto">${badgeHtml}</td>
+            <td data-label="Estado">
+              <span class="status-badge ${statusInfo.className}" title="${statusInfo.label}">
+                <span class="material-symbols-outlined">${statusInfo.icon}</span> ${statusInfo.label}
+              </span>
+            </td>
+            <td data-label="Prioridad">
+              <div class="priority-badge-wrapper" title="${priorityInfo.label}">
+                <span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}
+              </div>
+            </td>
+            <td data-label="Asunto">
+              <div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div>
+            </td>
+            <td class="col-date-data" data-label="Fecha Enviado">${dateCreated}</td>
+            <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${dateResolved}</td>
+            <td class="col-actions-data" data-label="Ver Ticket">
+              <div class="td-actions">
+                <a href="/admin/tickets/${ticket.id}" class="btn-action view-btn" title="Ver Ticket completo"><span class="material-symbols-outlined">visibility</span> Ver</a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    // --- Vinculación de Eventos ---
+    btnSearch?.addEventListener('click', applyFilters);
+    searchInput?.addEventListener('input', applyFilters);
+
+    // --- Inicio de Carga ---
+    const startLoading = async (user: any) => {
+      if (!user) return;
+      token = await user.getIdToken();
+      const promises = [loadProjects(), loadTickets()];
+      if (!clientId) promises.push(loadClients());
+      await Promise.all(promises);
+    };
+
+    if (auth.currentUser) {
+      startLoading(auth.currentUser);
+    } else {
+      onAuthStateChanged(auth, startLoading);
+    }
   }
+
+  // Inicializar en cada carga de página
+  document.addEventListener('astro:page-load', initTicketManagement);
 </script>
 
-<style>
-  .actions-row { 
-    display: flex; 
-    gap: 1rem; 
-    margin-bottom: 1.5rem; 
-    justify-content: flex-end;
-  }
-  .search-row { 
-    display: flex;
-    gap: 0.5rem;
-    width: 50%; 
-    margin-left: auto;
-  }
-  
-  .search-row input {
-    flex: 1;
-    padding: 0 1rem !important;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md) !important;
-    background: var(--color-background);
-    color: var(--color-text);
-    font-size: 0.95rem;
-    height: 3rem !important;
-    box-shadow: var(--shadow-sm);
-  }
 
-  .btn-search-item {
-    background: var(--color-primary);
-    color: white;
-    padding: 0 2rem;
-    border: none;
-    border-radius: var(--radius-md) !important;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    white-space: nowrap;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .btn-search-item:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .form-select {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-family: inherit;
-    font-size: 0.95rem;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-  }
-
-  @media (max-width: 768px) {
-    .actions-row { flex-direction: column; }
-    .search-row { width: 100%; }
-  }
-</style>

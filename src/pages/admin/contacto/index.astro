@@ -89,7 +89,7 @@ const formatDate = (dateValue: any) => {
 
                 <div class="card-body">
                   <p class="prospect-phone">
-                    <i class="fas fa-phone"></i> {prospect.phone || 'No provisto'}
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">call</span> {prospect.phone || 'No provisto'}
                   </p>
                   <div class="latest-message">
                     <p class="message-preview">
@@ -101,16 +101,16 @@ const formatDate = (dateValue: any) => {
                 <div class="card-footer">
                    <div class="meta-info">
                      <span class="date-badge" title="Última actualización">
-                       <i class="fas fa-clock"></i>
+                       <span class="material-symbols-outlined" style="font-size: 0.9rem; margin-right: 0.25rem;">schedule</span>
                        {formatDate(prospect.updatedAt || prospect.createdAt)}
                      </span>
                      <span class="msgs-count">
-                       <i class="fas fa-comments"></i>
+                       <span class="material-symbols-outlined" style="font-size: 0.9rem; margin-right: 0.25rem;">forum</span>
                        {conversationLength} mensajes
                      </span>
                    </div>
                    <div class="view-thread">
-                     Ver conversación <i class="fas fa-arrow-right"></i>
+                     Ver conversación <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-left: 0.25rem;">arrow_forward</span>
                    </div>
                 </div>
               </a>
@@ -122,198 +122,4 @@ const formatDate = (dateValue: any) => {
   </div>
 </DashboardLayout>
 
-<style>
-.admin-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  animation: fadeIn 0.4s ease-out;
-}
 
-.admin-header {
-  margin-bottom: 2rem;
-}
-
-.header-content h1 {
-  font-size: 2rem;
-  color: var(--text-color, #ffffff);
-  margin-bottom: 0.5rem;
-}
-
-.header-content p {
-  color: var(--text-muted, #94a3b8);
-  font-size: 1.1rem;
-}
-
-.error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid var(--danger-color, #ef4444);
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 2rem;
-  color: #f87171;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: var(--bg-surface, #1e293b);
-  border-radius: 12px;
-  border: 1px dashed var(--border-color, #334155);
-  color: var(--text-muted, #94a3b8);
-  font-size: 1.1rem;
-}
-
-/* Grid Layout para las tarjetas */
-.prospects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-.prospect-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-surface, #1e293b);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 12px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.prospect-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary-color, #3b82f6);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color, #334155);
-  background: rgba(15, 23, 42, 0.2);
-}
-
-.prospect-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.prospect-name {
-  color: var(--text-color, #ffffff);
-  font-size: 1.1rem;
-  margin: 0 0 0.25rem 0;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.prospect-email {
-  display: block;
-  color: var(--primary-color, #3b82f6);
-  font-size: 0.875rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-}
-
-.badge.replied {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.badge.pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.card-body {
-  padding: 1.25rem 1.5rem;
-  flex: 1;
-}
-
-.prospect-phone {
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.875rem;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.message-preview {
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin: 0;
-  font-style: italic;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-footer {
-  padding: 1rem 1.5rem;
-  background: rgba(15, 23, 42, 0.4);
-  border-top: 1px solid var(--border-color, #334155);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.meta-info {
-  display: flex;
-  gap: 1rem;
-}
-
-.date-badge, .msgs-count {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.8rem;
-}
-
-.view-thread {
-  color: var(--primary-color, #3b82f6);
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: transform 0.2s;
-}
-
-.prospect-card:hover .view-thread {
-  transform: translateX(4px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-  .prospects-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

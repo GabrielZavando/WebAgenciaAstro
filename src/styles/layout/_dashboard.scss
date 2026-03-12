@@ -162,8 +162,12 @@
     }
 
     .sidebar-footer {
-      padding: 1rem 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
       border-top: 1px solid var(--color-border);
+      box-sizing: border-box;
     }
 
     /* Content Area */
@@ -174,6 +178,7 @@
       flex-direction: column;
       min-height: 100vh;
       transition: margin-left 0.3s ease;
+      padding-bottom: 60px; /* Evita que el footer fixee encima del contenido */
     }
 
     .sidebar.collapsed + .dashboard-content {
@@ -407,72 +412,6 @@
     .dropdown-item.text-error:hover {
       color: var(--color-error);
       background-color: rgba(var(--color-error-rgb), 0.05);
-    }
-
-    /* Estilos del Notifications Dropdown (Contenedores estáticos) */
-    .notifications-dropdown {
-      width: 320px;
-      right: -10px;
-    }
-    .notifications-list {
-      max-height: 350px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0;
-      margin: 0;
-    }
-    .notification-empty {
-      padding: 1.5rem 1rem;
-      text-align: center;
-      font-size: 0.85rem;
-    }
-
-    /* Estilos Globales para contenido inyectado dinámicamente */
-    :global(.notification-item) {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      padding: 0.85rem 1.25rem;
-      border-bottom: 1px solid var(--color-border);
-      text-decoration: none;
-      color: var(--color-text);
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-    :global(.notification-item:last-child) {
-      border-bottom: none;
-    }
-    :global(.notification-item:hover) {
-      background-color: rgba(var(--color-primary-rgb), 0.08);
-      transform: translateX(2px);
-    }
-    :global(.notification-item.unread) {
-      background-color: rgba(var(--color-primary-rgb), 0.03);
-      border-left: 4px solid var(--color-primary);
-      padding-left: calc(1.25rem - 4px);
-    }
-    :global(.notification-title) {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--color-text);
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    :global(.notification-message) {
-      font-size: 0.78rem;
-      color: var(--color-text-muted);
-      margin: 0;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    :global(.notification-time) {
-      font-size: 0.7rem;
-      color: var(--color-text-muted);
-      margin-top: 0.25rem;
     }
 
     @media (max-width: 768px) {

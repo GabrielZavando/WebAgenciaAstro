@@ -14,7 +14,7 @@ const isOk = status === "ok";
       {isOk ? (
         <>
           <div class="icon-wrapper success">
-            <i class="fas fa-check-circle"></i>
+            <span class="material-symbols-outlined" style="font-size: 4rem;">check_circle</span>
           </div>
           <h1 class="confirm-title">¡Suscripción confirmada!</h1>
           <p class="confirm-text">
@@ -25,7 +25,7 @@ const isOk = status === "ok";
       ) : (
         <>
           <div class="icon-wrapper error">
-            <i class="fas fa-times-circle"></i>
+            <span class="material-symbols-outlined" style="font-size: 4rem;">cancel</span>
           </div>
           <h1 class="confirm-title">Enlace inválido o expirado</h1>
           <p class="confirm-text">
@@ -36,7 +36,7 @@ const isOk = status === "ok";
       )}
 
       <a href="/" class="btn-home">
-        <i class="fas fa-arrow-left"></i> Volver al inicio
+        <span class="material-symbols-outlined">arrow_back</span> Volver al inicio
       </a>
     </div>
   </section>

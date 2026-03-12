@@ -1,6 +1,7 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -59,14 +60,14 @@ try {
 <DashboardLayout title={isNew ? "Nuevo Artículo" : `Editar Artículo: ${post?.title || ''}`} role="admin">
   <div class="header-actions">
     <a href="/admin/blog" class="back-link">
-      <i class="fas fa-arrow-left"></i> Volver al Blog
+      <span class="material-symbols-outlined">arrow_back</span> Volver al Blog
     </a>
     <h2>{isNew ? "Crear Nuevo Artículo" : `Editar Artículo: ${post?.title || ''}`}</h2>
   </div>
 
   {errorMsg && (
     <div class="error-banner">
-      <i class="fas fa-exclamation-triangle"></i> {errorMsg}
+      <span class="material-symbols-outlined">report</span> {errorMsg}
     </div>
   )}
 
@@ -75,62 +76,62 @@ try {
       <form id="postForm" class="post-form" data-postid={!isNew ? id : ''} data-isnew={isNew ? 'true' : 'false'}>
         <div class="form-row">
           <div class="form-group">
-            <label for="title">Título <span class="required">*</span></label>
-            <input type="text" id="title" name="title" required placeholder="Título del post" value={post?.title || ''} />
+            <label for="title" class="form-label">Título <span class="required">*</span></label>
+            <input type="text" id="title" name="title" class="form-input" required placeholder="Título del post" value={post?.title || ''} />
           </div>
 
           <div class="form-group">
-            <label for="slug">Slug (URL) <span class="required">*</span></label>
-            <input type="text" id="slug" name="slug" required placeholder="titulo-del-post" value={post?.slug || ''} />
+            <label for="slug" class="form-label">Slug (URL) <span class="required">*</span></label>
+            <input type="text" id="slug" name="slug" class="form-input" required placeholder="titulo-del-post" value={post?.slug || ''} />
           </div>
         </div>
 
         <div class="form-group">
-          <label for="content">Contenido <span class="required">*</span></label>
+          <label for="content" class="form-label">Contenido <span class="required">*</span></label>
           <div id="editor-container" class="editor-container"></div>
           <input type="hidden" id="content" name="content" required value={post?.content || ''} />
         </div>
 
         <div class="form-row">
           <div class="form-group form-group-image">
-            <label>Imagen de Portada</label>
+            <label class="form-label">Imagen de Portada</label>
             <div class="image-upload-container">
               <input type="hidden" id="coverImage" name="coverImage" value={post?.coverImage || ''} />
-              <div id="imagePreview" class="image-preview" style={post?.coverImage ? "display: block;" : "display: none;"}>
-                <img id="previewImg" src={post?.coverImage || ''} alt="Portada" />
-                <button type="button" id="removeImageBtn" class="remove-image" title="Eliminar imagen"><i class="fas fa-times"></i></button>
+              <div id="imagePreview" class="image-preview" style={post?.coverImage ? "" : "display: none;"}>
+                <img id="previewImg" src={post?.coverImage || ''} alt="" class="preview-img" />
+                <button type="button" id="removeImageBtn" class="remove-image-btn" title="Eliminar imagen"><span class="material-symbols-outlined">close</span></button>
               </div>
-              <div id="imageControls" class="image-controls" style={post?.coverImage ? "display: none;" : "display: flex; gap: 0.5rem; height: 100%;"}>
-                <button type="button" id="selectFileBtn" class="btn btn-cta btn-image-ctrl"><i class="fas fa-images"></i> Biblioteca</button>
-                <button type="button" id="uploadFileBtn" class="btn btn-ghost btn-image-ctrl"><i class="fas fa-upload"></i> Subir Imagen</button>
+              <div id="imageControls" class="image-controls" style={post?.coverImage ? "display: none;" : ""}>
+                <button type="button" id="selectFileBtn" class="btn btn-cta btn-image-ctrl"><span class="material-symbols-outlined">imagesmode</span> Biblioteca</button>
+                <button type="button" id="uploadFileBtn" class="btn btn-cta__border btn-image-ctrl"><span class="material-symbols-outlined">cloud_upload</span> Subir Imagen</button>
                 <input type="file" id="coverImageFile" accept="image/*" style="display: none;" />
               </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="author">Autor</label>
-            <input type="text" id="author" name="author" placeholder="Ej: Juan Pérez" value={post?.author || ''} />
+            <label for="author" class="form-label">Autor</label>
+            <input type="text" id="author" name="author" class="form-input" placeholder="Ej: Juan Pérez" value={post?.author || ''} />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="category">Categoría</label>
+            <label for="category" class="form-label">Categoría</label>
             <div class="input-with-icon">
-              <select id="category" name="category" required>
+              <select id="category" name="category" class="form-input" required>
                 <option value="" disabled selected={!post?.category}>Selecciona una categoría</option>
                 {categories.map((cat) => (
                   <option value={cat.name} selected={post?.category === cat.name}>{cat.name}</option>
                 ))}
               </select>
-              <i class="fas fa-chevron-down icon-select"></i>
+              <span class="material-symbols-outlined icon-select">expand_more</span>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="publishedAt">Fecha de Publicación</label>
-            <input type="datetime-local" id="publishedAt" name="publishedAt" value={initialPublishedAt} />
+            <label for="publishedAt" class="form-label">Fecha de Publicación</label>
+            <input type="datetime-local" id="publishedAt" name="publishedAt" class="form-input" value={initialPublishedAt} />
           </div>
         </div>
 
@@ -146,20 +147,39 @@ try {
         <div class="form-actions actions-spaced">
           <div class="left-actions">
             {!isNew && (
-              <button type="button" class="btn-danger" id="deleteBtn">
-                <i class="fas fa-trash-alt"></i> Eliminar Post
+              <button type="button" class="btn btn-danger" id="deleteBtn">
+                <span class="material-symbols-outlined icon-left">delete</span> Eliminar Post
               </button>
             )}
           </div>
           <div class="right-actions">
-            <button type="submit" class="btn-primary" id="submitBtn">
-              <span class="btn-text">{isNew ? 'Crear Post' : 'Guardar Cambios'}</span>
+            <button type="submit" class="btn btn-cta" id="submitBtn">
+              <span class="material-symbols-outlined icon-left">save</span> <span class="btn-text">{isNew ? 'Crear Post' : 'Guardar Cambios'}</span>
             </button>
           </div>
         </div>
       </form>
     </div>
   )}
+
+  <!-- Modal de Selección de Imágenes -->
+  <div id="imageSelectModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span class="material-symbols-outlined">imagesmode</span> Biblioteca de Imágenes</h3>
+        <button type="button" id="closeImageModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" id="imageSearchInput" placeholder="Buscar imágenes por título..." />
+        </div>
+        <div id="imageGallery" class="image-gallery">
+          <div class="loading-state">Cargando biblioteca...</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <ModalConfirm 
     slot="modals"
@@ -169,6 +189,22 @@ try {
     confirmText="Eliminar permanentemente"
     type="danger"
   />
+
+  <ModalMessage
+    slot="modals"
+    id="formSuccessModal"
+    type="success"
+    title="¡Éxito!"
+    message="El artículo ha sido procesado correctamente."
+  />
+
+  <ModalMessage
+    slot="modals"
+    id="formErrorModal"
+    type="error"
+    title="Error"
+    message="Ha ocurrido un problema al procesar el artículo."
+  />
 </DashboardLayout>
 
 <script>
@@ -176,18 +212,22 @@ try {
   import 'quill/dist/quill.snow.css';
 
   const API_URL = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  const form = document.getElementById('postForm') as HTMLFormElement;
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-  const deleteBtn = document.getElementById('deleteBtn') as HTMLButtonElement;
-  const titleInput = document.getElementById('title') as HTMLInputElement;
-  const slugInput = document.getElementById('slug') as HTMLInputElement;
-  const contentInput = document.getElementById('content') as HTMLInputElement;
-  const feedback = document.getElementById('formFeedback');
 
-  if (form) {
+  function initPostForm() {
+    const form = document.getElementById('postForm') as HTMLFormElement;
+    if (!form || form.dataset.initialized) return;
+    form.dataset.initialized = 'true';
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const deleteBtn = document.getElementById('deleteBtn') as HTMLButtonElement;
+    const titleInput = document.getElementById('title') as HTMLInputElement;
+    const slugInput = document.getElementById('slug') as HTMLInputElement;
+    const contentInput = document.getElementById('content') as HTMLInputElement;
+    
     const isNew = form.dataset.isnew === 'true';
     const postId = form.dataset.postid;
 
+    // Inicializar Quill
     const quill = new Quill('#editor-container', {
       theme: 'snow',
       placeholder: 'Escribe el contenido HTML enriquecido aquí...',
@@ -211,13 +251,9 @@ try {
       contentInput.value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
     });
 
-    // Auto-generate slug on blur (only if not manually edited)
+    // Auto-generate slug
     let manualSlugEdit = false;
-    
-    slugInput?.addEventListener('input', () => {
-      manualSlugEdit = true;
-    });
-
+    slugInput?.addEventListener('input', () => { manualSlugEdit = true; });
     titleInput?.addEventListener('blur', () => {
       if (titleInput.value && !manualSlugEdit && !slugInput.value) {
         slugInput.value = titleInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -262,10 +298,7 @@ try {
     }
 
     removeImageBtn?.addEventListener('click', removeImage);
-
-    uploadFileBtn?.addEventListener('click', () => {
-        coverImageFileInput?.click();
-    });
+    uploadFileBtn?.addEventListener('click', () => { coverImageFileInput?.click(); });
 
     coverImageFileInput?.addEventListener('change', async (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
@@ -274,7 +307,7 @@ try {
         import('../../../lib/firebase/client').then(async ({ auth }) => {
             const currentUser = auth.currentUser;
             if (!currentUser) {
-                showFeedback('Inicia sesión para subir archivos.', 'error');
+                showModalFeedback('Inicia sesión para subir archivos.', 'error');
                 return;
             }
             const token = await currentUser.getIdToken();
@@ -284,7 +317,7 @@ try {
             formData.append('description', 'Subida desde blog admin');
             formData.append('isPublic', 'true');
             
-            showFeedback('Subiendo imagen...', 'success');
+            uploadFileBtn.classList.add('btn-loading');
             submitBtn.disabled = true;
 
             try {
@@ -297,7 +330,6 @@ try {
                 if(!res.ok) throw new Error('Error al subir fichero');
                 const data = await res.json();
                 
-                // Now get the download URL
                 const dlRes = await fetch(`${API_URL}/files/${data.id}/download`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -305,11 +337,10 @@ try {
                 const dlData = await dlRes.json();
                 
                 setImage(dlData.url);
-                showFeedback('Imagen subida correctamente.', 'success');
-                setTimeout(() => { if(feedback) feedback.className = 'feedback-message hidden'; }, 2000);
             } catch(err) {
-                showFeedback('Falló la subida de imagen.', 'error');
+                showModalFeedback('Falló la subida de imagen.', 'error');
             } finally {
+                uploadFileBtn.classList.remove('btn-loading');
                 submitBtn.disabled = false;
             }
         });
@@ -339,23 +370,42 @@ try {
     });
     
     async function loadLibraryImages() {
+        const gallery = document.getElementById('imageGallery');
+        if (gallery) gallery.innerHTML = '<div class="loading-state">Cargando biblioteca...</div>';
+
         import('../../../lib/firebase/client').then(async ({ auth }) => {
-            const currentUser = auth.currentUser;
-            if (!currentUser) return;
-            const token = await currentUser.getIdToken();
+            // Esperar un momento si el auth no está listo
+            let user = auth.currentUser;
+            if (!user) {
+                await new Promise(resolve => {
+                   const unsub = auth.onAuthStateChanged(u => {
+                       user = u;
+                       unsub();
+                       resolve(u);
+                   });
+                   setTimeout(resolve, 3000); // Timeout de 3s
+                });
+            }
+
+            if (!user) {
+                if (gallery) gallery.innerHTML = '<div class="loading-state">Error: No se pudo verificar la sesión. Reintente.</div>';
+                return;
+            }
+
+            const token = await user.getIdToken();
             
             try {
                 const res = await fetch(`${API_URL}/files`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if(!res.ok) throw new Error();
+                if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const files = await res.json();
                 
-                // Filter only images
-                libraryImages = files.filter((f: any) => f.mimeType.startsWith('image/'));
+                libraryImages = files.filter((f: any) => f.mimeType && f.mimeType.startsWith('image/'));
                 renderGallery(libraryImages);
             } catch(e) {
-                imageGallery.innerHTML = '<div class="loading-state">Error al cargar imágenes</div>';
+                console.error("Error loading library images:", e);
+                if (gallery) gallery.innerHTML = '<div class="loading-state">Error al conectar con la biblioteca.</div>';
             }
         });
     }
@@ -368,14 +418,11 @@ try {
         
         imageGallery.innerHTML = images.map(img => `
             <div class="gallery-item" data-id="${img.id}">
-                <div class="img-placeholder"><i class="fas fa-image"></i></div>
-                <div class="img-info">
-                    <span class="img-title" title="${img.title}">${img.title}</span>
-                </div>
+                <div class="img-placeholder"><span class="material-symbols-outlined">image</span></div>
+                <div class="img-info"><span class="img-title" title="${img.title}">${img.title}</span></div>
             </div>
         `).join('');
         
-        // Load actual URLs
         import('../../../lib/firebase/client').then(async ({ auth }) => {
             const token = await auth.currentUser?.getIdToken();
             if(!token) return;
@@ -405,21 +452,21 @@ try {
 
     imageSearchInput?.addEventListener('input', (e) => {
         const q = (e.target as HTMLInputElement).value.toLowerCase();
-        const filtered = libraryImages.filter(img => img.title.toLowerCase().includes(q) || img.fileName.toLowerCase().includes(q));
+        const filtered = libraryImages.filter(img => img.title.toLowerCase().includes(q) || (img.fileName && img.fileName.toLowerCase().includes(q)));
         renderGallery(filtered);
     });
 
-    // Delete Post Logic
+    // Delete Logic
     deleteBtn?.addEventListener('click', () => {
       if (!(window as any).confirmModalHelpers) {
         if (!confirm('¿Estás seguro?')) return;
         return executeDelete();
       }
-      
       (window as any).confirmModalHelpers.open('deletePostDetailModal', executeDelete);
     });
 
     async function executeDelete() {
+      deleteBtn.classList.add('btn-loading');
       deleteBtn.disabled = true;
       if (submitBtn) submitBtn.disabled = true;
 
@@ -439,28 +486,29 @@ try {
             setTimeout(() => { window.location.href = '/admin/blog'; }, 1000);
           } else {
             const result = await response.json();
-            showFeedback(result.message || 'Error al eliminar', 'error');
+            showModalFeedback(result.message || 'Error al eliminar', 'error');
+            deleteBtn.classList.remove('btn-loading');
             deleteBtn.disabled = false;
             if (submitBtn) submitBtn.disabled = false;
           }
         } catch (e) {
-          showFeedback('Error de conexión', 'error');
+          showModalFeedback('Error de conexión', 'error');
+          deleteBtn.classList.remove('btn-loading');
           deleteBtn.disabled = false;
           if (submitBtn) submitBtn.disabled = false;
         }
       });
     }
 
-
     // Submit Logic
-    form?.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!submitBtn || !feedback) return;
+      if (!submitBtn) return;
 
       import('../../../lib/firebase/client').then(async ({ auth }) => {
         const currentUser = auth.currentUser;
         if (!currentUser) {
-          showFeedback('Error: No estás autenticado.', 'error');
+          showModalFeedback('Error: No estás autenticado.', 'error');
           return;
         }
         
@@ -484,9 +532,9 @@ try {
           data.authorId = currentUser.uid || 'admin';
         }
 
+        submitBtn.classList.add('btn-loading');
         submitBtn.disabled = true;
         if(deleteBtn) deleteBtn.disabled = true;
-        feedback.className = 'feedback-message hidden';
 
         try {
           const url = isNew ? `${API_URL}/blog` : `${API_URL}/blog/${postId}`;
@@ -504,141 +552,39 @@ try {
           const result = await response.json();
 
           if (response.ok) {
-            showFeedback(isNew ? 'Post creado exitosamente.' : 'Post actualizado exitosamente.', 'success');
-            setTimeout(() => {
-              window.location.href = '/admin/blog';
-            }, 1000);
+            showModalFeedback(isNew ? 'Post creado exitosamente.' : 'Post actualizado exitosamente.', 'success');
+            setTimeout(() => { window.location.href = '/admin/blog'; }, 1500);
           } else {
-            showFeedback(result.message || `Error al ${isNew ? 'crear' : 'actualizar'} post.`, 'error');
+            showModalFeedback(result.message || `Error al ${isNew ? 'crear' : 'actualizar'} post.`, 'error');
+            submitBtn.classList.remove('btn-loading');
             submitBtn.disabled = false;
             if(deleteBtn) deleteBtn.disabled = false;
           }
         } catch (error) {
-          showFeedback('Error de conexión.', 'error');
+          showModalFeedback('Error de conexión.', 'error');
+          submitBtn.classList.remove('btn-loading');
           submitBtn.disabled = false;
           if(deleteBtn) deleteBtn.disabled = false;
         }
       });
     });
 
-    function showFeedback(message: string, type: 'error' | 'success') {
-      if(!feedback) return;
-      feedback.textContent = message;
-      feedback.className = `feedback-message ${type}`;
+    function showModalFeedback(message: string, type: 'error' | 'success') {
+      const modalId = type === 'success' ? 'formSuccessModal' : 'formErrorModal';
+      if ((window as any).modalHelpers) {
+        (window as any).modalHelpers.updateModalMessage(modalId, message);
+        (window as any).modalHelpers.openModal(modalId);
+      } else {
+        alert(message);
+      }
     }
   }
+
+  // Ejecutar en cada carga de página (incluyendo navegación SPA)
+  document.addEventListener('astro:page-load', initPostForm);
+
+  // Fallback
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      initPostForm();
+  }
 </script>
-
-<style>
-  .image-upload-container { display: flex; align-items: stretch; justify-content: flex-start; position: relative; width: 100%; }
-  .image-controls { display: flex; align-items: stretch; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
-  .or-divider { color: var(--color-text-muted); font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin: 0 0.5rem; }
-  .image-preview { position: relative; width: 100%; }
-  .image-preview img { width: 100%; height: 200px; object-fit: cover; border-radius: 0; border: 1px solid var(--color-border); }
-  .remove-image { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-  .remove-image:hover { background: #e11d48; }
-
-  /* Gallery Modal */
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
-  .modal-content { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0; width: 100%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--color-border); }
-  .modal-header h3 { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--color-text); }
-  .modal-close { background: transparent; border: none; color: var(--color-text-muted); font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
-  .modal-close:hover { color: #ef4444; }
-  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; flex: 1; }
-  .search-bar { display: flex; align-items: center; gap: 0.5rem; background: var(--color-background); border: 1px solid var(--color-border); padding: 0.5rem 1rem; border-radius: 0; }
-  .search-bar input { flex: 1; border: none; background: transparent; padding: 0.25rem; outline: none !important; box-shadow: none !important; color: var(--color-text); }
-  .image-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
-  .loading-state { grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--color-text-muted); }
-  .gallery-item { border: 1px solid var(--color-border); background: var(--color-background); cursor: pointer; transition: border-color 0.2s, transform 0.2s; border-radius: 0; overflow: hidden; }
-  .gallery-item:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
-  .img-placeholder { height: 120px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); color: var(--color-text-muted); font-size: 2rem; }
-  .img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
-  .img-info { padding: 0.5rem; font-size: 0.8rem; border-top: 1px solid var(--color-border); }
-  .img-title { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text); }
-  
-  .header-actions { margin-bottom: 1.5rem; }
-  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted); text-decoration: none; margin-bottom: 0.5rem; font-size: 0.875rem; }
-  .back-link:hover { color: var(--color-primary); }
-  .content-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 2rem; }
-  .error-banner { background: rgba(var(--color-error-rgb), 0.1); color: var(--color-error); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; border-left: 4px solid var(--color-error); }
-  .post-form { display: flex; flex-direction: column; gap: 1.5rem; }
-  .form-row { display: flex; gap: 1.5rem; }
-  .form-row > .form-group { flex: 1; }
-  @media (max-width: 768px) { .form-row { flex-direction: column; gap: 1.5rem; } }
-  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-  label { font-weight: 500; color: var(--color-text); }
-  .required { color: var(--color-error); }
-  input, textarea, select { padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); font-family: inherit; font-size: 1rem; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1); }
-  
-  .input-with-icon { position: relative; display: flex; align-items: center; }
-  .input-with-icon select { width: 100%; padding-right: 2.5rem; cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
-  .input-with-icon .icon-select { position: absolute; right: 1rem; color: var(--color-text-muted); pointer-events: none; font-size: 0.9rem; }
-  
-  .toggle-group { margin: 0.5rem 0; }
-  .toggle { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
-  .toggle input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 44px; height: 24px; background: var(--color-border); border-radius: 12px; position: relative; cursor: pointer; outline: none; transition: background 0.3s ease; flex-shrink: 0; margin: 0; padding: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); border: none; }
-  .toggle input[type="checkbox"]::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  .toggle input[type="checkbox"]:checked { background: var(--color-primary); }
-  .toggle input[type="checkbox"]:checked::after { transform: translateX(20px); }
-  .toggle .label-text { font-weight: 500; color: var(--color-text); user-select: none; }
-  .form-actions { display: flex; margin-top: 1rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem; }
-  .actions-spaced { justify-content: space-between; }
-  .btn-primary { background: var(--color-primary); color: white; padding: 0.875rem 2rem; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; }
-  .form-group-image { flex: 1.5; }
-  .editor-container { height: 400px; background: var(--color-background); border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
-  .btn-image-ctrl { border-radius: 0; padding: 0.75rem 1.5rem; white-space: nowrap; min-height: calc(1.5rem + 1.5rem + 2px); }
-  .btn-ghost.btn-image-ctrl { background: transparent; color: var(--color-text); border: 1px solid var(--color-border); transition: border-color 0.2s; }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-  .btn-danger:hover { opacity: 0.9; }
-  .btn-danger:disabled { opacity: 0.7; cursor: not-allowed; }
-  .feedback-message { padding: 1rem; border-radius: var(--radius-md); text-align: center; font-weight: 500; margin-top: 1rem;}
-  .feedback-message.error { background: rgba(var(--color-error-rgb), 0.1); color: var(--color-error); border: 1px solid rgba(var(--color-error-rgb), 0.2); }
-  .feedback-message.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
-  .hidden { display: none; }
-  
-</style>
-
-<style is:global>
-  /* Quill Overrides for Dark Mode & general styling */
-  .ql-toolbar.ql-snow {
-    border-color: var(--color-border) !important;
-    border-top-left-radius: var(--radius-md) !important;
-    border-top-right-radius: var(--radius-md) !important;
-    background: var(--color-surface) !important;
-  }
-  .ql-container.ql-snow {
-    border-color: var(--color-border) !important;
-    border-bottom-left-radius: var(--radius-md) !important;
-    border-bottom-right-radius: var(--radius-md) !important;
-    font-family: inherit !important;
-    font-size: 1rem !important;
-    color: var(--color-text) !important;
-  }
-
-  /* Fix Quill toolbar icons and placeholder contrast in dark mode */
-  .ql-snow .ql-stroke { stroke: var(--color-text) !important; }
-  .ql-snow .ql-fill { fill: var(--color-text) !important; }
-  .ql-snow .ql-picker, .ql-snow .ql-picker-label { color: var(--color-text) !important; }
-  .ql-snow .ql-picker-options { background-color: var(--color-surface) !important; border-color: var(--color-border) !important; }
-  .ql-snow .ql-tooltip { background-color: var(--color-surface) !important; border-color: var(--color-border) !important; color: var(--color-text) !important; box-shadow: var(--shadow-md) !important; }
-  .ql-snow .ql-tooltip input[type=text] { border-color: var(--color-border) !important; color: var(--color-text) !important; }
-  .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options { border-color: var(--color-border) !important; }
-  
-  .ql-editor.ql-blank::before { color: var(--color-text) !important; font-style: normal !important; opacity: 0.8 !important; }
-  
-  .ql-snow .ql-toolbar button:hover .ql-stroke,
-  .ql-snow .ql-toolbar button.ql-active .ql-stroke,
-  .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
-  .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke { stroke: var(--color-primary) !important; }
-  
-  .ql-snow .ql-toolbar button:hover .ql-fill,
-  .ql-snow .ql-toolbar button.ql-active .ql-fill,
-  .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill,
-  .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill { fill: var(--color-primary) !important; }
-  
-  .ql-snow .ql-toolbar .ql-picker-label:hover,
-  .ql-snow .ql-toolbar .ql-picker-label.ql-active { color: var(--color-primary) !important; }
-</style>

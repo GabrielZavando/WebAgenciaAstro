@@ -53,14 +53,14 @@ if (!user && !errorMsg) {
   <div class="header-actions">
     <div>
       <a href="/admin/usuarios" class="back-link">
-        <i class="fas fa-arrow-left"></i> Volver a Usuarios
+        <span class="material-symbols-outlined">arrow_back</span> Volver a Usuarios
       </a>
     </div>
   </div>
 
   {errorMsg && (
     <div class="error-banner">
-      <i class="fas fa-exclamation-triangle"></i> {errorMsg}
+      <span class="material-symbols-outlined">report</span> {errorMsg}
     </div>
   )}
 
@@ -92,7 +92,7 @@ if (!user && !errorMsg) {
             </div>
           </div>
           <div class="card-footer">
-            <span>Editar perfil completo <i class="fas fa-arrow-right"></i></span>
+            <span>Editar perfil completo <span class="material-symbols-outlined">arrow_forward</span></span>
           </div>
         </div>
 
@@ -100,10 +100,10 @@ if (!user && !errorMsg) {
         <div class="summary-card interactive-card" data-target="section-projects">
           <div class="dual-icons-wrapper">
             <div class="icon-box project-box" title="Proyectos">
-              <i class="fas fa-tasks"></i>
+              <span class="material-symbols-outlined">task</span>
             </div>
             <div class="icon-box ticket-box" title="Tickets">
-              <i class="fas fa-ticket-alt"></i>
+              <span class="material-symbols-outlined">confirmation_number</span>
             </div>
           </div>
           <div class="card-content">
@@ -114,19 +114,20 @@ if (!user && !errorMsg) {
             </div>
           </div>
           <div class="card-footer">
-            <span>Proyectos y tickets <i class="fas fa-arrow-right"></i></span>
+            <span>Proyectos y tickets <span class="material-symbols-outlined">arrow_forward</span></span>
           </div>
         </div>
 
         <div class="summary-card interactive-card" data-target="section-storage">
           <div class="card-icon storage-icon">
-            <i class="fas fa-cloud"></i>
+            <span class="material-symbols-outlined">cloud</span>
           </div>
           <div class="card-content">
             <h3>Espacio en la Nube</h3>
             {storage ? (
               <div class="storage-summary-mini">
                 <StorageVisualizer 
+                  id="summary-storage-visualizer"
                   usedFormatted={storage.usedFormatted}
                   limitFormatted={storage.limitFormatted}
                   usedBytes={storage.usedBytes}
@@ -139,14 +140,14 @@ if (!user && !errorMsg) {
             )}
           </div>
           <div class="card-footer">
-            <span>Configurar límite <i class="fas fa-arrow-right"></i></span>
+            <span>Configurar límite <span class="material-symbols-outlined">arrow_forward</span></span>
           </div>
         </div>
 
         <!-- Card: Informes -->
         <div class="summary-card interactive-card" data-target="section-reports">
           <div class="card-icon reports-icon">
-            <i class="fas fa-file-pdf"></i>
+            <span class="material-symbols-outlined">picture_as_pdf</span>
           </div>
           <div class="card-content">
             <h3>Informes de Estado</h3>
@@ -156,14 +157,14 @@ if (!user && !errorMsg) {
             </div>
           </div>
           <div class="card-footer">
-            <span>Ver listado de informes <i class="fas fa-arrow-right"></i></span>
+            <span>Ver listado de informes <span class="material-symbols-outlined">arrow_forward</span></span>
           </div>
         </div>
       </div>
 
       <!-- Sección: Perfil Detallado -->
       <div id="section-profile" class="detail-section hidden">
-        <button class="btn-back-summary"><i class="fas fa-chevron-left"></i> Volver al resumen</button>
+        <button class="btn-back-summary"><span class="material-symbols-outlined">chevron_left</span> Volver al resumen</button>
         <div class="content-card">
           <div class="section-header">
             <h2>Editar Perfil</h2>
@@ -198,7 +199,7 @@ if (!user && !errorMsg) {
             <div id="formFeedback" class="feedback-message hidden"></div>
             <div class="form-actions" style="justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 2rem;">
               <button type="button" class="btn-danger-outline btn-delete-user" id="openDeleteModal">
-                <i class="fas fa-user-times"></i> Eliminar Usuario
+                <span class="material-symbols-outlined">person_remove</span> Eliminar Usuario
               </button>
               <div class="main-form-actions" style="display: flex; gap: 1rem;">
                 <button type="button" class="btn-secondary btn-cancel-profile">Cancelar</button>
@@ -245,6 +246,14 @@ if (!user && !errorMsg) {
 
       <ModalMessage 
         slot="modals"
+        id="successProfileModal"
+        title="Perfil Actualizado"
+        message="Los cambios en el perfil han sido guardados correctamente."
+        type="success"
+      />
+
+      <ModalMessage 
+        slot="modals"
         id="errorGenericModal"
         title="Error"
         message="Ocurrió un error inesperado al procesar la solicitud."
@@ -253,7 +262,7 @@ if (!user && !errorMsg) {
 
       <!-- Sección: Proyectos Detallado -->
       <div id="section-projects" class="detail-section hidden">
-        <button class="btn-back-summary"><i class="fas fa-chevron-left"></i> Volver al resumen</button>
+        <button class="btn-back-summary"><span class="material-symbols-outlined">chevron_left</span> Volver al resumen</button>
         <div class="content-card">
           <div class="section-header">
             <h2>Añadir Proyectos</h2>
@@ -271,11 +280,11 @@ if (!user && !errorMsg) {
                   <label>Tickets / mes</label>
                   <div class="tickets-stepper">
                     <button type="button" class="stepper-btn btn-minus" aria-label="Restar ticket">
-                      <i class="fas fa-minus"></i>
+                      <span class="material-symbols-outlined">remove</span>
                     </button>
                     <input type="number" id="monthlyTicketLimit" name="monthlyTicketLimit" required min="1" value="3" readonly />
                     <button type="button" class="stepper-btn btn-plus" aria-label="Sumar ticket">
-                      <i class="fas fa-plus"></i>
+                      <span class="material-symbols-outlined">add</span>
                     </button>
                   </div>
                 </div>
@@ -294,7 +303,7 @@ if (!user && !errorMsg) {
               <h2 class="accordion-title">Proyectos</h2>
               <div class="accordion-info">
                 <span class="projects-count" id="projectsCounter">{projects.length} {projects.length === 1 ? 'proyecto' : 'proyectos'}</span>
-                <i class="fas fa-chevron-down accordion-icon"></i>
+                <span class="material-symbols-outlined accordion-icon">expand_more</span>
               </div>
             </button>
             
@@ -332,7 +341,7 @@ if (!user && !errorMsg) {
                             </td>
                             <td class="text-right">
                               <button class="btn-delete-project btn-icon-only text-danger" data-id={p.id} title="Eliminar Proyecto">
-                                <i class="fas fa-trash"></i>
+                                <span class="material-symbols-outlined">delete</span>
                               </button>
                             </td>
                           </tr>
@@ -359,22 +368,22 @@ if (!user && !errorMsg) {
 
       <!-- Sección: Almacenamiento Detallado -->
       <div id="section-storage" class="detail-section hidden">
-        <button class="btn-back-summary"><i class="fas fa-chevron-left"></i> Volver al resumen</button>
+        <button class="btn-back-summary"><span class="material-symbols-outlined">chevron_left</span> Volver al resumen</button>
         <div class="content-card">
           <div class="section-header">
             <h2>Cuota de Almacenamiento</h2>
             <p class="text-muted">Configura el límite de GB permitidos para este usuario.</p>
           </div>
           
-          <form id="editStorageForm">
+          <form id="editStorageForm" data-usedbytes={storage ? storage.usedBytes : 0}>
             <div class="storage-editor-layout">
               <div class="storage-controls">
                 <div class="form-group">
                   <label for="storageLimitGb">Límite Total (GB)</label>
                   <div class="tickets-stepper storage-stepper">
-                    <button type="button" class="stepper-btn btn-minus-storage"><i class="fas fa-minus"></i></button>
+                    <button type="button" class="stepper-btn btn-minus-storage"><span class="material-symbols-outlined">remove</span></button>
                     <input type="number" id="storageLimitGb" name="storageLimitGb" required min="1" value={user.storageLimitGb || (storage ? Math.ceil(storage.limitBytes / (1024*1024*1024)) : 5)} readonly />
-                    <button type="button" class="stepper-btn btn-plus-storage"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="stepper-btn btn-plus-storage"><span class="material-symbols-outlined">add</span></button>
                   </div>
                 </div>
               </div>
@@ -382,6 +391,7 @@ if (!user && !errorMsg) {
               {storage && (
                 <div class="storage-visualizer">
                   <StorageVisualizer 
+                    id="detailed-storage-visualizer"
                     usedFormatted={storage.usedFormatted}
                     limitFormatted={storage.limitFormatted}
                     usedBytes={storage.usedBytes}
@@ -400,7 +410,7 @@ if (!user && !errorMsg) {
 
       <!-- Sección: Informes Detallado -->
       <div id="section-reports" class="detail-section hidden">
-        <button class="btn-back-summary"><i class="fas fa-chevron-left"></i> Volver al resumen</button>
+        <button class="btn-back-summary"><span class="material-symbols-outlined">chevron_left</span> Volver al resumen</button>
         <div class="content-card">
           <div class="section-header">
             <h2>Informes del Usuario</h2>
@@ -414,274 +424,296 @@ if (!user && !errorMsg) {
 </DashboardLayout>
 
 <script>
-  // Extender la interfaz window para TypeScript
-  declare global {
-    interface Window {
-      userDetailedScriptLoaded: boolean;
-    }
-  }
+  import { apiClient } from '../../../lib/api-client';
+  import { validatePassword } from '../../../lib/utils/security';
 
-  if (!window.userDetailedScriptLoaded) {
-    window.userDetailedScriptLoaded = true;
+  // Lógica de navegación y eventos para la página de detalles de usuario
+  function initUserDetail() {
+    const editForm = document.getElementById('editUserForm') as HTMLFormElement;
+    if (!editForm) return;
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const { validatePassword } = await import('../../../lib/utils/security');
-      const { apiClient } = await import('../../../lib/api-client');
-      const summaryView = document.getElementById('summaryView');
-      const interactiveCards = document.querySelectorAll('.interactive-card');
-      const detailSections = document.querySelectorAll('.detail-section');
-      const backBtns = document.querySelectorAll('.btn-back-summary');
+    const summaryView = document.getElementById('summaryView');
+    const detailSections = document.querySelectorAll('.detail-section');
+    const backBtns = document.querySelectorAll('.btn-back-summary');
 
-      // --- Helpers Generales ---
-      const showSection = (sectionId: string | null) => {
-        detailSections.forEach(sec => sec.classList.add('hidden'));
-        if (summaryView) summaryView.classList.add('hidden');
+    // --- Helpers Generales ---
+    const showSection = (sectionId: string | null) => {
+      // Ocultar todas las secciones y el resumen primero
+      detailSections.forEach(sec => sec.classList.add('hidden'));
+      if (summaryView) summaryView.classList.add('hidden');
 
-        if (sectionId) {
-          const targetSection = document.getElementById(sectionId);
-          if (targetSection) {
-            targetSection.classList.remove('hidden');
-            targetSection.classList.add('section-show-anim');
-          }
-        } else if (summaryView) {
-          summaryView.classList.remove('hidden');
-          summaryView.classList.add('section-show-anim');
+      if (sectionId) {
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.classList.remove('hidden');
+          targetSection.classList.add('section-show-anim');
+          // Scroll suave al inicio de la sección
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      };
-
-      const setLoading = (button: HTMLButtonElement, isLoading: boolean, originalText: string) => {
-        button.disabled = isLoading;
-        button.textContent = isLoading ? 'Guardando...' : originalText;
-      };
-
-      const showFeedback = (elementId: string, message: string, type: 'error' | 'success') => {
-        const feedback = document.getElementById(elementId);
-        if (!feedback) return;
-        feedback.textContent = message;
-        feedback.className = `feedback-message ${type}`;
-        feedback.classList.remove('hidden');
-      };
-
-      // --- Navegación ---
-      interactiveCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-          const targetId = card.getAttribute('data-target');
-          if (targetId) showSection(targetId);
-        });
-      });
-
-      backBtns.forEach(btn => {
-        btn.addEventListener('click', () => showSection(null));
-      });
-
-      // --- Perfil ---
-      const editForm = document.getElementById('editUserForm') as HTMLFormElement;
-      const profileSubmitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-      const cancelProfileBtn = document.querySelector('.btn-cancel-profile') as HTMLButtonElement;
-
-      if (editForm && profileSubmitBtn) {
-        const validateForm = () => {
-          const requiredFields = editForm.querySelectorAll('[required]') as NodeListOf<HTMLInputElement | HTMLSelectElement>;
-          let isValid = true;
-          requiredFields.forEach(field => {
-            if (!field.value.trim()) isValid = false;
-          });
-          profileSubmitBtn.disabled = !isValid;
-        };
-
-        editForm.addEventListener('input', validateForm);
-        validateForm();
-
-        cancelProfileBtn?.addEventListener('click', () => showSection(null));
-
-        editForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const userId = editForm.dataset.userid;
-          const formData = new FormData(editForm);
-          const data = Object.fromEntries(formData.entries());
-
-          if (data.password) {
-            const validation = validatePassword(data.password as string);
-            if (!validation.isValid) {
-              showFeedback('formFeedback', validation.errors[0], 'error');
-              setLoading(profileSubmitBtn, false, 'Guardar Cambios');
-              return;
-            }
-          } else {
-            delete data.password;
-          }
-          
-          setLoading(profileSubmitBtn, true, 'Guardar Cambios');
-          try {
-            await apiClient.patch(`/users/${userId}`, data);
-
-            showFeedback('formFeedback', 'Perfil actualizado correctamente.', 'success');
-            setTimeout(() => window.location.reload(), 1500);
-          } catch (err: any) {
-            showFeedback('formFeedback', err.message, 'error');
-          } finally {
-            setLoading(profileSubmitBtn, false, 'Guardar Cambios');
-          }
-        });
-
-        // --- Borrado de Usuario ---
-        const openDeleteBtn = document.getElementById('openDeleteModal');
-        openDeleteBtn?.addEventListener('click', () => {
-          const userId = editForm.dataset.userid;
-          (window as any).confirmModalHelpers.open('deleteUserModal', async () => {
-            try {
-              await apiClient.delete(`/users/${userId}`);
-              
-              (window as any).showToast('Usuario eliminado correctamente', 'success');
-              setTimeout(() => window.location.href = '/admin/usuarios', 1500);
-            } catch (err: any) {
-              (window as any).showToast(err.message, 'error');
-            }
-          });
-        });
+      } else if (summaryView) {
+        summaryView.classList.remove('hidden');
+        summaryView.classList.add('section-show-anim');
       }
+    };
 
-      // --- Acordeón de Proyectos ---
-      const accordion = document.getElementById('projectsAccordion');
-      const toggleBtn = document.getElementById('toggleProjects');
-      
-      toggleBtn?.addEventListener('click', () => {
-        accordion?.classList.toggle('is-open');
-      });
+    const setLoading = (button: HTMLButtonElement, isLoading: boolean, originalText: string) => {
+      button.disabled = isLoading;
+      button.textContent = isLoading ? 'Guardando...' : originalText;
+    };
 
-      // --- Filtro de Proyectos ---
-      const projectSearchInput = document.getElementById('projectSearchInput') as HTMLInputElement;
-      const projectRows = document.querySelectorAll('.project-row') as NodeListOf<HTMLElement>;
+    const showFeedback = (elementId: string, message: string, type: 'error' | 'success') => {
+      const feedback = document.getElementById(elementId);
+      if (!feedback) return;
+      feedback.textContent = message;
+      feedback.className = `feedback-message ${type}`;
+      feedback.classList.remove('hidden');
+    };
 
-      projectSearchInput?.addEventListener('input', () => {
-        const query = projectSearchInput.value.toLowerCase().trim();
-        projectRows.forEach(row => {
-          const name = row.dataset.name || '';
-          if (name.includes(query)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      });
-
-      // --- Proyectos (Continuación) ---
-      const projectForm = document.getElementById('createProjectForm') as HTMLFormElement;
-      const stepperInput = document.getElementById('monthlyTicketLimit') as HTMLInputElement;
-      const btnMinus = projectForm?.querySelector('.btn-minus');
-      const btnPlus = projectForm?.querySelector('.btn-plus');
-
-      btnMinus?.addEventListener('click', () => {
-        const val = parseInt(stepperInput.value) || 1;
-        if (val > 1) stepperInput.value = (val - 1).toString();
-      });
-
-      btnPlus?.addEventListener('click', () => {
-        const val = parseInt(stepperInput.value) || 0;
-        stepperInput.value = (val + 1).toString();
-      });
-
-      // --- Validación de Formulario de Proyectos ---
-      const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
-      const btnCreateProject = document.getElementById('btnCreateProject') as HTMLButtonElement;
-
-      if (projectNameInput && btnCreateProject) {
-        const validateProjectForm = () => {
-          btnCreateProject.disabled = !projectNameInput.value.trim();
-        };
-        projectNameInput.addEventListener('input', validateProjectForm);
-        validateProjectForm(); // Initial state
+    // --- Navegación (Delegación de eventos para mayor robustez) ---
+    // En lugar de click individual, escuchamos en el contenedor de resumen
+    summaryView?.addEventListener('click', (e) => {
+      const card = (e.target as HTMLElement).closest('.interactive-card');
+      if (card) {
+        const targetId = card.getAttribute('data-target');
+        if (targetId) showSection(targetId);
       }
+    });
 
-      projectForm?.addEventListener('submit', async (e) => {
+    backBtns.forEach(btn => {
+      btn.addEventListener('click', () => showSection(null));
+    });
+
+    // --- Formulario de Perfil ---
+    const profileSubmitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const cancelProfileBtn = document.querySelector('.btn-cancel-profile') as HTMLButtonElement;
+
+    if (editForm && profileSubmitBtn) {
+      const validateForm = () => {
+        const requiredFields = editForm.querySelectorAll('[required]') as NodeListOf<HTMLInputElement | HTMLSelectElement>;
+        let isValid = true;
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) isValid = false;
+        });
+        profileSubmitBtn.disabled = !isValid;
+      };
+
+      editForm.addEventListener('input', validateForm);
+      validateForm();
+
+      cancelProfileBtn?.addEventListener('click', () => showSection(null));
+
+      editForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const clientId = projectForm.dataset.clientid;
-        const formData = new FormData(projectForm);
-        const data = {
-          clientId,
-          name: formData.get('name'),
-          description: formData.get('description'),
-          monthlyTicketLimit: Number(formData.get('monthlyTicketLimit')) || 3
-        };
+        const userId = editForm.dataset.userid;
+        const formData = new FormData(editForm);
+        const data = Object.fromEntries(formData.entries());
 
-        const btn = document.getElementById('btnCreateProject') as HTMLButtonElement;
-        setLoading(btn, true, 'Añadir');
-        try {
-          await apiClient.post(`/projects`, data);
-
-          showFeedback('projectFormFeedback', 'Proyecto creado exitosamente.', 'success');
-          setTimeout(() => window.location.reload(), 1000);
-        } catch (err: any) {
-          showFeedback('projectFormFeedback', err.message, 'error');
-        } finally {
-          setLoading(btn, false, 'Añadir');
+        if (data.password) {
+          const validation = validatePassword(data.password as string);
+          if (!validation.isValid) {
+            showFeedback('formFeedback', validation.errors[0], 'error');
+            return;
+          }
+        } else {
+          delete data.password;
         }
-      });
-
-      document.querySelectorAll('.btn-delete-project').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const projectId = (btn as HTMLElement).dataset.id;
-          if (!projectId) return;
-
-          if (!(window as any).confirmModalHelpers) return;
-
-          (window as any).confirmModalHelpers.open('confirmDeleteProjectModal', async () => {
-            try {
-              await apiClient.delete(`/projects/${projectId}`);
-              window.location.reload();
-            } catch (err) {
-              if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorServerModal');
-            }
-          });
-        });
-      });
-
-      // --- Almacenamiento ---
-      const storageForm = document.getElementById('editStorageForm') as HTMLFormElement;
-      const storageInput = document.getElementById('storageLimitGb') as HTMLInputElement;
-      const btnMinusStorage = storageForm?.querySelector('.btn-minus-storage');
-      const btnPlusStorage = storageForm?.querySelector('.btn-plus-storage');
-
-      btnMinusStorage?.addEventListener('click', () => {
-        const val = parseInt(storageInput.value) || 1;
-        if (val > 1) storageInput.value = (val - 1).toString();
-      });
-
-      btnPlusStorage?.addEventListener('click', () => {
-        const val = parseInt(storageInput.value) || 0;
-        storageInput.value = (val + 1).toString();
-      });
-
-      storageForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userId = editForm?.dataset.userid;
-        const formData = new FormData(storageForm);
-        const storageLimitGb = Number(formData.get('storageLimitGb'));
-        const btn = document.getElementById('btnUpdateStorage') as HTMLButtonElement;
-
-        setLoading(btn, true, 'Actualizar Cuota');
+        
+        setLoading(profileSubmitBtn, true, 'Guardar Cambios');
         try {
-          await apiClient.patch(`/users/${userId}`, { storageLimitGb });
+          await apiClient.patch(`/users/${userId}`, data);
           
           if ((window as any).modalHelpers) {
-            (window as any).modalHelpers.openModal('successStorageModal');
-            setTimeout(() => window.location.reload(), 2000);
+            (window as any).modalHelpers.openModal('successProfileModal');
           } else {
-            window.location.reload();
+            showFeedback('formFeedback', 'Perfil actualizado correctamente.', 'success');
           }
         } catch (err: any) {
           if ((window as any).modalHelpers) {
             (window as any).modalHelpers.updateModalMessage('errorGenericModal', err.message);
             (window as any).modalHelpers.openModal('errorGenericModal');
           } else {
-            alert(err.message);
+            showFeedback('formFeedback', err.message, 'error');
           }
         } finally {
-          setLoading(btn, false, 'Actualizar Cuota');
+          setLoading(profileSubmitBtn, false, 'Guardar Cambios');
         }
       });
+
+      // --- Borrado de Usuario ---
+      const openDeleteBtn = document.getElementById('openDeleteModal');
+      openDeleteBtn?.addEventListener('click', () => {
+        const userId = editForm.dataset.userid;
+        if (!(window as any).confirmModalHelpers) return;
+        (window as any).confirmModalHelpers.open('deleteUserModal', async () => {
+          try {
+            await apiClient.delete(`/users/${userId}`);
+            (window as any).showToast('Usuario eliminado correctamente', 'success');
+            setTimeout(() => window.location.href = '/admin/usuarios', 1500);
+          } catch (err: any) {
+            (window as any).showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    // --- Acordeón de Proyectos ---
+    const accordion = document.getElementById('projectsAccordion');
+    const toggleBtn = document.getElementById('toggleProjects');
+    toggleBtn?.addEventListener('click', () => {
+      accordion?.classList.toggle('is-open');
+    });
+
+    // --- Filtro de Proyectos ---
+    const projectSearchInput = document.getElementById('projectSearchInput') as HTMLInputElement;
+    const projectRows = document.querySelectorAll('.project-row') as NodeListOf<HTMLElement>;
+
+    projectSearchInput?.addEventListener('input', () => {
+      const query = projectSearchInput.value.toLowerCase().trim();
+      projectRows.forEach(row => {
+        const name = row.dataset.name || '';
+        row.style.display = name.includes(query) ? '' : 'none';
+      });
+    });
+
+    // --- Formulario de Proyectos ---
+    const projectForm = document.getElementById('createProjectForm') as HTMLFormElement;
+    const stepperInput = document.getElementById('monthlyTicketLimit') as HTMLInputElement;
+    const btnMinus = projectForm?.querySelector('.btn-minus');
+    const btnPlus = projectForm?.querySelector('.btn-plus');
+
+    btnMinus?.addEventListener('click', () => {
+      const val = parseInt(stepperInput.value) || 1;
+      if (val > 1) stepperInput.value = (val - 1).toString();
+    });
+
+    btnPlus?.addEventListener('click', () => {
+      const val = parseInt(stepperInput.value) || 0;
+      stepperInput.value = (val + 1).toString();
+    });
+
+    const projectNameInput = document.getElementById('projectName') as HTMLInputElement;
+    const btnCreateProject = document.getElementById('btnCreateProject') as HTMLButtonElement;
+
+    if (projectNameInput && btnCreateProject) {
+      projectNameInput.addEventListener('input', () => {
+        btnCreateProject.disabled = !projectNameInput.value.trim();
+      });
+    }
+
+    projectForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const clientId = projectForm.dataset.clientid;
+      const formData = new FormData(projectForm);
+      const data = {
+        clientId,
+        name: formData.get('name'),
+        description: formData.get('description'),
+        monthlyTicketLimit: Number(formData.get('monthlyTicketLimit')) || 3
+      };
+
+      setLoading(btnCreateProject, true, 'Añadir');
+      try {
+        await apiClient.post(`/projects`, data);
+        showFeedback('projectFormFeedback', 'Proyecto creado exitosamente.', 'success');
+        setTimeout(() => window.location.reload(), 1000);
+      } catch (err: any) {
+        showFeedback('projectFormFeedback', err.message, 'error');
+      } finally {
+        setLoading(btnCreateProject, false, 'Añadir');
+      }
+    });
+
+    // --- Almacenamiento ---
+    const storageForm = document.getElementById('editStorageForm') as HTMLFormElement;
+    const storageInput = document.getElementById('storageLimitGb') as HTMLInputElement;
+    const btnMinusStorage = storageForm?.querySelector('.btn-minus-storage');
+    const btnPlusStorage = storageForm?.querySelector('.btn-plus-storage');
+
+    btnMinusStorage?.addEventListener('click', () => {
+      const val = parseInt(storageInput.value) || 1;
+      if (val > 1) storageInput.value = (val - 1).toString();
+    });
+
+    btnPlusStorage?.addEventListener('click', () => {
+      const val = parseInt(storageInput.value) || 0;
+      storageInput.value = (val + 1).toString();
+    });
+
+    storageForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = editForm.dataset.userid;
+      const formData = new FormData(storageForm);
+      const storageLimitGb = Number(formData.get('storageLimitGb'));
+      const usedBytes = Number(storageForm.dataset.usedbytes) || 0;
+      const btn = document.getElementById('btnUpdateStorage') as HTMLButtonElement;
+
+      setLoading(btn, true, 'Actualizar Cuota');
+      try {
+        await apiClient.patch(`/users/${userId}`, { storageLimitGb });
+        
+        // Actualizar UI reactivamente
+        const newLimitBytes = storageLimitGb * 1024 * 1024 * 1024;
+        const newPct = Math.min(100, Math.round((usedBytes / newLimitBytes) * 100));
+        const newLimitFormatted = `${storageLimitGb} GB`;
+
+        const updateVisualizer = (id: string) => {
+          const viz = document.getElementById(id);
+          if (!viz) return;
+
+          // Actualizar barra/círculo de progreso
+          const progress = viz.querySelector('.chart-progress') as SVGPathElement;
+          if (progress) {
+            // Actualizar tanto el estilo como el atributo para evitar que la animación CSS 'forwards' lo revierta
+            progress.style.strokeDasharray = `${newPct}, 100`;
+            progress.setAttribute('stroke-dasharray', `${newPct}, 100`);
+            progress.setAttribute('data-pct', newPct.toString());
+            
+            // Forzar reinicio de animación si es necesario (opcional)
+            progress.style.animation = 'none';
+            setTimeout(() => progress.style.animation = '', 10);
+          }
+
+          // Actualizar textos de porcentaje
+          const pctTexts = viz.querySelectorAll('.percentage, .mini-percent');
+          pctTexts.forEach(el => el.textContent = `${newPct}%`);
+
+          // Actualizar textos de límite total
+          const limitTexts = viz.querySelectorAll('.limit-value');
+          limitTexts.forEach(el => el.textContent = newLimitFormatted);
+
+          const miniText = viz.querySelector('.mini-text');
+          if (miniText) {
+            // Mantener el texto de 'usado' y actualizar solo el límite
+            const parts = miniText.textContent?.split(' de ') || [];
+            const usedPart = parts[0] || '0 B';
+            miniText.textContent = `${usedPart} de ${newLimitFormatted}`;
+          }
+        };
+
+        updateVisualizer('summary-storage-visualizer');
+        updateVisualizer('detailed-storage-visualizer');
+
+        // Actualizar el valor actual en el input y dataset para futuras operaciones
+        if (storageInput) storageInput.defaultValue = storageLimitGb.toString();
+
+        if ((window as any).modalHelpers) {
+          (window as any).modalHelpers.openModal('successStorageModal');
+        }
+      } catch (err: any) {
+        if ((window as any).modalHelpers) {
+          (window as any).modalHelpers.updateModalMessage('errorGenericModal', err.message);
+          (window as any).modalHelpers.openModal('errorGenericModal');
+        } else {
+          alert(err.message);
+        }
+      } finally {
+        setLoading(btn, false, 'Actualizar Cuota');
+      }
     });
   }
+
+  // Inicializar en cada carga de página (incluyendo transiciones)
+  document.addEventListener('astro:page-load', initUserDetail);
 </script>
 
 <style>
@@ -776,7 +808,7 @@ if (!user && !errorMsg) {
     gap: 0.5rem;
   }
 
-  .card-icon i {
+  .card-icon span.material-symbols-outlined {
     flex-shrink: 0;
   }
 

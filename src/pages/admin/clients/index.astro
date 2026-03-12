@@ -2,7 +2,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
-const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
 <DashboardLayout title="Gestión de Clientes" role="admin">
@@ -15,51 +14,60 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
   <div id="clientsList">Cargando clientes...</div>
 
   <script>
-    import { apiClient } from "../../../lib/api-client";
+    import { apiClient } from "../../../lib/api-client"
 
     async function loadClients() {
-        try {
-            const clients = await apiClient.get<any[]>('/clients');
-            
-            const container = document.getElementById('clientsList');
-            if (!container) return;
-            
-            if (clients.length === 0) {
-                container.innerHTML = '<p>No hay clientes registrados.</p>';
-                return;
-            }
+      const container = document.getElementById('clientsList')
+      if (!container) return
 
-            let html = '<table class="table"><thead><tr><th>Nombre</th><th>Email</th><th>Desde</th><th>Acciones</th></tr></thead><tbody>';
-            
-            clients.forEach(client => {
-                const date = client.createdAt ? new Date(client.createdAt._seconds * 1000).toLocaleDateString() : '-';
-                const name = client.displayName || 'Sin nombre';
-                html += `
-                    <tr>
-                        <td>${name}</td>
-                        <td>${client.email}</td>
-                        <td>${date}</td>
-                        <td>
-                            <a href="/admin/clients/${client.uid}" class="btn" style="background: #374151; color: white; font-size: 0.8rem;">Ver Proyectos</a>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            html += '</tbody></table>';
-            container.innerHTML = html;
-
-        } catch (error) {
-            console.error(error);
-            document.getElementById('clientsList').innerText = 'Error cargando clientes. Asegúrate de tener permisos de Admin.';
+      try {
+        const clients = await apiClient.get<any[]>('/clients')
+        
+        if (!clients || !Array.isArray(clients) || clients.length === 0) {
+          container.innerHTML = '<p>No hay clientes registrados.</p>'
+          return
         }
+
+        let html = '<table class="table"><thead><tr><th>Nombre</th><th>Email</th><th>Desde</th><th>Acciones</th></tr></thead><tbody>'
+        
+        clients.forEach(client => {
+          let date = '-'
+          if (client.createdAt) {
+            const timestamp = client.createdAt._seconds 
+              ? client.createdAt._seconds * 1000 
+              : client.createdAt
+            date = new Date(timestamp).toLocaleDateString()
+          }
+
+          const name = client.displayName || 'Sin nombre'
+          const uid = client.uid || client.id
+          
+          html += `
+            <tr>
+              <td>${name}</td>
+              <td>${client.email}</td>
+              <td>${date}</td>
+              <td>
+                <a href="/admin/clients/${uid}" class="btn" style="background: #374151; color: white; font-size: 0.8rem;">Ver Proyectos</a>
+              </td>
+            </tr>
+          `
+        })
+        
+        html += '</tbody></table>'
+        container.innerHTML = html
+
+      } catch (error) {
+        console.error('Error cargando clientes:', error)
+        container.innerText = 'Error cargando clientes. Asegúrate de tener permisos de Admin.'
+      }
     }
 
-    loadClients();
+    loadClients()
 
     document.getElementById('btnInviteClient')?.addEventListener('click', () => {
-        if (window.modalHelpers) window.modalHelpers.openModal('pendingFeatureModal');
-    });
+      if (window.modalHelpers) window.modalHelpers.openModal('pendingFeatureModal')
+    })
   </script>
 
   <ModalMessage 

@@ -29,20 +29,24 @@ const {
     <slot />
     <Footer />
     <button id="scroll-top" class="btn-up" aria-label="Volver arriba">
-      <i class="fas fa-arrow-up"></i>
+      <span class="material-symbols-outlined">north</span>
     </button>   
 
     <!-- Scripts -->
     <script>
       // @ts-nocheck
-      document.addEventListener('DOMContentLoaded', () => {
+      function initLayout() {
         // Scroll top button
         const scrollBtn = document.getElementById('scroll-top');
         if (scrollBtn) {
-          window.addEventListener('scroll', () => {
+          // Limpiar listener global previo si existe para evitar duplicados en SPA
+          window.removeEventListener('scroll', window._scrollHandler);
+          window._scrollHandler = () => {
             if (window.scrollY > 200) scrollBtn.classList.add('visible');
             else scrollBtn.classList.remove('visible');
-          });
+          };
+          window.addEventListener('scroll', window._scrollHandler);
+          
           scrollBtn.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             scrollBtn.classList.remove('visible');
@@ -72,7 +76,12 @@ const {
             }, 50);
           }
         });
-      });
+      }
+
+      // Ejecutar en la carga inicial
+      document.addEventListener('DOMContentLoaded', initLayout);
+      // Ejecutar en cada navegación con View Transitions
+      document.addEventListener('astro:page-load', initLayout);
     </script>
   </body>
 </html>

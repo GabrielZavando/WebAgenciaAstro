@@ -15,12 +15,12 @@ $colors-light: (
   surface-secondary: #f3f4f6,
   
   // Textos
-  text: #111827,
+  text: #1F2937, // Gris oscuro, suavemente menos intenso que el #111827 original
   text-secondary: #6b7280,
   text-muted: #9ca3af,
   
   // Inputs específicos
-  input-text: #111827,
+  input-text: #1F2937,
   
   // Bordes
   border: #e5e7eb,
@@ -79,7 +79,7 @@ $colors-dark: (
   text-muted: #9ca3af,
   
   // Inputs específicos
-  input-text: #111827,
+  input-text: #f9fafb,
   
   // Bordes
   border: #374151,

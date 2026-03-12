@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
+import Banner from "../../components/sections/Banner.astro";
 import Search from "../../components/shared/Search.astro";
 
 const { slug } = Astro.params;
@@ -52,46 +53,32 @@ try {
 
 <MainLayout title={post.title} description={post.excerpt}>
     <!-- Banner Post -->
-    <section class="banner fade-in">
-        <div class="banner__background">
-            {
-                post.coverImage && (
-                    <img
-                        src={post.coverImage}
-                        alt={`Imagen para ${post.title}`}
-                        class="banner__image"
-                    />
-                )
-            }
-        </div>
-
-        <div class="banner__container">
-            <a href="/blog" class="back-link">
-                <i class="fas fa-arrow-left"></i> Volver al blog
-            </a>
-            <header class="post-header-content">
-                <time
-                    datetime={post.createdAt?._seconds ? new Date(post.createdAt._seconds * 1000).toISOString() : new Date().toISOString()}
-                    class="post-date"
-                >
-                    {formattedDate}
-                </time>
-                <h1 class="post-title">{post.title}</h1>
-                <div class="post-meta">
-                    <span class="post-author">Por {post.author || 'Administrador'}</span>
-                    {post.category && (
-                        <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category">
-                            <i class="fas fa-layer-group"></i> {post.category}
-                        </a>
-                    )}
-                </div>
-            </header>
-        </div>
-    </section>
+    <Banner image={post.coverImage} size="half">
+        <a href="/blog" class="back-link">
+            <span class="material-symbols-outlined">arrow_back</span> Volver al blog
+        </a>
+        <header class="post-header-content">
+            <time
+                datetime={post.createdAt?._seconds ? new Date(post.createdAt._seconds * 1000).toISOString() : new Date().toISOString()}
+                class="post-date"
+            >
+                {formattedDate}
+            </time>
+            <h1 class="post-title">{post.title}</h1>
+            <div class="post-meta">
+                <span class="post-author">Por {post.author || 'Administrador'}</span>
+                {post.category && (
+                    <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category">
+                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.3rem;">label</span> {post.category}
+                    </a>
+                )}
+            </div>
+        </header>
+    </Banner>
 
     <div class="container">
         <div style="margin-top: 2rem;">
-            <Search placeholder="Buscar artículos..." />
+            <Search placeholder="Buscar artículos..." outlined={true} />
         </div>
     </div>
 
@@ -105,66 +92,6 @@ try {
 
 <style lang="scss">
     @use "../../styles/config" as *;
-
-    .banner {
-        position: relative;
-        min-height: 80vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        padding-top: 180px; /* Incrementado para empujar el contenido visualmente hacia abajo */
-        margin-top: -100px; /* Absorbe el espacio del Header Transparente para montarse debajo */
-        isolation: isolate;
-
-        &__background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: var(--z-background);
-            background: linear-gradient(
-                135deg,
-                var(--banner-overlay-start),
-                var(--banner-overlay-end)
-            );
-
-            .banner__image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                opacity: 1;
-                backface-visibility: hidden;
-            }
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--banner-overlay-start), var(--banner-overlay-end));
-            z-index: var(--z-base);
-        }
-
-        &__container {
-            width: 100%;
-            max-width: #{container(max)};
-            margin: 0 auto;
-            padding: var(--space-md);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center; // Centrado
-            position: relative;
-            z-index: var(--z-content);
-            text-align: center;
-        }
-    }
 
     .back-link {
         display: inline-flex;

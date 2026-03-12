@@ -44,7 +44,7 @@ const formatDate = (dateValue: any) => {
       <div class="header-content">
         <div class="back-link">
           <a href="/admin/contacto" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Volver a Mensajes
+            <span class="material-symbols-outlined">arrow_back</span> Volver a Mensajes
           </a>
         </div>
         <div class="title-section">
@@ -59,7 +59,7 @@ const formatDate = (dateValue: any) => {
     <main class="admin-content">
       {error ? (
         <div class="error-message">
-          <p><i class="fas fa-exclamation-triangle"></i> Error: {error}</p>
+          <p><span class="material-symbols-outlined">report</span> Error: {error}</p>
         </div>
       ) : prospect ? (
         <div class="conversation-layout">
@@ -139,7 +139,7 @@ const formatDate = (dateValue: any) => {
                  </div>
                  <div class="form-actions">
                    <button type="submit" class="btn-primary" id="btn-submit-reply">
-                     <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                     <span class="material-symbols-outlined">send</span> Enviar Mensaje
                    </button>
                  </div>
                  <div id="reply-feedback" class="feedback-msg"></div>
@@ -167,7 +167,7 @@ const formatDate = (dateValue: any) => {
       
       try {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        submitBtn.innerHTML = '<span class="material-symbols-outlined spinner">sync</span> Enviando...';
         feedback.className = 'feedback-msg'; // Reset
         feedback.textContent = '';
         
@@ -195,293 +195,8 @@ const formatDate = (dateValue: any) => {
          feedback.classList.add('error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensaje';
+        submitBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Enviar Mensaje';
       }
     });
   }
 </script>
-
-<style>
-.admin-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  animation: fadeIn 0.4s ease-out;
-}
-
-.admin-header {
-  margin-bottom: 2rem;
-}
-
-.back-link {
-  margin-bottom: 1rem;
-}
-
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.9rem;
-  text-decoration: none;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-surface, #1e293b);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-color, #ffffff);
-}
-
-.title-section h1 {
-  font-size: 2rem;
-  color: var(--text-color, #ffffff);
-  margin-bottom: 0.5rem;
-}
-
-.title-section p {
-  color: var(--text-muted, #94a3b8);
-  font-size: 1.1rem;
-}
-
-.error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid var(--danger-color, #ef4444);
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 2rem;
-  color: #f87171;
-}
-
-.conversation-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 2rem;
-  align-items: flex-start;
-}
-
-.user-card {
-  background: var(--bg-surface, #1e293b);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  position: sticky;
-  top: 2rem;
-}
-
-.avatar-placeholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color, #3b82f6), #8b5cf6);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 auto 1rem auto;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-}
-
-.user-card h3 {
-  color: var(--text-color, #ffffff);
-  font-size: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.info-group {
-  text-align: left;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.info-group:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.info-group label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--text-muted, #94a3b8);
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.05em;
-}
-
-.info-group span {
-  color: var(--text-color, #e2e8f0);
-  font-size: 0.95rem;
-}
-
-.info-group a {
-  color: var(--primary-color, #3b82f6);
-  text-decoration: none;
-}
-
-.info-group a:hover {
-  text-decoration: underline;
-}
-
-/* Chat Section */
-.chat-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.messages-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.message-bubble {
-  background: var(--bg-surface, #1e293b);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 12px;
-  padding: 1.25rem;
-  width: 85%;
-}
-
-.message-bubble.from-user {
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
-}
-
-.message-bubble.from-admin {
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
-  background: rgba(59, 130, 246, 0.05);
-  border-color: rgba(59, 130, 246, 0.2);
-}
-
-.message-meta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 0.5rem;
-}
-
-.sender {
-  font-weight: 600;
-  color: var(--text-color, #ffffff);
-  font-size: 0.9rem;
-}
-
-.from-admin .sender {
-  color: var(--primary-color, #3b82f6);
-}
-
-.time {
-  font-size: 0.8rem;
-  color: var(--text-muted, #94a3b8);
-}
-
-.message-content p {
-  color: var(--text-color, #e2e8f0);
-  line-height: 1.6;
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-/* Formulario de Respuesta */
-.reply-container {
-  background: var(--bg-surface, #1e293b);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-}
-
-.input-group label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  color: var(--text-color, #ffffff);
-}
-
-textarea {
-  width: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color, #334155);
-  border-radius: 8px;
-  padding: 1rem;
-  color: var(--text-color, #ffffff);
-  font-family: inherit;
-  resize: vertical;
-  transition: all 0.2s;
-}
-
-textarea:focus {
-  outline: none;
-  border-color: var(--primary-color, #3b82f6);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.form-actions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-primary {
-  background: var(--primary-color, #3b82f6);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover, #2563eb);
-}
-
-.btn-primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.feedback-msg {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  text-align: right;
-  min-height: 20px;
-}
-
-.feedback-msg.success { color: #10b981; }
-.feedback-msg.error { color: #ef4444; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 900px) {
-  .conversation-layout {
-    grid-template-columns: 1fr;
-  }
-  
-  .user-card {
-    position: static;
-  }
-  
-  .message-bubble {
-    width: 95%;
-  }
-}
-</style>

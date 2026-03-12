@@ -1,0 +1,63 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import { apiClient } from '../../../lib/api-client';
+
+const token = Astro.cookies.get('session')?.value;
+if (!token) {
+  return Astro.redirect('/login');
+}
+---
+
+<DashboardLayout title="Nuevo Proyecto | Panel Admin" role="admin">
+  <div class="project-form-container">
+    <div class="form-header">
+      <a href="/admin/proyectos" class="btn-back">
+        <span class="material-symbols-outlined">arrow_back</span> Volver al listado
+      </a>
+      <h1>Crear un Nuevo Proyecto</h1>
+      <p class="text-muted">Completa la información para iniciar una nueva colaboración.</p>
+    </div>
+
+    <div class="form-card flat-card">
+      <form id="newProjectForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="projectName">Nombre del Proyecto</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">task</span>
+              <input type="text" id="projectName" name="name" placeholder="Ej: Rediseño Digital" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="projectClient">Cliente</label>
+            <div class="input-with-icon select-wrapper">
+              <span class="material-symbols-outlined">account_circle</span>
+              <select id="projectClient" name="clientUid" required>
+                <option value="" disabled selected>Selecciona un cliente</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="projectDescription">Descripción</label>
+            <textarea id="projectDescription" name="description" placeholder="Detalles del proyecto..." rows="5" required></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-cta" id="submitBtn">
+             Siguiente <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-left:0.25rem;">arrow_forward</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  import { initNewProject } from "../../../scripts/proyectos/new"
+  initNewProject()
+</script>
+
+

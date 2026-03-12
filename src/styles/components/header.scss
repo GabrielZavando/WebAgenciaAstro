@@ -108,7 +108,7 @@
         &::after {
             background: var(--nav-hamburger-color);
             height: 3px;
-            border-radius: 1px;
+            border-radius: 0;
             transition: var(--nav-transition);
         }
         
@@ -230,9 +230,7 @@
                 font-size: 1rem;
                 color: var(--nav-link-color);
                 
-                &:hover {
-                    color: var(--color-accent);
-                }
+                // Texto se mantiene igual, se anima el subrayado en buttons.scss
             }
         }
     }
