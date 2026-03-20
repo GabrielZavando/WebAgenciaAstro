@@ -26,7 +26,8 @@ const { id } = Astro.params;
             // Load Client Info
             const client = await apiClient.get<any>(`/clients/${id}`);
             
-            document.getElementById('clientDetails').innerHTML = `
+            const clientDetails = document.getElementById('clientDetails');
+            if (clientDetails) clientDetails.innerHTML = `
                 <h2>${client.displayName || 'Sin nombre'}</h2>
                 <p style="color: var(--text-secondary);">${client.email}</p>
                 <div style="margin-top: 1rem;">
