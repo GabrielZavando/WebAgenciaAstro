@@ -230,7 +230,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
     const submitBtn = document.getElementById('submitCategory');
     if (submitBtn) {
-      (submitBtn as HTMLButtonElement).disabled = true;
+      submitBtn.setAttribute('disabled', 'true');
       submitBtn.classList.add('btn-loading');
     }
 
@@ -258,7 +258,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       showFeedback('Error de conexión', true);
     } finally {
       if (submitBtn) {
-        (submitBtn as HTMLButtonElement).disabled = false;
+        submitBtn.removeAttribute('disabled');
         submitBtn.classList.remove('btn-loading');
       }
     }

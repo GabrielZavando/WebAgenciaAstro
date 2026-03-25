@@ -41,12 +41,12 @@ const {
         const scrollBtn = document.getElementById('scroll-top');
         if (scrollBtn) {
           // Limpiar listener global previo si existe para evitar duplicados en SPA
-          window.removeEventListener('scroll', window._scrollHandler);
-          window._scrollHandler = () => {
+          window.removeEventListener('scroll', (window as any)._scrollHandler);
+          (window as any)._scrollHandler = () => {
             if (window.scrollY > 200) scrollBtn.classList.add('visible');
             else scrollBtn.classList.remove('visible');
           };
-          window.addEventListener('scroll', window._scrollHandler);
+          window.addEventListener('scroll', (window as any)._scrollHandler);
           
           scrollBtn.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
