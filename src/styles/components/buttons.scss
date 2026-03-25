@@ -3,25 +3,7 @@
 @use "../config" as *;
 
 // =========================
-// Mixin base compartido por todos los botones
-// =========================
-@mixin btn-base {
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--font-headings);
-  font-weight: 600;
-  text-decoration: none;
-  text-align: center;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  transition: all var(--transition-normal) ease;
-}
-
+// Estilos base para .btn genérico
 // =========================
 // Estilos base para .btn genérico
 // =========================
@@ -64,19 +46,11 @@
     border-radius: 0;
   }
 
-  // Iconos
+  // Iconos: rely on gap in btn-base
   .icon {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-
-    &-left {
-      margin-right: var(--space-xs);
-    }
-
-    &-right {
-      margin-left: var(--space-xs);
-    }
   }
 }
 
@@ -105,8 +79,29 @@
   }
 }
 
-// CTA Variante Secundaria (Outline con Borde Accent)
+// CTA Variante Secundaria (Outline con Borde Primary)
 .btn-cta__border {
+  @include btn-base;
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-md);
+
+  &:hover {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-white);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// CTA Variante Accent (Cyan - Para Landing)
+.btn-cta__accent {
   @include btn-base;
   background: transparent;
   border: 2px solid var(--color-accent);
@@ -117,7 +112,8 @@
 
   &:hover {
     background-color: var(--color-accent);
-    color: var(--color-dark); /* Texto oscuro sobre accent claro */
+    border-color: var(--color-accent);
+    color: var(--color-text); /* Color oscuro definido en _tokens.scss */
   }
 
   &:active {
@@ -125,18 +121,40 @@
   }
 }
 
-// CTA Variante Peligro (Acciones destructivas)
+// CTA Variante Peligro (Ahora unificada al sistema de marca para consistencia)
 .btn-cta__danger {
   @include btn-base;
   background: transparent;
-  border: 2px solid var(--color-error);
-  color: var(--color-error);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
   text-transform: uppercase;
   border-radius: 0;
   padding: var(--space-sm) var(--space-md);
 
   &:hover {
-    background-color: var(--color-error);
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-white);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// CTA Variante Advertencia (Ahora unificada al sistema de marca)
+.btn-cta__warning {
+  @include btn-base;
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-md);
+
+  &:hover {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
     color: var(--color-white);
   }
 
@@ -207,14 +225,16 @@
 // Botón de formulario
 .btn-form {
   @include btn-base;
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
   color: var(--color-white);
   width: 100%;
   padding: var(--space-sm) var(--space-lg);
   border-radius: 0;
+  border: 2px solid var(--color-primary);
 
   &:hover {
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
   }
 
   &:active {
@@ -222,25 +242,50 @@
   }
 
   &.loading {
-    color: transparent;
+    pointer-events: none;
+    cursor: not-allowed;
 
     &::after {
       content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      top: calc(50% - 10px);
-      left: calc(50% - 10px);
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      display: inline-block;
+      width: 1.1rem;
+      height: 1.1rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-top-color: var(--color-white);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      margin-left: 0.5rem;
+      vertical-align: middle;
     }
   }
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+// Botones de icono puro (Excepción de color: sutil por defecto)
+.btn-icon {
+  @include btn-base;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+
+  &:hover {
+    background: var(--color-surface-secondary);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  &.del-btn:hover {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+    border-color: var(--color-error);
+  }
 }
 
 // Enlaces de navegación
@@ -321,6 +366,27 @@
 
   &:active {
     transform: translateY(0);
+  }
+}
+
+// Botón de Acción en Tablas (Ver detalles, etc)
+.btn-details {
+  @include btn-base;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 0;
+
+  &:hover {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-white);
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.1rem;
   }
 }
 

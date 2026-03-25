@@ -75,7 +75,7 @@ if (ticket) {
 }
 ---
 
-<DashboardLayout title="Ver Ticket" role="admin">
+<DashboardLayout title="Ver Ticket" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Tickets', href: '/admin/tickets' }, { label: 'Detalle' }]} role="admin">
     <div class="header-actions">
       <div>
         <a href="/admin/tickets" class="back-link">
@@ -84,20 +84,19 @@ if (ticket) {
         {ticket && <h1>Asunto: {ticket.subject}</h1>}
       </div>
       {ticket && (
-        <div class="header-right-actions" style="display: flex; gap: 1rem; align-items: center;">
-          <div class="status-updater" style="display: flex; gap: 0.5rem; align-items: center;">
-            <select id="headerTicketStatus" class="form-select" style="width: auto; min-width: 180px;">
-              <option value="open" selected={ticket.status === 'open'}>Enviado / Abierto</option>
-              <option value="in-progress" selected={ticket.status === 'in-progress'}>En progreso</option>
-              <option value="resolved" selected={ticket.status === 'resolved'}>Marcar Resuelto</option>
+        <div class="header-right-actions">
+          <div class="select-wrapper status-select-wrapper">
+            <select id="headerTicketStatus" class="form-select">
+              <option value="open" selected={ticket.status === 'open'}>En progreso</option>
+              <option value="closed" selected={ticket.status === 'closed'}>Cerrado</option>
             </select>
-            <button type="button" class="btn-primary" id="btnUpdateTicketStatus" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-              <span class="btn-text">Actualizar</span>
-              <span class="loader hidden" style="width: 14px; height: 14px; border-width: 2px;"></span>
-            </button>
           </div>
-          <button type="button" class="btn btn-danger btn-delete-ticket" id="openDeleteTicketModal">
-            <span class="material-symbols-outlined">delete</span> Eliminar
+          <button type="button" class="btn-cta" id="btnUpdateTicketStatus">
+            ACTUALIZAR
+          </button>
+          <button type="button" class="btn-cta__danger btn-delete-ticket" id="openDeleteTicketModal">
+            <span class="material-symbols-outlined">delete</span>
+            ELIMINAR
           </button>
         </div>
       )}
@@ -213,18 +212,17 @@ if (ticket) {
           <div class="message-body reply-body">
             <form class="admin-reply-form" data-id={ticket.id}>
               <textarea id="newMessageBody" name="body" placeholder="Escribe tu respuesta para el cliente..." rows="4" required></textarea>
-              <div class="attachment-input-wrapper">
-                <label for="adminAttachment" class="lbl-attachment">
-                  <span class="material-symbols-outlined">image</span>
-                  <span>Adjuntar imagen (opcional)</span>
-                  <input type="file" id="adminAttachment" name="attachment" accept="image/*" class="hidden-file-input" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
-                </label>
+              <div class="form-group" style="margin-top: 1.5rem;">
+                <div class="file-drop file-drop--mini" id="ticketFileDrop">
+                  <span class="material-symbols-outlined">cloud_upload</span>
+                  <p id="ticketFileLabel">Haz clic o arrastra una imagen aquí (opcional)</p>
+                  <input type="file" id="adminAttachment" name="attachment" accept="image/*" class="file-input-hidden" />
+                </div>
               </div>
               <div class="form-actions-wrapper">
                 <!-- Selector de estado ha sido movido a la parte superior -->
-                <button type="submit" class="btn-primary">
-                  <span class="btn-text">Enviar Mensaje</span>
-                  <span class="loader hidden"></span>
+                <button type="submit" class="btn-cta">
+                  Enviar Mensaje
                 </button>
               </div>
               <div class="feedback-message hidden" id={`feedback-${ticket.id}`}></div>
@@ -398,11 +396,41 @@ if (ticket) {
         }
       });
       
-      const fileInputAttach = newForm.querySelector('.hidden-file-input') as HTMLInputElement;
-      if (fileInputAttach) {
-        fileInputAttach.addEventListener('change', function(this: HTMLInputElement) {
-          if (this.previousElementSibling) {
-            this.previousElementSibling.textContent = this.files?.[0]?.name || 'Adjuntar imagen (opcional)';
+      // --- Lógica de Mini File Drop ---
+      const ticketFileDrop = newForm.querySelector('#ticketFileDrop') as HTMLElement;
+      const ticketFileLabel = newForm.querySelector('#ticketFileLabel') as HTMLElement;
+      const fileInputAttach = newForm.querySelector('#adminAttachment') as HTMLInputElement;
+
+      if (ticketFileDrop && fileInputAttach) {
+        // Al hacer clic en el contenedor (que ahora es el dropzone)
+        ticketFileDrop.addEventListener('click', () => fileInputAttach.click());
+
+        fileInputAttach.addEventListener('change', () => {
+          if (fileInputAttach.files?.length && ticketFileLabel) {
+            ticketFileLabel.textContent = fileInputAttach.files[0].name;
+            ticketFileDrop.classList.add('has-file');
+          }
+        });
+
+        ticketFileDrop.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          ticketFileDrop.classList.add('drag-over');
+        });
+
+        ticketFileDrop.addEventListener('dragleave', () => {
+          ticketFileDrop.classList.remove('drag-over');
+        });
+
+        ticketFileDrop.addEventListener('drop', (e) => {
+          e.preventDefault();
+          ticketFileDrop.classList.remove('drag-over');
+          const files = e.dataTransfer?.files;
+          if (files?.length) {
+            fileInputAttach.files = files;
+            if (ticketFileLabel) {
+              ticketFileLabel.textContent = files[0].name;
+              ticketFileDrop.classList.add('has-file');
+            }
           }
         });
       }
@@ -410,8 +438,7 @@ if (ticket) {
 
     function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
       btn.disabled = isLoading;
-      btn.querySelector('.btn-text')?.classList.toggle('hidden', isLoading);
-      btn.querySelector('.loader')?.classList.toggle('hidden', !isLoading);
+      btn.classList.toggle('btn-loading', isLoading);
     }
 
     function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
@@ -419,10 +446,10 @@ if (ticket) {
         return;
       }
 
-      if ((window as any).modalHelpers) {
+      if (window.modalHelpers) {
         if (type === 'error') {
-          (window as any).modalHelpers.updateModalMessage('ticketResponseErrorModal', message);
-          (window as any).modalHelpers.openModal('ticketResponseErrorModal');
+          window.modalHelpers.updateModalMessage('ticketResponseErrorModal', message);
+          window.modalHelpers.openModal('ticketResponseErrorModal');
         }
       } else {
         el.textContent = message;
@@ -456,9 +483,9 @@ if (ticket) {
           // Recargar tras éxito
           setTimeout(() => window.location.reload(), 500);
         } catch (err: any) {
-          if ((window as any).modalHelpers) {
-            (window as any).modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al actualizar estado');
-            (window as any).modalHelpers.openModal('ticketResponseErrorModal');
+          if (window.modalHelpers) {
+            window.modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al actualizar estado');
+            window.modalHelpers.openModal('ticketResponseErrorModal');
           } else {
             console.error('Error actualizando estado:', err);
           }
@@ -475,8 +502,8 @@ if (ticket) {
       openDeleteBtn.parentNode?.replaceChild(newDeleteBtn, openDeleteBtn);
 
       newDeleteBtn.addEventListener('click', () => {
-        if ((window as any).confirmModalHelpers) {
-          (window as any).confirmModalHelpers.open('deleteTicketModal', async () => {
+        if (window.confirmModalHelpers) {
+          window.confirmModalHelpers.open('deleteTicketModal', async () => {
             try {
               const currentToken = auth.currentUser ? await auth.currentUser.getIdToken(true) : token;
               const res = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
@@ -486,10 +513,10 @@ if (ticket) {
               
               if (!res.ok) throw new Error('Error al eliminar ticket');
               
-              if ((window as any).showToast) (window as any).showToast('Ticket eliminado correctamente', 'success');
+              if (window.showToast) window.showToast('Ticket eliminado correctamente', 'success');
               setTimeout(() => window.location.href = '/admin/tickets', 1500);
             } catch (err: any) {
-              if ((window as any).showToast) (window as any).showToast(err.message, 'error');
+              if (window.showToast) window.showToast(err.message, 'error');
             }
           });
         } else {
@@ -523,120 +550,3 @@ if (ticket) {
 
 
 
-<style lang="scss">
-  .form-actions-wrapper {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      background: rgba(0,0,0,0.015);
-      padding: 1rem;
-      border-radius: 0;
-      border: 1px dashed var(--color-border);
-  }
-
-  .status-action {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-  }
-  .status-label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--color-text);
-  }
-
-  .status-select {
-    padding: 0.6rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0;
-    background: var(--color-background);
-    color: var(--color-text);
-    font-family: inherit;
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-  }
-  .status-select:focus {
-     border-color: var(--color-primary);
-     outline: none;
-  }
-
-  .btn-primary {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-  }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2); }
-  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;}
-  .btn-danger {
-    background-color: var(--color-error) !important;
-    color: white !important;
-    border: none !important;
-  }
-  .btn-danger:hover {
-    background-color: #dc2626 !important;
-    transform: translateY(-2px);
-  }
-
-  .feedback-message {
-    padding: 0.75rem 1rem;
-    border-radius: 0;
-    text-align: center;
-    font-weight: 500;
-    font-size: 0.95rem;
-    margin-top: 0.5rem;
-  }
-  .feedback-message.error {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-    border: 1px solid rgba(var(--color-error-rgb), 0.2);
-  }
-  .feedback-message.success {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.2);
-  }
-  .hidden { display: none !important; }
-
-  .loader {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #fff;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .ticket-meta-card {
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    .form-actions-wrapper {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .status-action {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-  }
-</style>

@@ -4,13 +4,16 @@ import Logo from "../assets/img/logo-medium.png";
 import ToastContainer from "../components/shared/ToastContainer.astro";
 import Head from "../components/shared/Head.astro";
 import AdminFooter from "../components/shared/AdminFooter.astro";
+import { adminNav, clientNav } from "../data/navigation";
+import Breadcrumbs from "../components/shared/Breadcrumbs.astro";
 
 interface Props {
   title: string;
   role?: 'admin' | 'client';
+  breadcrumbs?: {label: string, href?: string}[];
 }
 
-const { title, role = 'admin' } = Astro.props;
+const { title, role = 'admin', breadcrumbs } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -37,80 +40,33 @@ const { title, role = 'admin' } = Astro.props;
       </div>
       
       <nav class="sidebar-nav">
-        <!-- Enlaces COMUNES / ADMIN -->
-        {role === 'admin' && (
-          <>
-            <a href="/admin" class="nav-item">
-              <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span>
-            </a>
-            <a href="/admin/proyectos" class="nav-item">
-              <span class="material-symbols-outlined">task</span> <span class="nav-text">Proyectos</span>
-            </a>
-            <a href="/admin/usuarios" class="nav-item">
-              <span class="material-symbols-outlined">group</span> <span class="nav-text">Usuarios</span>
-            </a>
-            <a href="/admin/archivos" class="nav-item">
-              <span class="material-symbols-outlined">folder_open</span> <span class="nav-text">Archivos</span>
-            </a>
-            <a href="/admin/suscriptores" class="nav-item">
-              <span class="material-symbols-outlined">mail</span> <span class="nav-text">Suscriptores</span>
-            </a>
-            <a href="/admin/contacto" class="nav-item">
-              <span class="material-symbols-outlined">contacts</span> <span class="nav-text">Contacto</span>
-            </a>
-            <div class="nav-item-group">
-              <button class="nav-item nav-item-toggle" aria-expanded="false">
-                <span class="material-symbols-outlined">edit_note</span> <span class="nav-text">Blog</span>
-                <span class="material-symbols-outlined nav-chevron">expand_more</span>
-              </button>
-              <div class="nav-submenu">
-                <a href="/admin/blog" class="nav-item sub-item">
-                  <span class="material-symbols-outlined">description</span> <span class="nav-text">Artículos</span>
-                </a>
-                <a href="/admin/blog/categorias" class="nav-item sub-item">
-                  <span class="material-symbols-outlined">label</span> <span class="nav-text">Categorías</span>
-                </a>
-              </div>
-            </div>
-            <a href="/admin/tickets" class="nav-item">
-              <span class="material-symbols-outlined">confirmation_number</span> <span class="nav-text">Tickets</span>
-            </a>
-            <a href="/admin/informes" class="nav-item">
-              <span class="material-symbols-outlined">picture_as_pdf</span> <span class="nav-text">Informes</span>
-            </a>
-            <a href="/admin/ideas" class="nav-item">
-              <span class="material-symbols-outlined">lightbulb</span> <span class="nav-text">Ideas</span>
-            </a>
-            <a href="/admin/estilos" class="nav-item">
-              <span class="material-symbols-outlined">palette</span> <span class="nav-text">Estilos</span>
-            </a>
-          </>
-        )}
+        {
+          (role === 'admin' ? adminNav : clientNav).map((item) => {
+            if (item.children) {
+              return (
+                <div class="nav-item-group">
+                  <button class="nav-item nav-item-toggle" aria-expanded="false">
+                    <span class="material-symbols-outlined">{item.icon}</span> <span class="nav-text">{item.label}</span>
+                    <span class="material-symbols-outlined nav-chevron">expand_more</span>
+                  </button>
+                  <div class="nav-submenu">
+                    {item.children.map((child) => (
+                      <a href={child.href} class="nav-item sub-item">
+                        <span class="material-symbols-outlined">{child.icon}</span> <span class="nav-text">{child.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
 
-        <!-- Enlaces CLIENTE -->
-        {role === 'client' && (
-          <>
-            <a href="/dashboard" class="nav-item">
-              <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span>
-            </a>
-            <a href="/dashboard/proyectos" class="nav-item">
-              <span class="material-symbols-outlined">task</span> <span class="nav-text">Proyectos</span>
-            </a>
-            <a href="/dashboard/informes" class="nav-item">
-              <span class="material-symbols-outlined">picture_as_pdf</span> <span class="nav-text">Informes</span>
-            </a>
-            <a href="/dashboard/archivos" class="nav-item">
-              <span class="material-symbols-outlined">folder_open</span> <span class="nav-text">Archivos</span>
-            </a>
-            <a href="/dashboard/soporte" class="nav-item">
-              <span class="material-symbols-outlined">support_agent</span> <span class="nav-text">Soporte</span>
-            </a>
-            <a href="/dashboard/herramientas" class="nav-item">
-              <span class="material-symbols-outlined">build</span> <span class="nav-text">Herramientas</span>
-            </a>
-
-          </>
-        )}
+            return (
+              <a href={item.href} class="nav-item">
+                <span class="material-symbols-outlined">{item.icon}</span> <span class="nav-text">{item.label}</span>
+              </a>
+            );
+          })
+        }
       </nav>
 
       <div class="sidebar-footer">
@@ -188,363 +144,22 @@ const { title, role = 'admin' } = Astro.props;
 
       <div class="content-wrapper">
         <div class="fade-in">
+          {breadcrumbs && <Breadcrumbs paths={breadcrumbs} />}
           <slot />
         </div>
       </div>
 
       <AdminFooter />
-
-      <slot name="modals" />
-      <ToastContainer />
     </main>
   </div>
+
+  <slot name="modals" />
+  <ToastContainer />
 
 
 
   <script>
-    import { auth } from "../lib/firebase/client";
-    import { signOut, onAuthStateChanged } from "firebase/auth";
-
-    // Global Select Icon Rotation Logic
-    // Uses mousedown to set the open class BEFORE the native OS dropdown opens.
-    // Uses blur (triggered by change or external click) to remove it.
-    function bindSelectRotation(sel: HTMLSelectElement) {
-      if (sel.dataset.rotationBound) return;
-      sel.dataset.rotationBound = 'true';
-
-      const wrapper = sel.closest<HTMLElement>('.input-with-icon, .select-wrapper');
-      if (!wrapper) return;
-
-      // Mark as open on mousedown — fires before the native dropdown
-      sel.addEventListener('mousedown', () => {
-        wrapper.classList.toggle('is-open');
-      });
-
-      // Always close on blur (handles change & external click)
-      sel.addEventListener('blur', () => {
-        wrapper.classList.remove('is-open');
-      });
-    }
-
-    // Bind all selects inside wrappers at load and on any future DOM changes
-    function bindAllSelects() {
-      document.querySelectorAll<HTMLSelectElement>('.input-with-icon select, .select-wrapper select')
-        .forEach(bindSelectRotation);
-    }
-
-    function initDashboard() {
-      // 1. Lógica de Items Activos (Siempre debe correr al navegar)
-      const currentPath = window.location.pathname;
-      const navItems = document.querySelectorAll('.nav-item') as NodeListOf<HTMLElement>;
-      
-      navItems.forEach(item => {
-        const href = item.getAttribute('href');
-        if (!href) return;
-
-        const isExactMatch = currentPath === href;
-        const isSubPathMatch = href !== '/admin' && href !== '/dashboard' && href !== '/' && currentPath.startsWith(href) && !item.classList.contains('nav-item-toggle');
-
-        if (isExactMatch || isSubPathMatch) {
-          item.style.color = 'var(--color-primary)';
-          item.style.backgroundColor = 'rgba(var(--color-primary-rgb), 0.1)';
-          item.style.fontWeight = '600';
-          
-          const parentSubmenu = item.closest('.nav-submenu');
-          if (parentSubmenu) {
-            parentSubmenu.classList.add('open');
-            const toggle = parentSubmenu.previousElementSibling;
-            if (toggle) toggle.setAttribute('aria-expanded', 'true');
-          }
-        } else {
-          item.style.color = '';
-          item.style.backgroundColor = '';
-          item.style.fontWeight = '';
-        }
-      });
-
-      // 2. Protecciones contra duplicidad de listeners en elementos persistidos
-      const sidebar = document.getElementById('main-sidebar');
-      const themeToggle = document.getElementById('theme-toggle');
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const notificationsBtn = document.getElementById('notificationsBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const collapseBtn = document.getElementById('sidebarCollapseBtn');
-      
-      // Theme Toggle - Único y persistente
-      if (themeToggle && !themeToggle.dataset.initialized) {
-        themeToggle.dataset.initialized = 'true';
-        themeToggle.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          const currentTheme = document.documentElement.getAttribute('data-theme');
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', newTheme);
-          localStorage.setItem('theme', newTheme);
-        });
-      }
-
-      if (userMenuBtn && !userMenuBtn.dataset.initialized) {
-        userMenuBtn.dataset.initialized = 'true';
-        const userDropdown = document.getElementById('userDropdown');
-        const notificationsDropdown = document.getElementById('notificationsDropdown');
-        
-        userMenuBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isExpanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
-          notificationsDropdown?.classList.remove('show');
-          notificationsBtn?.setAttribute('aria-expanded', 'false');
-
-          if (isExpanded) {
-            userDropdown?.classList.remove('show');
-            userMenuBtn.setAttribute('aria-expanded', 'false');
-          } else {
-            userDropdown?.classList.add('show');
-            userMenuBtn.setAttribute('aria-expanded', 'true');
-          }
-        });
-      }
-
-      if (notificationsBtn && !notificationsBtn.dataset.initialized) {
-        notificationsBtn.dataset.initialized = 'true';
-        const userDropdown = document.getElementById('userDropdown');
-        const notificationsDropdown = document.getElementById('notificationsDropdown');
-        
-        notificationsBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isExpanded = notificationsBtn.getAttribute('aria-expanded') === 'true';
-          userDropdown?.classList.remove('show');
-          userMenuBtn?.setAttribute('aria-expanded', 'false');
-
-          if (isExpanded) {
-            notificationsDropdown?.classList.remove('show');
-            notificationsBtn.setAttribute('aria-expanded', 'false');
-          } else {
-            notificationsDropdown?.classList.add('show');
-            notificationsBtn.setAttribute('aria-expanded', 'true');
-          }
-        });
-      }
-
-      if (!(window as any)._globalClickBound) {
-        (window as any)._globalClickBound = true;
-        document.addEventListener('click', (e) => {
-          const target = e.target as HTMLElement;
-          const userDropdown = document.getElementById('userDropdown');
-          const userMenuBtn = document.getElementById('userMenuBtn');
-          const notificationsDropdown = document.getElementById('notificationsDropdown');
-          const notificationsBtn = document.getElementById('notificationsBtn');
-
-          if (!target.closest('.user-menu-container')) {
-            userDropdown?.classList.remove('show');
-            userMenuBtn?.setAttribute('aria-expanded', 'false');
-          }
-          if (!target.closest('.notifications-container')) {
-            notificationsDropdown?.classList.remove('show');
-            notificationsBtn?.setAttribute('aria-expanded', 'false');
-          }
-        });
-      }
-
-      const handleLogout = async () => {
-        try { await signOut(auth); window.location.href = '/login'; }
-        catch (error) { console.error('Error cerrando sesión', error); }
-      };
-
-      if (logoutBtn && !logoutBtn.dataset.initialized) {
-        logoutBtn.dataset.initialized = 'true';
-        logoutBtn.addEventListener('click', handleLogout);
-      }
-      if (logoutDropdownBtn && !logoutDropdownBtn.dataset.initialized) {
-        logoutDropdownBtn.dataset.initialized = 'true';
-        logoutDropdownBtn.addEventListener('click', handleLogout);
-      }
-
-      if (sidebarToggle && !sidebarToggle.dataset.initialized) {
-        sidebarToggle.dataset.initialized = 'true';
-        sidebarToggle.addEventListener('click', () => {
-          sidebar?.classList.toggle('open');
-        });
-      }
-
-      if (collapseBtn && !collapseBtn.dataset.initialized) {
-        collapseBtn.dataset.initialized = 'true';
-        const icon = collapseBtn.querySelector('.material-symbols-outlined');
-        
-        collapseBtn.addEventListener('click', () => {
-          sidebar?.classList.toggle('collapsed');
-          const nowCollapsed = sidebar?.classList.contains('collapsed');
-          localStorage.setItem('sidebar-collapsed', String(nowCollapsed));
-          if (icon) {
-            if (nowCollapsed) icon.textContent = 'chevron_right';
-            else icon.textContent = 'chevron_left';
-          }
-        });
-      }
-
-      // Sidebar collapse state inicial
-      const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-      if (isCollapsed && sidebar) {
-        sidebar.classList.add('collapsed');
-        const icon = collapseBtn?.querySelector('.material-symbols-outlined');
-        if (icon) icon.textContent = 'chevron_right';
-      }
-
-      if (!(window as any)._toggleBound) {
-        (window as any)._toggleBound = true;
-        document.addEventListener('click', (e) => {
-          const target = e.target as HTMLElement;
-          const toggle = target.closest('.nav-item-toggle');
-          if (toggle) {
-            e.preventDefault();
-            const submenu = toggle.nextElementSibling as HTMLElement;
-            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-            toggle.setAttribute('aria-expanded', String(!isExpanded));
-            submenu?.classList.toggle('open');
-          }
-        });
-      }
-
-      const userNameDisplay = document.getElementById('userNameDisplay');
-      const userEmailDisplay = document.getElementById('userEmailDisplay');
-      const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
-      const notificationBadge = document.getElementById('notificationBadge');
-      const notificationsList = document.getElementById('notificationsList');
-
-      const loadNotifications = async () => {
-        try {
-          const token = await auth.currentUser?.getIdToken();
-          if (!token) return;
-          const API_URL = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
-          const res = await fetch(`${API_URL}/notifications`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const dt = await res.json();
-            renderNotifications(dt);
-          }
-        } catch (e) {
-          console.error('Error fetching notifications:', e);
-        }
-      };
-
-      const renderNotifications = (notifications: any[]) => {
-        if (!notificationsList) return;
-        const unreadNotifications = notifications.filter((n: any) => !n.read);
-        if (unreadNotifications.length === 0) {
-          notificationsList.innerHTML = '<div class="notification-empty text-muted" style="padding: 1.5rem; text-align: center;">No tienes notificaciones pendientes.</div>';
-          if (notificationBadge) {
-            notificationBadge.style.display = 'none';
-            notificationBadge.textContent = '0';
-          }
-          return;
-        }
-        if (notificationBadge) {
-          notificationBadge.textContent = unreadNotifications.length > 99 ? '99+' : String(unreadNotifications.length);
-          notificationBadge.style.display = 'flex';
-        }
-        notificationsList.innerHTML = unreadNotifications.map((notif: any) => {
-          let timestamp = notif.createdAt;
-          if (notif.createdAt && notif.createdAt._seconds) timestamp = notif.createdAt._seconds * 1000;
-          const d = new Date(timestamp);
-          // Mensaje breve (máximo 45 caracteres) para coincidir con diseño
-          const displayMessage = notif.message.length > 45 ? notif.message.substring(0, 42) + '...' : notif.message;
-          return `<li class="notifications-dropdown__item unread" data-id="${notif.id}" data-link="${notif.link || '#'}">
-            <span class="nt-title">${notif.title}</span>
-            <p class="nt-content">${displayMessage}</p>
-            <div class="nt-date">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-          </li>`;
-        }).join('');
-
-        notificationsList.querySelectorAll('.notifications-dropdown__item').forEach(item => {
-          item.addEventListener('click', async (e) => {
-            const id = item.getAttribute('data-id');
-            const link = item.getAttribute('data-link');
-            
-            // Marcar como leído
-            try {
-              const token = await auth.currentUser?.getIdToken();
-              const API_URL = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
-              
-              fetch(`${API_URL}/notifications/${id}/read`, { 
-                method: 'PATCH', 
-                headers: { 'Authorization': `Bearer ${token}` } 
-              });
-
-              // Redirigir si no es la página actual
-              if (link && link !== '#' && link !== window.location.pathname) {
-                window.location.href = link;
-              }
-
-              // Remover de la lista inmediatamente (UI reactiva)
-              item.remove();
-              
-              // Actualizar contador del badge
-              const remainingCount = notificationsList.querySelectorAll('.notification-item').length;
-              if (notificationBadge) {
-                if (remainingCount > 0) {
-                  notificationBadge.textContent = remainingCount > 99 ? '99+' : String(remainingCount);
-                  notificationBadge.style.display = 'flex';
-                } else {
-                  notificationBadge.style.display = 'none';
-                  notificationBadge.textContent = '0';
-                  notificationsList.innerHTML = '<div class="notification-empty text-muted">No tienes notificaciones pendientes.</div>';
-                }
-              }
-            } catch (err) { 
-              console.error('Error marking notification as read:', err); 
-            }
-          });
-        });
-      };
-
-      const updateAuthUI = () => {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const userNameDisplay = document.getElementById('userNameDisplay');
-        const userEmailDisplay = document.getElementById('userEmailDisplay');
-        const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
-
-        if (userNameDisplay) userNameDisplay.textContent = user.displayName || 'Usuario';
-        if (userEmailDisplay) userEmailDisplay.textContent = user.email || '';
-        if (userAvatar) {
-          userAvatar.src = user.photoURL ? user.photoURL : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=random`;
-        }
-        loadNotifications();
-      };
-
-      function bindAuthListeners() {
-        if ((window as any)._authBound) {
-           updateAuthUI();
-           return;
-        }
-        (window as any)._authBound = true;
-        onAuthStateChanged(auth, (user) => {
-          updateAuthUI();
-          if (user) {
-            if (notifPoller === null) notifPoller = window.setInterval(loadNotifications, 60000);
-          } else {
-            if (notifPoller !== null) { clearInterval(notifPoller); notifPoller = null; }
-          }
-        });
-      }
-      bindAuthListeners();
-      
-      const fadeElements = document.querySelectorAll('.fade-in');
-      setTimeout(() => { fadeElements.forEach(el => el.classList.add('animate')); }, 50);
-      bindAllSelects();
-    } // Fin initDashboard
-
-    let notifPoller: number | null = null;
-
-    document.addEventListener('astro:page-load', initDashboard);
-
-    if (!(window as any)._selectObserver) {
-      (window as any)._selectObserver = new MutationObserver(() => bindAllSelects());
-      (window as any)._selectObserver.observe(document.body, { childList: true, subtree: true });
-    }
+    import "../scripts/dashboard/init.ts";
   </script>
 </body>
 </html>

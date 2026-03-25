@@ -1,5 +1,5 @@
 ---
-import TicketTable from '../shared/TicketTable.astro';
+import TicketTable from './TicketTable.astro';
 
 interface Props {
   clientId?: string;
@@ -20,10 +20,10 @@ const { clientId, clientEmail } = Astro.props;
         </select>
       </div>
     )}
-    <div class="search-row">
-      <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
-      <button type="button" class="btn-primary btn-search-item" id="btnSearchTicket">Buscar</button>
-    </div>
+    <form class="search-form" onsubmit="return false;">
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+      <button type="submit" class="search-btn" id="btnSearchTicket">Buscar</button>
+    </form>
   </div>
 
   <TicketTable role="admin" id="ticketsListBody" showClientColumn={!clientId} />
@@ -186,7 +186,10 @@ const { clientId, clientEmail } = Astro.props;
             <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${dateResolved}</td>
             <td class="col-actions-data" data-label="Ver Ticket">
               <div class="td-actions">
-                <a href="/admin/tickets/${ticket.id}" class="btn-action view-btn" title="Ver Ticket completo"><span class="material-symbols-outlined">visibility</span> Ver</a>
+                <a href="/admin/tickets/${ticket.id}" class="btn-details" title="Ver Ticket completo">
+                  <span class="material-symbols-outlined">visibility</span>
+                  <span class="btn-text">Ver</span>
+                </a>
               </div>
             </td>
           </tr>

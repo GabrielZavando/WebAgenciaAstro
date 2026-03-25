@@ -148,13 +148,13 @@ try {
           <div class="left-actions">
             {!isNew && (
               <button type="button" class="btn btn-danger" id="deleteBtn">
-                <span class="material-symbols-outlined icon-left">delete</span> Eliminar Post
+                <span class="material-symbols-outlined">delete</span> Eliminar Post
               </button>
             )}
           </div>
           <div class="right-actions">
             <button type="submit" class="btn btn-cta" id="submitBtn">
-              <span class="material-symbols-outlined icon-left">save</span> <span class="btn-text">{isNew ? 'Crear Post' : 'Guardar Cambios'}</span>
+              <span class="material-symbols-outlined">save</span> {isNew ? 'Crear Post' : 'Guardar Cambios'}
             </button>
           </div>
         </div>
@@ -162,49 +162,48 @@ try {
     </div>
   )}
 
-  <!-- Modal de Selección de Imágenes -->
-  <div id="imageSelectModal" class="modal-backdrop hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3><span class="material-symbols-outlined">imagesmode</span> Biblioteca de Imágenes</h3>
-        <button type="button" id="closeImageModal" class="modal-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="search-bar">
-          <span class="material-symbols-outlined">search</span>
-          <input type="text" id="imageSearchInput" placeholder="Buscar imágenes por título..." />
+  <div slot="modals">
+    <!-- Modal de Selección de Imágenes -->
+    <div id="imageSelectModal" class="modal">
+      <div class="modal__content">
+        <div class="modal__header">
+          <h3><span class="material-symbols-outlined">imagesmode</span> Biblioteca de Imágenes</h3>
+          <button type="button" id="closeImageModal" class="modal__close">&times;</button>
         </div>
-        <div id="imageGallery" class="image-gallery">
-          <div class="loading-state">Cargando biblioteca...</div>
+        <div class="modal__body">
+          <div class="search-bar">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="imageSearchInput" placeholder="Buscar imágenes por título..." />
+          </div>
+          <div id="imageGallery" class="image-gallery">
+            <div class="loading-state">Cargando biblioteca...</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <ModalConfirm 
+      id="deletePostDetailModal"
+      title="¿Eliminar Artículo?"
+      message="¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer."
+      confirmText="Eliminar permanentemente"
+      type="danger"
+    />
+
+    <ModalMessage
+      id="formSuccessModal"
+      type="success"
+      title="¡Éxito!"
+      message="El artículo ha sido procesado correctamente."
+    />
+
+    <ModalMessage
+      id="formErrorModal"
+      type="error"
+      title="Error"
+      message="Ha ocurrido un problema al procesar el artículo."
+    />
   </div>
-
-  <ModalConfirm 
-    slot="modals"
-    id="deletePostDetailModal"
-    title="¿Eliminar Artículo?"
-    message="¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer."
-    confirmText="Eliminar permanentemente"
-    type="danger"
-  />
-
-  <ModalMessage
-    slot="modals"
-    id="formSuccessModal"
-    type="success"
-    title="¡Éxito!"
-    message="El artículo ha sido procesado correctamente."
-  />
-
-  <ModalMessage
-    slot="modals"
-    id="formErrorModal"
-    type="error"
-    title="Error"
-    message="Ha ocurrido un problema al procesar el artículo."
-  />
 </DashboardLayout>
 
 <script>
@@ -355,12 +354,12 @@ try {
     let libraryImages: any[] = [];
     
     function openModal() {
-        imageSelectModal.classList.remove('hidden');
+        imageSelectModal.classList.add('active');
         loadLibraryImages();
     }
     
     function closeModal() {
-        imageSelectModal.classList.add('hidden');
+        imageSelectModal.classList.remove('active');
     }
 
     selectFileBtn?.addEventListener('click', openModal);
@@ -458,11 +457,11 @@ try {
 
     // Delete Logic
     deleteBtn?.addEventListener('click', () => {
-      if (!(window as any).confirmModalHelpers) {
+      if (!window.confirmModalHelpers) {
         if (!confirm('¿Estás seguro?')) return;
         return executeDelete();
       }
-      (window as any).confirmModalHelpers.open('deletePostDetailModal', executeDelete);
+      window.confirmModalHelpers.open('deletePostDetailModal', executeDelete);
     });
 
     async function executeDelete() {
@@ -482,7 +481,7 @@ try {
           });
           
           if (response.ok) {
-            if ((window as any).showToast) (window as any).showToast('Post eliminado.', 'success');
+            if (window.showToast) window.showToast('Post eliminado.', 'success');
             setTimeout(() => { window.location.href = '/admin/blog'; }, 1000);
           } else {
             const result = await response.json();
@@ -571,9 +570,9 @@ try {
 
     function showModalFeedback(message: string, type: 'error' | 'success') {
       const modalId = type === 'success' ? 'formSuccessModal' : 'formErrorModal';
-      if ((window as any).modalHelpers) {
-        (window as any).modalHelpers.updateModalMessage(modalId, message);
-        (window as any).modalHelpers.openModal(modalId);
+      if (window.modalHelpers) {
+        window.modalHelpers.updateModalMessage(modalId, message);
+        window.modalHelpers.openModal(modalId);
       } else {
         alert(message);
       }

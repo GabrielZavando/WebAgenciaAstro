@@ -26,7 +26,7 @@ try {
 }
 ---
 
-<DashboardLayout title="Mi Perfil" role="admin">
+<DashboardLayout title="Mi Perfil" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Perfil' }]} role="admin">
   <div class="profile-view">
     <div class="header-actions">
       <div>
@@ -79,8 +79,7 @@ try {
 
             <div class="form-actions">
               <button type="submit" class="btn-primary" id="saveProfileBtn">
-                <span class="btn-text">Guardar Cambios</span>
-                <span class="loader hidden"></span>
+                Guardar Cambios
               </button>
             </div>
           </form>
@@ -107,8 +106,7 @@ try {
 
             <div class="form-actions">
               <button type="submit" class="btn-primary" id="savePasswordBtn">
-                <span class="btn-text">Cambiar Contraseña</span>
-                <span class="loader hidden"></span>
+                Cambiar Contraseña
               </button>
             </div>
           </form>
@@ -136,7 +134,7 @@ try {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        (window as any).showToast('La imagen supera los 2MB permitidos.', 'error');
+        window.showToast('La imagen supera los 2MB permitidos.', 'error');
         avatarInput.value = '';
         return;
       }
@@ -156,7 +154,7 @@ try {
       
       if (avatarInput?.files?.[0]) {
         if (avatarInput.files[0].size > 2 * 1024 * 1024) {
-          (window as any).showToast('La imagen supera los 2MB permitidos.', 'error');
+          window.showToast('La imagen supera los 2MB permitidos.', 'error');
           setLoading(saveProfileBtn, false);
           return;
         }
@@ -171,13 +169,13 @@ try {
       });
 
       if (response.ok) {
-        (window as any).showToast('Perfil actualizado correctamente.', 'success');
+        window.showToast('Perfil actualizado correctamente.', 'success');
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        (window as any).showToast('Error al actualizar perfil.', 'error');
+        window.showToast('Error al actualizar perfil.', 'error');
       }
     } catch (error) {
-      (window as any).showToast('Error de conexión.', 'error');
+      window.showToast('Error de conexión.', 'error');
     } finally {
       setLoading(saveProfileBtn, false);
     }
@@ -198,12 +196,12 @@ try {
 
     const validation = validatePassword(newPassword);
     if (!validation.isValid) {
-      (window as any).showToast(validation.errors[0], 'error');
+      window.showToast(validation.errors[0], 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      (window as any).showToast('Las contraseñas no coinciden.', 'error');
+      window.showToast('Las contraseñas no coinciden.', 'error');
       return;
     }
 
@@ -211,13 +209,13 @@ try {
     
     try {
       await updatePassword(auth.currentUser, newPassword);
-      (window as any).showToast('Contraseña cambiada exitosamente.', 'success');
+      window.showToast('Contraseña cambiada exitosamente.', 'success');
       passwordForm.reset();
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
-        (window as any).showToast('Por seguridad, debes cerrar sesión y volver a entrar.', 'error');
+        window.showToast('Por seguridad, debes cerrar sesión y volver a entrar.', 'error');
       } else {
-        (window as any).showToast(`Error: ${error.message}`, 'error');
+        window.showToast(`Error: ${error.message}`, 'error');
       }
     } finally {
       setLoading(savePasswordBtn, false);
@@ -226,16 +224,8 @@ try {
 
   // Utilidades
   function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
-    const text = btn.querySelector('.btn-text');
-    const loader = btn.querySelector('.loader');
     btn.disabled = isLoading;
-    if (isLoading) {
-      text?.classList.add('hidden');
-      loader?.classList.remove('hidden');
-    } else {
-      text?.classList.remove('hidden');
-      loader?.classList.add('hidden');
-    }
+    btn.classList.toggle('btn-loading', isLoading);
   }
 </script>
 

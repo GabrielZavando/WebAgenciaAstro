@@ -1,0 +1,118 @@
+---
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<div class="modal" id={id} role="dialog" aria-modal="true">
+  <button 
+    class="modal__close" 
+    aria-label="Cerrar modal"
+  >
+    &times;
+  </button>
+  <div class="modal__content">
+    <h3 class="modal__title">{title}</h3>
+    <div class="modal__body">
+      <slot />
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  // Funcionalidad del modal
+  document.addEventListener('DOMContentLoaded', () => {
+    // Función para abrir modal
+    function openModal(modalId: string) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+      }
+    }
+
+    // Función para cerrar modal
+    function closeModal(modal: HTMLElement) {
+      modal.classList.remove('active');
+      document.body.style.overflow = ''; // Restaurar scroll del body
+    }
+
+    // Función para cerrar todos los modales
+    function closeAllModals() {
+      const activeModals = document.querySelectorAll('.modal.active');
+      activeModals.forEach(modal => closeModal(modal as HTMLElement));
+    }
+
+    // Event listeners para botones "Ver más"
+    const serviceButtons = document.querySelectorAll('[data-modal]');
+    serviceButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modalId = button.getAttribute('data-modal');
+        if (modalId) {
+          openModal(modalId);
+        }
+      });
+    });
+
+    // Event listeners para botones de cerrar
+    const closeButtons = document.querySelectorAll('.modal__close');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = button.parentElement; // Ahora el botón es hijo directo del modal
+        if (modal && modal.classList.contains('modal')) {
+          closeModal(modal as HTMLElement);
+        }
+      });
+    });
+
+    // Cerrar modal al hacer click fuera del contenido (pero no en el botón de cerrar)
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        // Solo cerrar si el click es en el overlay del modal, no en el contenido ni en el botón
+        if (e.target === modal) {
+          closeModal(modal as HTMLElement);
+        }
+      });
+    });
+
+    // Cerrar modal con la tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllModals();
+      }
+    });
+
+    // Event listeners para botones CTA del modal
+    const ctaButtons = document.querySelectorAll('.modal-content__cta');
+    ctaButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Cerrar el modal actual
+        const modal = button.closest('.modal');
+        if (modal) {
+          closeModal(modal as HTMLElement);
+        }
+        
+        // Navegar al formulario de contacto
+        setTimeout(() => {
+          const contactSection = document.getElementById('contact');
+          if (contactSection) {
+            contactSection.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }, 300); // Pequeño delay para que se complete la animación de cierre
+      });
+    });
+  });
+</script>

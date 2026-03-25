@@ -1,7 +1,7 @@
 
 ---
 import Layout from '../../layouts/MainLayout.astro';
-import Banner from '../../components/sections/Banner.astro';
+import Banner from '../../components/landing/Banner.astro';
 import Search from '../../components/shared/Search.astro';
 import bannerBlogImg from '../../assets/img/banner-blog.jpg';
 
@@ -42,7 +42,7 @@ const getExcerpt = (post: any) => {
 
 <Layout title="Blog | Agencia Digital">
   <!-- Banner Utilizando el componente unificado -->
-  <Banner image={bannerBlogImg} size="half" align="end">
+  <Banner image={bannerBlogImg} size="half" align="center">
       <h1 class="page-title fade-in">Blog</h1>
       <p class="page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
       

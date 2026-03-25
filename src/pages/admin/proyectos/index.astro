@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
-import ProjectTable from '../../../components/shared/ProjectTable.astro';
+import ProjectTable from '../../../components/admin/ProjectTable.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 
 const token = Astro.cookies.get('session')?.value;
@@ -9,16 +9,27 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Gestión de Proyectos" role="admin">
-  <div class="project-form-container projects-admin">
-    <div class="page-header">
-      <div>
-        <h1>Proyectos</h1>
-        <p class="text-muted">Administración de proyectos y asignaciones.</p>
+<DashboardLayout title="Gestión de Proyectos" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Proyectos' }]} role="admin">
+  <div class="users-table-view"> <!-- Reusing existing class for layout consistency -->
+    <div class="header-actions">
+      <div class="header-title-row">
+        <div>
+          <h1>Proyectos</h1>
+          <p class="text-muted">Administración de proyectos y asignaciones.</p>
+        </div>
+        <div class="header-right">
+          <a href="/admin/proyectos/nuevo" class="btn btn-cta">
+            <span class="material-symbols-outlined">add</span> Nuevo Proyecto
+          </a>
+        </div>
       </div>
-      <a href="/admin/proyectos/nuevo" class="btn btn-cta">
-        <span class="material-symbols-outlined">add</span> Nuevo Proyecto
-      </a>
+
+      <div class="header-search-row">
+        <form class="search-form" onsubmit="return false;">
+          <input type="text" id="projectSearch" class="search-input" placeholder="Buscar por nombre de proyecto..." autocomplete="off" />
+          <button type="submit" class="search-btn">Buscar</button>
+        </form>
+      </div>
     </div>
 
     <ProjectTable id="projectsListBody" />

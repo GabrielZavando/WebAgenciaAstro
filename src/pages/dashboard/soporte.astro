@@ -1,129 +1,104 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import TicketTable from '../../components/shared/TicketTable.astro';
+import TicketTable from '../../components/admin/TicketTable.astro';
+import FormModal from '../../components/shared/FormModal.astro';
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
   return Astro.redirect('/login');
 }
 ---
 
-<DashboardLayout title="Soporte" role="client">
+<DashboardLayout title="Soporte" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Soporte' }]} role="client">
   <div class="support-page">
     <div id="listView">
       <div class="page-header">
-        <div>
-          <h1>Centro de Soporte</h1>
-          <p class="text-muted">Solicita ayuda y revisa el estado de tus tickets.</p>
-        </div>
+        <h1>Centro de Soporte</h1>
+        <p class="text-muted">Solicita ayuda y revisa el estado de tus tickets de forma sencilla.</p>
       </div>
 
       <!-- Acciones principales -->
       <div class="actions-row">
-        <div class="search-input-wrapper">
-          <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" id="searchInput" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
-        </div>
+        <form class="search-form" onsubmit="return false;">
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar por asunto del ticket..." autocomplete="off" />
+          <button type="submit" class="search-btn">Buscar</button>
+        </form>
+        
         <div class="filter-group">
-          <span class="material-symbols-outlined filter-icon">filter_list</span>
-          <select id="projectQuerySelect">
-            <option value="">Todos los proyectos</option>
-          </select>
+          <div class="select-wrapper project-select-wrapper">
+             <select id="projectQuerySelect">
+                <option value="">Todos los proyectos</option>
+             </select>
+          </div>
         </div>
-        <button class="btn-primary" id="toggleFormBtn">
-          <span class="material-symbols-outlined">add</span> Nuevo Ticket
+
+        <button class="btn-cta" id="toggleFormBtn">
+          <span class="btn-text">Nuevo Ticket</span>
+          <span class="material-symbols-outlined">add_circle</span>
         </button>
       </div>
     </div>
 
-    <div class="content-card form-container hidden" id="formContainer">
-      <div class="card-header">
-        <h3><span class="material-symbols-outlined">add_circle</span> Nuevo Ticket</h3>
-        <button type="button" class="btn-close" id="closeFormBtn" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
-      </div>
-      <div class="card-body">
-        <form id="ticketForm" class="ticket-form">
-          <!-- 1. Proyecto -->
+    <FormModal id="ticketModal" title="Nuevo Ticket" icon="add_circle" width="90%" maxWidth="1440px" largeHeader={true}>
+      <form id="ticketForm" class="report-form">
+        <div class="form-row">
           <div class="form-group">
             <label for="projectSelect">Proyecto <span class="required">*</span></label>
-            <div class="select-field-wrapper">
+            <div class="select-wrapper">
               <select id="projectSelect" name="projectId" required>
                 <option value="" disabled selected>Selecciona un proyecto</option>
               </select>
-              <span class="material-symbols-outlined select-field-arrow">expand_more</span>
             </div>
             <input type="hidden" id="projectName" name="projectName" value="" />
           </div>
 
-          <!-- 2. Asunto -->
           <div class="form-group">
-            <label for="subject">Asunto <span class="required">*</span></label>
-            <input
-              type="text"
-              id="subject"
-              name="subject"
-              placeholder="Describe brevemente tu problema"
-              required
-            />
-          </div>
-
-          <!-- 3. Mensaje -->
-          <div class="form-group">
-            <label for="message">Mensaje <span class="required">*</span></label>
-            <textarea
-              id="message"
-              name="message"
-              rows="5"
-              placeholder="Explica tu problema en detalle..."
-              required
-            ></textarea>
-          </div>
-
-          <!-- 4. Adjuntar Imagen y Prioridad -->
-          <div class="form-group row-group">
-            <div class="col-group">
-              <label for="attachment">Adjuntar Imagen (Opcional)</label>
-              <div class="file-upload-wrapper">
-                <label for="attachment" class="file-upload-icon-btn" title="Adjuntar imagen">
-                  <span class="material-symbols-outlined">cloud_upload</span>
-                  <span id="fileNameLabel">Seleccionar imagen</span>
-                </label>
-                <input 
-                  type="file" 
-                  id="attachment" 
-                  name="attachment" 
-                  accept="image/png, image/jpeg, image/webp" 
-                  class="file-input-hidden" 
-                />
-              </div>
-            </div>
-            
-            <div class="col-group">
-              <label for="priority">Prioridad <span class="required">*</span></label>
-              <div class="select-field-wrapper">
-                <select id="priority" name="priority" required>
+            <label for="priority">Prioridad <span class="required">*</span></label>
+            <div class="select-wrapper">
+               <select id="priority" name="priority" required>
                   <option value="low">Baja</option>
                   <option value="medium" selected>Media</option>
                   <option value="high">Alta</option>
-                </select>
-                <span class="material-symbols-outlined select-field-arrow">expand_more</span>
-              </div>
+               </select>
             </div>
           </div>
+        </div>
 
-          <p class="form-legend">(*) Campos obligatorios</p>
+        <div class="form-group">
+          <label for="subject">Asunto <span class="required">*</span></label>
+          <input type="text" id="subject" name="subject" placeholder="Ej: Error al cargar imágenes en el banner" required />
+        </div>
 
-          <div id="ticketFeedback" class="feedback-message hidden"></div>
+        <div class="form-group">
+          <label for="message">Mensaje <span class="required">*</span></label>
+          <textarea id="message" name="message" rows="5" placeholder="Explica tu problema detalladamente para ayudarte mejor..." required></textarea>
+        </div>
 
-          <div class="form-actions">
-            <button type="button" class="btn-secondary" id="cancelTicketBtn">Cancelar</button>
-            <button type="submit" class="btn-primary" id="submitTicketBtn" disabled title="Completa todos los campos obligatorios">
-              <span class="btn-text">Enviar Ticket</span>
-              <span class="loader hidden"></span>
-            </button>
+        <div class="form-group">
+          <label>Captura de Pantalla (Opcional)</label>
+          <div class="file-drop file-drop--mini" id="dropZone">
+             <input type="file" id="attachment" name="attachment" accept="image/*" class="file-input-hidden" />
+             <div id="uploadInfo">
+                <span class="material-symbols-outlined">add_photo_alternate</span>
+                <p id="fileNameLabel">Arrastra o selecciona una imagen</p>
+             </div>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        <div id="ticketFeedback" class="feedback-message hidden"></div>
+        
+        <p class="form-help-text" style="color:var(--color-text-muted); font-size: 0.85rem; margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
+          <span class="required">*</span> Los campos marcados con asterisco son obligatorios.
+        </p>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cta__border" id="cancelTicketBtn">Cancelar</button>
+          <button type="submit" class="btn-cta" id="submitTicketBtn" disabled>
+            Enviar Ticket
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </form>
+    </FormModal>
 
     <TicketTable role="client" id="ticketsListBody" />
   </div>
@@ -191,7 +166,7 @@ if (!token) {
             allTickets = await res.json();
             applyFilters();
         } catch {
-            if (ticketsListBody) ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
+            if (ticketsListBody) ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
         }
     }
 
@@ -232,7 +207,7 @@ if (!token) {
 
     attachmentInput?.addEventListener('change', () => {
         if (fileNameLabel) {
-            fileNameLabel.textContent = attachmentInput.files?.length ? attachmentInput.files[0].name : 'Seleccionar imagen';
+            fileNameLabel.textContent = attachmentInput.files?.length ? attachmentInput.files[0].name : 'Arrastra o selecciona una imagen';
             fileNameLabel.classList.toggle('file-selected', !!attachmentInput.files?.length);
         }
     });
@@ -248,8 +223,16 @@ if (!token) {
         renderTickets(filtered);
     }
 
-    function openForm() { formContainer?.classList.remove('hidden'); listView?.classList.add('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-    function closeForm() { formContainer?.classList.add('hidden'); listView?.classList.remove('hidden'); ticketForm?.reset(); if(fileNameLabel) fileNameLabel.textContent = 'Seleccionar imagen'; validateForm(); if(feedback) feedback.className = 'feedback-message hidden'; }
+    function openForm() { 
+        if ((window as any).formModalHelpers) (window as any).formModalHelpers.open('ticketModal');
+    }
+    function closeForm() { 
+        if ((window as any).formModalHelpers) (window as any).formModalHelpers.close('ticketModal');
+        ticketForm?.reset(); 
+        if(fileNameLabel) fileNameLabel.textContent = 'Arrastra o selecciona una imagen'; 
+        validateForm(); 
+        if(feedback) feedback.className = 'feedback-message hidden'; 
+    }
 
     toggleFormBtn?.addEventListener('click', openForm);
     closeFormBtn?.addEventListener('click', closeForm);
@@ -258,7 +241,7 @@ if (!token) {
     function renderTickets(tickets: Ticket[]) {
         if (!ticketsListBody) return;
         if (tickets.length === 0) {
-            ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.4;margin-bottom:1rem">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+            ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
             return;
         }
 
@@ -282,7 +265,7 @@ if (!token) {
                     <td data-label="Asunto"><div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div></td>
                     <td class="col-date-data" data-label="Fecha Enviado">${formatDate(ticket.createdAt)}</td>
                     <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-'}</td>
-                    <td class="col-actions-data" data-label="Ver Ticket"><div class="td-actions"><a href="/dashboard/soporte/${ticket.id}" class="btn-action view-btn" title="Ver Ticket"><span class="material-symbols-outlined">visibility</span> Ver</a></div></td>
+                    <td class="col-actions-data" data-label="Ver Ticket"><div class="td-actions"><a href="/dashboard/soporte/${ticket.id}" class="btn-details" title="Ver Ticket"><span class="material-symbols-outlined">visibility</span><span class="btn-text">Ver</span></a></div></td>
                 </tr>`;
         }).join('');
     }
@@ -306,8 +289,7 @@ if (!token) {
 
   function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
     btn.disabled = isLoading;
-    btn.querySelector('.btn-text')?.classList.toggle('hidden', isLoading);
-    btn.querySelector('.loader')?.classList.toggle('hidden', !isLoading);
+    btn.classList.toggle('btn-loading', isLoading);
   }
 
   function showFeedback(el: HTMLElement, message: string, type: 'error' | 'success') {
@@ -326,173 +308,3 @@ if (!token) {
     if (document.getElementById('ticketsListBody')) initSupport();
   });
 </script>
-
-<style>
-  .support-page { width: 100%; }
-  .page-header { margin-bottom: 2rem; }
-  .page-header h1 { margin: 0 0 0.5rem; font-size: 2rem; font-weight: 700; color: var(--color-text); }
-  .text-muted { color: var(--color-text-muted); margin: 0; font-size: 1.05rem; }
-
-  /* Controles (Buscador y Subir) */
-  .actions-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: stretch; justify-content: space-between; }
-  .search-input-wrapper { flex: 1; max-width: 450px; position: relative; }
-  .search-icon { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); }
-  .search-input-wrapper input {
-    width: 100%; padding: 0.875rem 1.2rem 0.875rem 3rem; border: 1px solid var(--color-border);
-    border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text);
-    font-family: inherit; font-size: 0.95rem; box-sizing: border-box; transition: all 0.2s; box-shadow: var(--shadow-sm);
-  }
-  .search-input-wrapper input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1); }
-
-  .filter-group {
-    position: relative;
-    min-width: 220px;
-  }
-  .filter-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-muted);
-    font-size: 0.9rem;
-    pointer-events: none;
-  }
-  .filter-group select {
-    width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.5rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-family: inherit;
-    font-size: 0.95rem;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s;
-    appearance: none;
-  }
-  .filter-group select:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
-  }
-  .btn-primary {
-    padding: 0 1.75rem; background: var(--color-primary); color: white; border: none;
-    border-radius: var(--radius-md); font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(var(--color-primary-rgb), 0.2);
-  }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(var(--color-primary-rgb), 0.3); }
-
-  /* Formulario Animado */
-  .content-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2rem; }
-  .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
-  .card-header h3 { margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-  .card-header i { color: var(--color-primary); }
-  .card-body { padding: 1.5rem; }
-  .btn-close { background: none; border: none; color: var(--color-text-muted); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; padding: 0.2rem; }
-  .btn-close:hover { color: var(--color-error); }
-  
-  .form-container { transition: all 0.3s ease-in-out; opacity: 1; transform: translateY(0); }
-  .form-container.hidden { display: none !important; opacity: 0; transform: translateY(-10px); }
-
-  .ticket-form { display: flex; flex-direction: column; gap: 1.5rem; }
-  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-  .form-group label { font-weight: 500; font-size: 0.9rem; color: var(--color-text); }
-  .required { color: #ef4444; margin-left: 0.2rem; }
-  .form-legend { font-size: 0.8rem; color: var(--color-text-muted); margin-top: -0.5rem; }
-  
-  /* Select wrapper para flecha */
-  .select-field-wrapper {
-    position: relative;
-    width: 100%;
-  }
-  .select-field-arrow {
-    position: absolute;
-    right: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-muted);
-    font-size: 0.8rem;
-    pointer-events: none;
-  }
-  
-  .ticket-form input, .ticket-form textarea, .ticket-form select {
-    padding: 0.875rem 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .ticket-form select {
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    padding-right: 3rem;
-  }
-  .ticket-form input:focus, .ticket-form textarea:focus, .ticket-form select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1); }
-  .ticket-form textarea { resize: vertical; min-height: 120px; }
-
-  /* Grid layouts */
-  .row-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  
-  /* Diseño de Adjunto (Icono) */
-  .file-upload-wrapper {
-    position: relative;
-    width: 100%;
-  }
-  .file-input-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    border: 0;
-  }
-  .file-upload-icon-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1.25rem;
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    color: var(--color-text-muted);
-    transition: all 0.2s;
-    font-size: 0.95rem;
-  }
-  .file-upload-icon-btn:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    background: rgba(var(--color-primary-rgb), 0.05);
-  }
-  .file-upload-icon-btn i {
-    font-size: 1.25rem;
-  }
-  .file-selected {
-    color: var(--color-primary);
-    font-weight: 600;
-  }
-
-  .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
-  .btn-secondary { padding: 0.875rem 1.5rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s; background: transparent; color: var(--color-text); border: 1px solid var(--color-border); }
-  .btn-secondary:hover { background: var(--color-background); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .feedback-message { padding: 0.875rem; border-radius: var(--radius-md); text-align: center; font-weight: 500; font-size: 0.95rem; margin-top: 1rem; }
-  .feedback-message.error { background: rgba(var(--color-error-rgb),0.1); color: var(--color-error); border: 1px solid rgba(var(--color-error-rgb),0.2); }
-  .feedback-message.success { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
-  .hidden { display: none !important; }
-  .loader { width: 18px; height: 18px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 600px) {
-    .page-header { flex-direction: column; align-items: flex-start; }
-    .row-group { grid-template-columns: 1fr; }
-  }
-</style>

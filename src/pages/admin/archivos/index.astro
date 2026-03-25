@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
-import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
+import StorageVisualizer from '../../../components/admin/StorageVisualizer.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
@@ -12,7 +12,7 @@ if (!token) {
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 ---
 
-<DashboardLayout title="Archivos del Sistema" role="admin">
+<DashboardLayout title="Archivos del Sistema" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Archivos' }]} role="admin">
   <div class="files-page">
     <div class="page-header">
       <h1>Archivos del Sistema</h1>
@@ -33,58 +33,13 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
     <!-- Acciones -->
     <div class="actions-row">
-      <div class="search-input-wrapper">
-        <span class="material-symbols-outlined search-icon">search</span>
-        <input type="text" id="searchInput" placeholder="Buscar por título, nombre o descripción..." autocomplete="off" />
-      </div>
-      <button class="btn-upload" id="uploadBtn">
+      <form class="search-form" id="searchForm" onsubmit="return false;">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título, nombre o descripción..." autocomplete="off" />
+        <button type="submit" class="search-btn">Buscar</button>
+      </form>
+      <button class="btn btn-cta" id="uploadBtn">
         <span class="material-symbols-outlined">cloud_upload</span> Subir Archivo
       </button>
-    </div>
-
-    <!-- Modal de subida -->
-    <div class="upload-modal hidden" id="uploadModal">
-      <div class="modal-backdrop" id="modalBackdrop"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3><span class="material-symbols-outlined">upload_file</span> Subir Archivo</h3>
-          <button class="modal-close" id="closeModal">&times;</button>
-        </div>
-        <form id="uploadForm" class="upload-form">
-          <div class="form-group">
-            <label for="fileTitle">Título</label>
-            <input type="text" id="fileTitle" name="title" required placeholder="Nombre descriptivo" />
-          </div>
-          <div class="form-group">
-            <label for="fileDesc">Descripción (opcional)</label>
-            <input type="text" id="fileDesc" name="description" placeholder="Información adicional" />
-          </div>
-          <div class="form-group toggle-group" style="margin-top: 0.5rem;">
-            <label class="toggle">
-              <input type="checkbox" id="fileIsPublic" name="isPublic" value="true" />
-              <div class="toggle-text toggle-col-text">
-                <span class="label-text">Acceso Público</span>
-                <span class="toggle-hint-text">Cualquiera con el enlace podrá verlo (Ideal para blog). Si está desmarcado, será privado.</span>
-              </div>
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Archivo</label>
-            <div class="file-drop" id="fileDrop">
-              <span class="material-symbols-outlined" style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-text-muted); opacity: 0.6;">cloud_upload</span>
-              <p id="fileLabel">Haz clic o arrastra un archivo aquí</p>
-              <span class="file-types">Permitidos: PDF, Word, Excel, Imágenes, CSV, TXT</span>
-              <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.txt,.csv" required class="file-input-hidden" />
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-cta" id="submitUpload">
-              <span class="btn-text">Subir</span>
-              <span class="loader hidden"></span>
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
 
     <!-- Tabla de lista de archivos -->
@@ -112,10 +67,56 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         </tbody>
       </table>
     </div>
+  </div>
 
-    <!-- Modales en slot -->
+  <div slot="modals">
+    <div class="modal modal--files-upload" id="uploadModal">
+      <div class="modal__content">
+        <div class="modal__header">
+          <h3><span class="material-symbols-outlined">upload_file</span> Subir Archivo</h3>
+          <button class="modal__close" id="closeModal">&times;</button>
+        </div>
+        <form id="uploadForm" class="upload-form">
+          <div class="form-group">
+            <label for="fileTitle">Título</label>
+            <input type="text" id="fileTitle" name="title" required placeholder="Nombre descriptivo" />
+          </div>
+          <div class="form-group">
+            <label for="fileDesc">Descripción (opcional)</label>
+            <input type="text" id="fileDesc" name="description" placeholder="Información adicional" />
+          </div>
+          
+          <div class="form-group toggle-group">
+            <label class="toggle">
+              <input type="checkbox" id="fileIsPublic" name="isPublic" value="true" />
+              <div class="toggle-col-text">
+                <span class="label-text">Acceso Público</span>
+                <span class="toggle-hint-text">Si es público, los clientes podrán verlo y descargarlo.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Archivo</label>
+            <div class="file-drop" id="fileDrop">
+              <span class="material-symbols-outlined">cloud_upload</span>
+              <p id="fileLabel">Haz clic o arrastra un archivo aquí</p>
+              <span class="file-types">Formatos aceptados: PDF, JPG, PNG, DOCX, XLSX (Máx. 10MB)</span>
+              <input type="file" id="fileInput" name="file" required class="file-input-hidden" />
+            </div>
+          </div>
+
+          <div class="form-actions" style="justify-content: flex-end;">
+            <button type="submit" class="btn btn-cta" id="submitUpload">
+              <span class="material-symbols-outlined">upload</span>
+              Cargar archivo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <ModalConfirm 
-      slot="modals"
       id="deleteConfirmModal"
       title="¿Eliminar archivo?"
       message="Esta acción no se puede deshacer. El archivo se borrará permanentemente del sistema."
@@ -125,7 +126,6 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     />
 
     <ModalMessage 
-      slot="modals"
       id="errorFileRequestModal"
       title="Error de Solicitud"
       message="Hubo un problema al procesar la solicitud del archivo."
@@ -133,7 +133,6 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     />
 
     <ModalMessage 
-      slot="modals"
       id="errorFileDeleteModal"
       title="Error al Eliminar"
       message="No se pudo eliminar el archivo. Por favor, inténtalo de nuevo."
@@ -141,7 +140,6 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     />
 
     <ModalMessage 
-      slot="modals"
       id="successUploadModal"
       title="Subida Exitosa"
       message="El archivo se ha subido correctamente al sistema."
@@ -149,13 +147,13 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     />
 
     <ModalMessage 
-      slot="modals"
       id="errorUploadModal"
       title="Error de Subida"
       message="No se pudo subir el archivo. Por favor, inténtalo de nuevo."
       type="error"
     />
   </div>
+
 </DashboardLayout>
 
 <script>
@@ -283,9 +281,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         </td>
         <td class="col-actions-data">
           <div class="td-actions">
-            <button class="btn-action view-btn" data-id="${f.id}" title="Ver en el navegador"><span class="material-symbols-outlined">visibility</span></button>
-            <button class="btn-action dl-btn" data-id="${f.id}" title="Descargar"><span class="material-symbols-outlined">download</span></button>
-            <button class="btn-action del-btn" data-id="${f.id}" title="Eliminar archivo"><span class="material-symbols-outlined">delete</span></button>
+            <button class="btn-cta__border btn-sm view-btn" data-id="${f.id}" title="Ver en el navegador"><span class="material-symbols-outlined">visibility</span></button>
+            <button class="btn-cta__warning btn-sm dl-btn" data-id="${f.id}" title="Descargar"><span class="material-symbols-outlined">download</span></button>
+            <button class="btn-cta__danger btn-sm del-btn" data-id="${f.id}" title="Eliminar archivo"><span class="material-symbols-outlined">delete</span></button>
           </div>
         </td>
       </tr>
@@ -313,7 +311,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
       if (action === 'view') {
         window.open(url, '_blank');
       } else {
-        if ((window as any).showToast) (window as any).showToast('Iniciando descarga...', 'info');
+        if (window.showToast) window.showToast('Iniciando descarga...', 'info');
         const a = document.createElement('a');
         a.href = url;
         document.body.appendChild(a);
@@ -321,18 +319,18 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         document.body.removeChild(a);
       }
     } catch { 
-      if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorFileRequestModal');
+      if (window.modalHelpers) window.modalHelpers.openModal('errorFileRequestModal');
       else alert('Error al procesar la solicitud.'); 
     }
   }
 
   async function handleDelete(id: string) {
-    if (!(window as any).confirmModalHelpers) {
+    if (!window.confirmModalHelpers) {
       if (!confirm('¿Estás seguro de eliminar este archivo?')) return;
       return executeDelete(id);
     }
 
-    (window as any).confirmModalHelpers.open('deleteConfirmModal', () => {
+    window.confirmModalHelpers.open('deleteConfirmModal', () => {
       executeDelete(id);
     });
   }
@@ -346,20 +344,22 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         headers: { 'Authorization': `Bearer ${t}` },
       });
       if (!res.ok) throw new Error();
-      if ((window as any).showToast) (window as any).showToast('Archivo eliminado.', 'success');
+      if (window.showToast) window.showToast('Archivo eliminado.', 'success');
       await Promise.all([loadQuota(), loadFiles()]);
     } catch { 
-      if ((window as any).modalHelpers) (window as any).modalHelpers.openModal('errorFileDeleteModal');
+      if (window.modalHelpers) window.modalHelpers.openModal('errorFileDeleteModal');
       else alert('Error al eliminar el archivo.'); 
     }
   }
 
   // Lógica del modal de subida
-  uploadBtn?.addEventListener('click', () => uploadModal?.classList.remove('hidden'));
+  uploadBtn?.addEventListener('click', () => uploadModal?.classList.add('active'));
   closeModal?.addEventListener('click', closeUploadModal);
-  modalBackdrop?.addEventListener('click', closeUploadModal);
+  // El backdrop en el nuevo sistema suele ser el elemento .modal mismo o se cierra con el botón X
+  uploadModal?.addEventListener('click', (e) => { if (e.target === uploadModal) closeUploadModal(); });
+
   function closeUploadModal() {
-    uploadModal?.classList.add('hidden');
+    uploadModal?.classList.remove('active');
     uploadForm?.reset();
     if (fileLabel) fileLabel.textContent = 'Haz clic o arrastra un archivo aquí';
     fileDrop?.classList.remove('has-file');
@@ -392,9 +392,9 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
     const file = fileInput?.files?.[0];
     
     if (!file) {
-      if ((window as any).modalHelpers) {
-        (window as any).modalHelpers.updateModalMessage('errorUploadModal', 'Selecciona un archivo para subir.');
-        (window as any).modalHelpers.openModal('errorUploadModal');
+      if (window.modalHelpers) {
+        window.modalHelpers.updateModalMessage('errorUploadModal', 'Selecciona un archivo para subir.');
+        window.modalHelpers.openModal('errorUploadModal');
       }
       return;
     }
@@ -420,17 +420,17 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
         throw new Error(err.message || 'Error del servidor'); 
       }
 
-      if ((window as any).modalHelpers) {
-        (window as any).modalHelpers.openModal('successUploadModal');
+      if (window.modalHelpers) {
+        window.modalHelpers.openModal('successUploadModal');
       }
       
       closeUploadModal();
       await Promise.all([loadQuota(), loadFiles()]);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Error de conexión';
-      if ((window as any).modalHelpers) {
-        (window as any).modalHelpers.updateModalMessage('errorUploadModal', msg);
-        (window as any).modalHelpers.openModal('errorUploadModal');
+      if (window.modalHelpers) {
+        window.modalHelpers.updateModalMessage('errorUploadModal', msg);
+        window.modalHelpers.openModal('errorUploadModal');
       }
     } finally { 
       setLoading(submitUpload, false); 
@@ -462,8 +462,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   }
   function setLoading(btn: HTMLButtonElement, on: boolean) {
     btn.disabled = on;
-    btn.querySelector('.btn-text')?.classList.toggle('hidden', on);
-    btn.querySelector('.loader')?.classList.toggle('hidden', !on);
+    btn.classList.toggle('btn-loading', on);
   }
 
 </script>

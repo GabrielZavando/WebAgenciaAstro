@@ -5,7 +5,7 @@ import DashboardLayout from "../../layouts/DashboardLayout.astro";
 // Utiliza EXCLUSIVAMENTE clases definidas en src/styles y Google Material Symbols
 ---
 
-<DashboardLayout title="Guía de Estilos">
+<DashboardLayout title="Guía de Estilos" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Estilos' }]}>
   <div class="header-actions">
     <p class="text-lg text-muted">
       Esta página es la referencia oficial para el sistema de diseño <strong>Flat Premium</strong>. 
@@ -311,19 +311,20 @@ import DashboardLayout from "../../layouts/DashboardLayout.astro";
                   <option>Opción Administrativa</option>
                   <option>Otra Opción</option>
                 </select>
-                <span class="material-symbols-outlined">expand_more</span>
               </div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Selector Genérico (Chevron Auto)</label>
-              <select>
-                <option value="">Selecciona un estado...</option>
-                <option value="1">Activo</option>
-                <option value="2">Pendiente</option>
-                <option value="3">Archivado</option>
-              </select>
+              <div class="select-wrapper">
+                <select>
+                  <option value="">Selecciona un estado...</option>
+                  <option value="1">Activo</option>
+                  <option value="2">Pendiente</option>
+                  <option value="3">Archivado</option>
+                </select>
+              </div>
             </div>
             <div class="form-group">
                <!-- Espacio extra en la grilla -->

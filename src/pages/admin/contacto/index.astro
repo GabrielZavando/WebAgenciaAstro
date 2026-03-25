@@ -40,16 +40,23 @@ const formatDate = (dateValue: any) => {
 };
 ---
 
-<DashboardLayout title="Administrar Contactos" role="admin">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
+<DashboardLayout title="Administrar Contactos" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Contacto' }]} role="admin">
+  <div class="users-table-view prospects-view">
+    <div class="header-actions">
+      <div class="header-title-row">
         <div>
           <h1>Formularios de Contacto</h1>
-          <p>Maneja las consultas de los clientes potenciales.</p>
+          <p class="text-muted">Maneja las consultas de los clientes potenciales.</p>
         </div>
       </div>
-    </header>
+
+      <div class="header-search-row">
+        <form class="search-form" onsubmit="return false;">
+          <input type="text" id="prospectSearch" class="search-input" placeholder="Buscar por nombre, email o mensaje..." autocomplete="off" />
+          <button type="submit" class="search-btn">Buscar</button>
+        </form>
+      </div>
+    </div>
 
     <main class="admin-content">
       {error && (
@@ -67,7 +74,6 @@ const formatDate = (dateValue: any) => {
       {prospects.length > 0 && (
         <div class="prospects-grid">
           {prospects.map((prospect: any) => {
-             // La respuesta tiene al menos 1 msg, así que extraemos fecha y el mensaje original
              const conversationLength = prospect.conversations ? prospect.conversations.length : 0;
              const hasReplies = conversationLength > 1;
 
@@ -75,8 +81,8 @@ const formatDate = (dateValue: any) => {
               <a href={`/admin/contacto/${prospect.prospectId}`} class="prospect-card">
                 <div class="card-header">
                   <div class="prospect-info">
-                    <h3 class="prospect-name">{prospect.name}</h3>
-                    <span class="prospect-email">{prospect.email}</span>
+                    <h3 class="prospect-name search-target-name">{prospect.name}</h3>
+                    <span class="prospect-email search-target-email">{prospect.email}</span>
                   </div>
                   <div class="interaction-status">
                     {hasReplies ? (
@@ -88,11 +94,11 @@ const formatDate = (dateValue: any) => {
                 </div>
 
                 <div class="card-body">
-                  <p class="prospect-phone">
+                  <p class="prospect-phone search-target-phone">
                     <span class="material-symbols-outlined" style="font-size: 1.1rem;">call</span> {prospect.phone || 'No provisto'}
                   </p>
                   <div class="latest-message">
-                    <p class="message-preview">
+                    <p class="message-preview search-target-message">
                        {prospect.conversations?.[0]?.incomingMessage?.content?.substring(0, 100)}...
                     </p>
                   </div>
@@ -119,6 +125,28 @@ const formatDate = (dateValue: any) => {
         </div>
       )}
     </main>
+
+    <script>
+      // Filtrado de Búsqueda
+      const searchInput = document.getElementById('prospectSearch') as HTMLInputElement;
+      searchInput?.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase();
+        const cards = document.querySelectorAll('.prospect-card');
+        
+        cards.forEach(card => {
+          const name = card.querySelector('.search-target-name')?.textContent?.toLowerCase() || '';
+          const email = card.querySelector('.search-target-email')?.textContent?.toLowerCase() || '';
+          const phone = card.querySelector('.search-target-phone')?.textContent?.toLowerCase() || '';
+          const message = card.querySelector('.search-target-message')?.textContent?.toLowerCase() || '';
+          
+          if (name.includes(term) || email.includes(term) || phone.includes(term) || message.includes(term)) {
+            (card as HTMLElement).style.display = 'flex';
+          } else {
+            (card as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    </script>
   </div>
 </DashboardLayout>
 

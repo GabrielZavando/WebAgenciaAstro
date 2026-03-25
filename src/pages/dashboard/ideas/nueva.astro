@@ -8,7 +8,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Enviar Nueva Idea" role="client">
+<DashboardLayout title="Enviar Nueva Idea" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Ideas', href: '/dashboard/ideas' }, { label: 'Nueva' }]} role="client">
   <div class="new-idea-page">
     <div class="page-header">
       <a href="/dashboard/herramientas" class="btn-back">

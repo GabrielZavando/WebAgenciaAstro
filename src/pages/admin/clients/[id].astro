@@ -5,7 +5,7 @@ import ModalMessage from '../../../components/shared/ModalMessage.astro';
 const { id } = Astro.params;
 ---
 
-<DashboardLayout title="Detalle de Cliente" role="admin">
+<DashboardLayout title="Detalle de Cliente" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Clients', href: '/admin/clients' }, { label: 'Detalle' }]} role="admin">
   <div style="margin-bottom: 2rem;">
       <a href="/admin/clients" class="btn" style="color: var(--text-secondary); text-decoration: none;">&larr; Volver a Clientes</a>
   </div>

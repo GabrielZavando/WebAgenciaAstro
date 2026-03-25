@@ -40,27 +40,34 @@ const formatDate = (dateValue: any) => {
 };
 ---
 
-<DashboardLayout title="Administrar Suscriptores" role="admin">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
+<DashboardLayout title="Administrar Suscriptores" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Suscriptores' }]} role="admin">
+  <div class="users-table-view subscribers-view">
+    <div class="header-actions">
+      <div class="header-title-row">
         <div>
           <h1>Lista de Suscriptores</h1>
-          <p>Maneja a los usuarios suscritos a tu boletín.</p>
+          <p class="text-muted">Maneja a los usuarios suscritos a tu boletín.</p>
         </div>
-        <div class="header-actions">
-          <button id="btnExport" class="btn-action btn-secondary">
-            <span class="material-symbols-outlined">download</span> Exportar JSON
+        <div class="header-right">
+          <button id="btnExport" class="btn btn-cta__border btn-sm">
+            <span class="material-symbols-outlined">download</span> Exportar
           </button>
-          <button id="btnCampaign" class="btn-action btn-primary">
-            <span class="material-symbols-outlined">mail</span> Campaña de Re-confirmación
+          <button id="btnCampaign" class="btn btn-cta btn-sm">
+            <span class="material-symbols-outlined">mail</span> Campaña
           </button>
-          <button id="btnCleanup" class="btn-action btn-danger">
-            <span class="material-symbols-outlined">delete</span> Limpiar Inactivos (+7 días)
+          <button id="btnCleanup" class="btn btn-cta__border btn-sm">
+            <span class="material-symbols-outlined">delete</span> Limpiar
           </button>
         </div>
       </div>
-    </header>
+
+      <div class="header-search-row">
+        <form class="search-form" onsubmit="return false;">
+          <input type="text" id="subscriberSearch" class="search-input" placeholder="Buscar por email..." autocomplete="off" />
+          <button type="submit" class="search-btn">Buscar</button>
+        </form>
+      </div>
+    </div>
 
     <!-- Resultado de acciones -->
     <div id="actionResultPanel" class="action-result-panel" style="display:none">
@@ -93,7 +100,7 @@ const formatDate = (dateValue: any) => {
                 <th>Email</th>
                 <th>Estado</th>
                 <th>Fecha de Suscripción</th>
-                <th>Navegador/User Agent</th>
+                <th>User Agent</th>
               </tr>
             </thead>
             <tbody>
@@ -102,8 +109,8 @@ const formatDate = (dateValue: any) => {
                 const isConfirmed = sub.status === 'confirmed';
 
                 return (
-                  <tr>
-                    <td class="email-col">{sub.email}</td>
+                  <tr class="subscriber-row">
+                    <td class="email-col cell-email">{sub.email}</td>
                     <td>
                       <span class={`status-badge ${isConfirmed ? 'confirmed' : 'pending'}`}>
                         {isConfirmed ? 'Confirmado' : 'Pendiente'}
@@ -112,8 +119,8 @@ const formatDate = (dateValue: any) => {
                     <td>{formattedDate}</td>
                     <td class="ua-col" title={sub.meta?.userAgent || 'Desconocido'}>
                       {sub.meta?.userAgent
-                        ? (sub.meta.userAgent.length > 30
-                            ? sub.meta.userAgent.substring(0, 30) + '...'
+                        ? (sub.meta.userAgent.length > 20
+                            ? sub.meta.userAgent.substring(0, 20) + '...'
                             : sub.meta.userAgent)
                         : 'Desconocido'}
                     </td>
@@ -123,7 +130,7 @@ const formatDate = (dateValue: any) => {
             </tbody>
           </table>
           <div class="table-footer">
-            <span>Total de suscriptores: {subscribers.length}</span>
+            <span>Total: {subscribers.length}</span>
           </div>
         </div>
       )}
@@ -155,7 +162,7 @@ const formatDate = (dateValue: any) => {
 
   function setLoading(btn, Loading) {
     btn.disabled = Loading;
-    btn.style.opacity = Loading ? '0.6' : '1';
+    btn.classList.toggle('btn-loading', Loading);
   }
 
   function showResult(title, content) {
@@ -165,6 +172,21 @@ const formatDate = (dateValue: any) => {
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  // Filtrado de Búsqueda
+  const searchInput = document.getElementById('subscriberSearch');
+  searchInput?.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('.subscriber-row');
+    rows.forEach(row => {
+      const email = row.querySelector('.cell-email')?.textContent?.toLowerCase() || '';
+      if (email.includes(term)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
 
   // Exportar
   document.getElementById('btnExport')?.addEventListener('click', async () => {

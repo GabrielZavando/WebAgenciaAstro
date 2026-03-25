@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
-import StorageVisualizer from '../../components/shared/StorageVisualizer.astro';
+import StorageVisualizer from '../../components/admin/StorageVisualizer.astro';
 
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
@@ -9,7 +9,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Mi Dashboard" role="client">
+<DashboardLayout title="Mi Dashboard" breadcrumbs={[{ label: 'Dashboard' }]} role="client">
   <div class="dashboard-home">
     <div class="welcome-section">
       <h1 id="welcomeTitle">Hola, Bienvenido</h1>
@@ -36,15 +36,7 @@ if (!token) {
         </div>
         <div class="stat-details">
           <h3>Archivos</h3>
-          <div class="storage-mini-info" id="dashboard-storage-container">
-            <StorageVisualizer 
-              usedFormatted="..." 
-              limitFormatted="..." 
-              usedBytes={0} 
-              limitBytes={1} 
-              variant="compact"
-            />
-          </div>
+          <p id="filesCount">Gestión de archivos</p>
           <a href="/dashboard/archivos" class="btn-stat">Mis Archivos</a>
         </div>
       </div>
@@ -99,12 +91,9 @@ if (!token) {
     const welcomeTitle = document.getElementById('welcomeTitle');
     const statsGrid = document.getElementById('statsGrid');
     const projectsCount = document.getElementById('projectsCount');
-    const storageContainer = document.getElementById('dashboard-storage-container');
-    const storageCircle = storageContainer?.querySelector('.chart-progress');
-    const storagePercent = storageContainer?.querySelector('.mini-percent');
-    const storageTextMini = storageContainer?.querySelector('.mini-text');
     const reportsCount = document.getElementById('reportsCount');
     const ticketsCount = document.getElementById('ticketsCount');
+    const filesCount = document.getElementById('filesCount');
     const profileName = document.getElementById('profileName');
     const profileIconContainer = document.getElementById('profileIconContainer');
 
@@ -135,18 +124,8 @@ if (!token) {
             if (projectsCount) projectsCount.textContent = `${projects.length} proyecto(s) activo(s)`;
         } catch { if (projectsCount) projectsCount.textContent = "Error al cargar"; }
 
-        // Almacenamiento
-        try {
-            const res = await fetch(`${API}/files/storage/quota`, { headers });
-            const q = await res.json();
-            if (storageContainer) {
-                const pct = q.limitBytes > 0 ? (q.usedBytes / q.limitBytes) * 100 : 0;
-                if (storageCircle) storageCircle.setAttribute('stroke-dasharray', `${Math.min(pct, 100)}, 100`);
-                if (storagePercent) storagePercent.textContent = `${Math.round(pct)}%`;
-                if (storageTextMini) storageTextMini.textContent = `${q.usedFormatted} de ${q.limitFormatted}`;
-                storageContainer.classList.toggle('warning', pct >= 90);
-            }
-        } catch { if (storageTextMini) storageTextMini.textContent = "Error al cargar"; }
+        // Mensaje estático para archivos (coherencia con admin)
+        if (filesCount) filesCount.textContent = "Gestión de archivos personales";
 
         // Informes
         try {
