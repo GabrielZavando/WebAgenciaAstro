@@ -33,6 +33,17 @@
   line-height: 1.6 !important;
   padding: 1.5rem !important;
 
+  /* Forzar legibilidad e ignorar estilos inline pegados */
+  h1, h2, h3, h4, h5, h6, strong {
+    color: var(--color-headings) !important;
+    background-color: transparent !important;
+  }
+
+  p, span, li, em, u, s {
+    color: var(--color-text) !important;
+    background-color: transparent !important;
+  }
+
   &.ql-blank::before {
     color: var(--color-text-muted) !important;
     font-style: normal !important;

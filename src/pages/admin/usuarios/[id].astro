@@ -1,8 +1,8 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import TicketManagementSystem from '../../../components/admin/TicketManagementSystem.astro';
-import StorageVisualizer from '../../../components/shared/StorageVisualizer.astro';
-import ReportTable from '../../../components/shared/ReportTable.astro';
+import StorageVisualizer from '../../../components/admin/StorageVisualizer.astro';
+import ReportTable from '../../../components/admin/ReportTable.astro';
 import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
@@ -49,7 +49,7 @@ if (!user && !errorMsg) {
 }
 ---
 
-<DashboardLayout title="Editar Usuario" role="admin">
+<DashboardLayout title="Editar Usuario" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Usuarios', href: '/admin/usuarios' }, { label: 'Detalle' }]} role="admin">
   <div class="header-actions">
     <div>
       <a href="/admin/usuarios" class="back-link">
@@ -184,10 +184,12 @@ if (!user && !errorMsg) {
             <div class="form-row">
               <div class="form-group">
                 <label for="role">Rol de Usuario <span class="required-mark">*</span></label>
-                <select id="role" name="role" required class="select-with-arrow">
-                  <option value="client" selected={user.role === 'client'}>Cliente</option>
-                  <option value="admin" selected={user.role === 'admin'}>Administrador</option>
-                </select>
+                <div class="select-wrapper">
+                  <select id="role" name="role" required>
+                    <option value="client" selected={user.role === 'client'}>Cliente</option>
+                    <option value="admin" selected={user.role === 'admin'}>Administrador</option>
+                  </select>
+                </div>
               </div>
               <div class="form-group">
                 <label for="password">Nueva Contraseña (Opcional)</label>
@@ -310,10 +312,10 @@ if (!user && !errorMsg) {
             <div class="accordion-content">
               <div class="accordion-inner">
                 <div class="table-controls">
-                  <div class="search-row">
-                    <input type="text" id="projectSearchInput" placeholder="Buscar por nombre de proyecto..." />
-                    <button type="button" class="btn-primary btn-search-item" id="btnSearchProject">Buscar</button>
-                  </div>
+                  <form class="search-form" onsubmit="return false;">
+                    <input type="text" id="projectSearchInput" class="search-input" placeholder="Buscar por nombre de proyecto..." autocomplete="off" />
+                    <button type="submit" class="search-btn" id="btnSearchProject">Buscar</button>
+                  </form>
                 </div>
 
                 {projects.length > 0 ? (
@@ -456,9 +458,9 @@ if (!user && !errorMsg) {
       }
     };
 
-    const setLoading = (button: HTMLButtonElement, isLoading: boolean, originalText: string) => {
+    const setLoading = (button: HTMLButtonElement, isLoading: boolean) => {
       button.disabled = isLoading;
-      button.textContent = isLoading ? 'Guardando...' : originalText;
+      button.classList.toggle('btn-loading', isLoading);
     };
 
     const showFeedback = (elementId: string, message: string, type: 'error' | 'success') => {
@@ -518,24 +520,24 @@ if (!user && !errorMsg) {
           delete data.password;
         }
         
-        setLoading(profileSubmitBtn, true, 'Guardar Cambios');
+        setLoading(profileSubmitBtn, true);
         try {
           await apiClient.patch(`/users/${userId}`, data);
           
-          if ((window as any).modalHelpers) {
-            (window as any).modalHelpers.openModal('successProfileModal');
+          if (window.modalHelpers) {
+            window.modalHelpers.openModal('successProfileModal');
           } else {
             showFeedback('formFeedback', 'Perfil actualizado correctamente.', 'success');
           }
         } catch (err: any) {
-          if ((window as any).modalHelpers) {
-            (window as any).modalHelpers.updateModalMessage('errorGenericModal', err.message);
-            (window as any).modalHelpers.openModal('errorGenericModal');
+          if (window.modalHelpers) {
+            window.modalHelpers.updateModalMessage('errorGenericModal', err.message);
+            window.modalHelpers.openModal('errorGenericModal');
           } else {
             showFeedback('formFeedback', err.message, 'error');
           }
         } finally {
-          setLoading(profileSubmitBtn, false, 'Guardar Cambios');
+          setLoading(profileSubmitBtn, false);
         }
       });
 
@@ -543,14 +545,14 @@ if (!user && !errorMsg) {
       const openDeleteBtn = document.getElementById('openDeleteModal');
       openDeleteBtn?.addEventListener('click', () => {
         const userId = editForm.dataset.userid;
-        if (!(window as any).confirmModalHelpers) return;
-        (window as any).confirmModalHelpers.open('deleteUserModal', async () => {
+        if (!window.confirmModalHelpers) return;
+        window.confirmModalHelpers.open('deleteUserModal', async () => {
           try {
             await apiClient.delete(`/users/${userId}`);
-            (window as any).showToast('Usuario eliminado correctamente', 'success');
+            window.showToast('Usuario eliminado correctamente', 'success');
             setTimeout(() => window.location.href = '/admin/usuarios', 1500);
           } catch (err: any) {
-            (window as any).showToast(err.message, 'error');
+            window.showToast(err.message, 'error');
           }
         });
       });
@@ -611,7 +613,7 @@ if (!user && !errorMsg) {
         monthlyTicketLimit: Number(formData.get('monthlyTicketLimit')) || 3
       };
 
-      setLoading(btnCreateProject, true, 'Añadir');
+      setLoading(btnCreateProject, true);
       try {
         await apiClient.post(`/projects`, data);
         showFeedback('projectFormFeedback', 'Proyecto creado exitosamente.', 'success');
@@ -619,7 +621,7 @@ if (!user && !errorMsg) {
       } catch (err: any) {
         showFeedback('projectFormFeedback', err.message, 'error');
       } finally {
-        setLoading(btnCreateProject, false, 'Añadir');
+        setLoading(btnCreateProject, false);
       }
     });
 
@@ -647,7 +649,7 @@ if (!user && !errorMsg) {
       const usedBytes = Number(storageForm.dataset.usedbytes) || 0;
       const btn = document.getElementById('btnUpdateStorage') as HTMLButtonElement;
 
-      setLoading(btn, true, 'Actualizar Cuota');
+      setLoading(btn, true);
       try {
         await apiClient.patch(`/users/${userId}`, { storageLimitGb });
         
@@ -696,18 +698,18 @@ if (!user && !errorMsg) {
         // Actualizar el valor actual en el input y dataset para futuras operaciones
         if (storageInput) storageInput.defaultValue = storageLimitGb.toString();
 
-        if ((window as any).modalHelpers) {
-          (window as any).modalHelpers.openModal('successStorageModal');
+        if (window.modalHelpers) {
+          window.modalHelpers.openModal('successStorageModal');
         }
       } catch (err: any) {
-        if ((window as any).modalHelpers) {
-          (window as any).modalHelpers.updateModalMessage('errorGenericModal', err.message);
-          (window as any).modalHelpers.openModal('errorGenericModal');
+        if (window.modalHelpers) {
+          window.modalHelpers.updateModalMessage('errorGenericModal', err.message);
+          window.modalHelpers.openModal('errorGenericModal');
         } else {
           alert(err.message);
         }
       } finally {
-        setLoading(btn, false, 'Actualizar Cuota');
+        setLoading(btn, false);
       }
     });
   }
@@ -759,7 +761,7 @@ if (!user && !errorMsg) {
   .summary-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -911,7 +913,7 @@ if (!user && !errorMsg) {
   .profile-avatar-container {
     width: 180px;
     height: 180px;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     overflow: hidden;
     flex-shrink: 0;
     box-shadow: var(--shadow-md);
@@ -1061,7 +1063,7 @@ if (!user && !errorMsg) {
   .content-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
+    border-radius: 0;
     padding: 2.5rem;
     box-shadow: var(--shadow-md);
   }
@@ -1099,7 +1101,7 @@ if (!user && !errorMsg) {
   input, select {
     padding: 0.875rem 1rem;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     background: var(--color-background);
     color: var(--color-text);
     font-size: 1rem;
@@ -1127,7 +1129,7 @@ if (!user && !errorMsg) {
     color: white;
     padding: 0.875rem 2.5rem;
     border: 1px solid transparent; /* Match input height */
-    border-radius: var(--radius-md);
+    border-radius: 0;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
@@ -1144,7 +1146,7 @@ if (!user && !errorMsg) {
     border: 1px solid var(--color-border);
     color: var(--color-text);
     padding: 0.875rem 2.5rem;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -1189,16 +1191,7 @@ if (!user && !errorMsg) {
     font-style: italic;
   }
 
-  .select-with-arrow {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23FF0080'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1.25rem;
-    padding-right: 3rem;
-  }
+  // Styles for select-wrapper are now global in _forms.scss
 
   .form-actions {
     margin-top: 2rem;
@@ -1392,7 +1385,7 @@ if (!user && !errorMsg) {
   .project-form-container {
     background: rgba(var(--color-primary-rgb), 0.02);
     border: 1px solid rgba(var(--color-primary-rgb), 0.1);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 2rem;
     margin-bottom: 3rem;
   }
@@ -1452,7 +1445,7 @@ if (!user && !errorMsg) {
   .projects-accordion {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
+    border-radius: 0;
     overflow: hidden;
     margin-top: 2.5rem;
     box-shadow: var(--shadow-md);
@@ -1539,39 +1532,6 @@ if (!user && !errorMsg) {
     padding-top: 1.5rem;
   }
 
-  .search-row {
-    display: flex;
-    gap: 0.5rem;
-    width: 50%;
-    margin-left: auto; /* Asegura alineación a la derecha */
-  }
-
-  .search-row input {
-    flex: 1;
-    font-size: 0.9rem !important;
-    height: 3rem !important; /* Ligeramente más alto para el look rectangular */
-    padding: 0 1rem !important;
-    border-radius: 0 !important; /* Rectangular total */
-    background: rgba(17, 24, 39, 0.4); /* Fondo oscuro profundo */
-    border: 1px solid var(--color-border);
-  }
-
-  .btn-search-item {
-    height: 3rem !important;
-    padding: 0 2rem !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 !important; /* Rectangular total */
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
 
   .hidden { display: none !important; }
 

@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
-import ReportTable from '../../../components/shared/ReportTable.astro';
+import ReportTable from '../../../components/admin/ReportTable.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -8,7 +8,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Gestión de Informes" role="admin">
+<DashboardLayout title="Gestión de Informes" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Informes' }]} role="admin">
   <div class="reports-admin">
     <div class="header-actions">
       <div>
@@ -18,7 +18,7 @@ if (!token) {
     </div>
 
     <!-- Formulario de Subida -->
-    <div class="content-card fade-in mb-4">
+    <div class="content-card fade-in">
       <div class="section-header">
         <h2 class="section-title"><span class="material-symbols-outlined">upload_file</span> Enviar Nuevo Informe</h2>
       </div>
@@ -27,57 +27,60 @@ if (!token) {
         <div class="form-row">
           <div class="form-group">
             <label for="clientSelect">Cliente <span class="required">*</span></label>
-            <select id="clientSelect" name="clientId" required class="select-with-arrow">
-              <option value="">Selecciona un cliente...</option>
-            </select>
+            <div class="select-wrapper">
+              <select id="clientSelect" name="clientId" required>
+                <option value="">Selecciona un cliente...</option>
+              </select>
+            </div>
           </div>
           
           <div class="form-group">
             <label for="projectSelect">Proyecto <span class="required">*</span></label>
-            <select id="projectSelect" name="projectId" required class="select-with-arrow">
-              <option value="">Selecciona un proyecto...</option>
-            </select>
+            <div class="select-wrapper">
+              <select id="projectSelect" name="projectId" required>
+                <option value="">Selecciona un proyecto...</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="title">Título del Informe <span class="required">*</span></label>
-            <input type="text" id="title" name="title" required placeholder="Ej: Informe Mensual Mantenimiento - Marzo 2024" />
-          </div>
+        <div class="form-group">
+          <label for="title">Título del Informe <span class="required">*</span></label>
+          <input type="text" id="title" name="title" required placeholder="Ej: Informe Mensual Mantenimiento - Marzo 2024" />
         </div>
 
-        <div class="form-group mb-3">
+        <div class="form-group">
           <label for="description">Descripción (opcional)</label>
           <textarea id="description" name="description" rows="3" placeholder="Breve resumen del contenido del informe..."></textarea>
         </div>
 
         <div class="form-group">
-          <label for="reportFile">Archivo PDF <span class="required">*</span></label>
-          <div class="file-upload-wrapper" id="dropZone">
-            <input type="file" id="reportFile" name="file" accept="application/pdf" required />
-            <div class="file-upload-info" id="uploadInfo">
-              <span class="material-symbols-outlined" style="font-size: 2.5rem; color: var(--color-text-muted); margin-bottom: 1rem;">cloud_upload</span>
+          <label>Archivo PDF <span class="required">*</span></label>
+          <div class="file-drop file-drop--mini" id="dropZone">
+            <input type="file" id="reportFile" name="file" accept="application/pdf" class="file-input-hidden" required />
+            <div id="uploadInfo">
+              <span class="material-symbols-outlined">cloud_upload</span>
               <p>Arrastra o selecciona el archivo PDF</p>
-              <small>Tamaño máximo recomendado: 10MB</small>
+              <small class="file-types">Máximo recomendado: 10MB</small>
             </div>
-            <div class="file-selected-info hidden" id="selectedFileInfo">
-              <span class="material-symbols-outlined" style="font-size: 2.5rem; color: var(--color-error);">picture_as_pdf</span>
-              <div class="file-details">
-                <span class="file-name" id="fileNameDisplay">nombre-archivo.pdf</span>
-                <span class="file-size" id="fileSizeDisplay">1.2 MB</span>
-              </div>
-              <button type="button" class="btn-remove-file" id="removeFileBtn" title="Quitar archivo">
-                <span class="material-symbols-outlined">close</span>
-              </button>
+          </div>
+
+          <div class="file-selected-info hidden" id="selectedFileInfo">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            <div class="file-details">
+              <span class="file-name" id="fileNameDisplay">nombre-archivo.pdf</span>
+              <span class="file-size" id="fileSizeDisplay">1.2 MB</span>
             </div>
+            <button type="button" class="btn-remove-file" id="removeFileBtn" title="Quitar archivo">
+              <span class="material-symbols-outlined">close</span>
+            </button>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary" id="submitBtn" disabled>
-            <span class="btn-text">Enviar Informe</span>
-            <span class="material-symbols-outlined" style="margin-left: 0.5rem;">send</span>
+          <button type="submit" class="btn-cta" id="submitBtn" disabled>
+            Enviar Informe
+            <span class="material-symbols-outlined">send</span>
           </button>
         </div>
       </form>
@@ -257,6 +260,7 @@ if (!token) {
     }
 
     submitBtn.disabled = true;
+    submitBtn.classList.add('btn-loading');
     showToast('Subiendo informe...', 'info');
 
     try {
@@ -282,6 +286,7 @@ if (!token) {
     } catch (e) {
       showToast('Error de conexión con el servidor', 'error');
       submitBtn.disabled = false;
+      submitBtn.classList.remove('btn-loading');
     }
   });
 </script>

@@ -38,18 +38,18 @@ const formatDate = (dateValue: any) => {
 };
 ---
 
-<DashboardLayout title="Detalle del Contacto" role="admin">
+<DashboardLayout title="Detalle del Contacto" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Contacto', href: '/admin/contacto' }, { label: 'Detalle' }]} role="admin">
   <div class="admin-container">
-    <header class="admin-header">
+    <header class="header-actions">
       <div class="header-content">
-        <div class="back-link">
-          <a href="/admin/contacto" class="btn-back">
+        <div class="back-link-wrapper">
+          <a href="/admin/contacto" class="back-link">
             <span class="material-symbols-outlined">arrow_back</span> Volver a Mensajes
           </a>
         </div>
         <div class="title-section">
           <h1>Hilo de Conversación</h1>
-          <p>
+          <p class="text-muted">
             {prospect ? `Comunicación con ${prospect.name} (${prospect.email})` : 'Cargando...'}
           </p>
         </div>
@@ -58,92 +58,121 @@ const formatDate = (dateValue: any) => {
 
     <main class="admin-content">
       {error ? (
-        <div class="error-message">
-          <p><span class="material-symbols-outlined">report</span> Error: {error}</p>
+        <div class="error-banner">
+          <span class="material-symbols-outlined">report</span>
+          <p>Error: {error}</p>
         </div>
       ) : prospect ? (
-        <div class="conversation-layout">
-          <!-- Detalles del usuario -->
-          <div class="user-sidebar">
-             <div class="user-card">
-               <div class="avatar-placeholder">
-                  {prospect.name.charAt(0).toUpperCase()}
-               </div>
-               <h3>{prospect.name}</h3>
-               
-               <div class="info-group">
-                 <label>Email</label>
-                 <span><a href={`mailto:${prospect.email}`}>{prospect.email}</a></span>
-               </div>
-               <div class="info-group">
-                 <label>Teléfono</label>
-                 <span>{prospect.phone || 'No ha provisto teléfono'}</span>
-               </div>
-               <div class="info-group">
-                 <label>Última actividad</label>
-                 <span>{formatDate(prospect.updatedAt || prospect.createdAt)}</span>
-               </div>
-             </div>
+        <div class="prospect-details-container">
+          {/* Metadata Card */}
+          <div class="meta-card">
+            <div class="meta-item">
+              <span class="meta-label">Interesado</span>
+              <span class="meta-value highlight">
+                <span class="material-symbols-outlined">account_circle</span> {prospect.name}
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Email</span>
+              <span class="meta-value">
+                <span class="material-symbols-outlined">mail</span>
+                <a href={`mailto:${prospect.email}`} class="text-link">{prospect.email}</a>
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Teléfono</span>
+              <span class="meta-value">
+                <span class="material-symbols-outlined">call</span>
+                {prospect.phone || 'No provisto'}
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Última actividad</span>
+              <span class="meta-value">
+                <span class="material-symbols-outlined">schedule</span>
+                {formatDate(prospect.updatedAt || prospect.createdAt)}
+              </span>
+            </div>
           </div>
 
-          <!-- Historial de mensajes y formulario de respuesta -->
-          <div class="chat-section">
-            <div class="messages-container">
-              {prospect.conversations?.map((conv: any) => {
-                const inMsg = conv.incomingMessage;
-                const outMsg = conv.outgoingResponse;
+          {/* Conversación */}
+          <div class="conversation">
+            {prospect.conversations?.map((conv: any) => {
+              const inMsg = conv.incomingMessage;
+              const outMsg = conv.outgoingResponse;
 
-                return (
-                  <>
-                    {/* Mensaje Entrante del Prospecto */}
-                    <div class="message-bubble from-user">
-                      <div class="message-meta">
-                        <span class="sender">{prospect.name}</span>
-                        <span class="time">{formatDate(inMsg.receivedAt)}</span>
-                      </div>
-                      <div class="message-content">
-                        <p>{inMsg.content}</p>
+              return (
+                <>
+                  {/* Mensaje del Prospecto */}
+                  <div class="message client-message">
+                    <div class="message-header">
+                      <div class="user-info">
+                        <div class="avatar-wrapper">
+                          {prospect.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="name-time">
+                          <strong>{prospect.name}</strong>
+                          <span class="time">{formatDate(inMsg.receivedAt)}</span>
+                        </div>
                       </div>
                     </div>
+                    <div class="message-body">
+                      <p>{inMsg.content}</p>
+                    </div>
+                  </div>
 
-                    {/* Mensaje Saliente del Administrador (si hay uno) */}
-                    {outMsg && outMsg.content && (
-                      <div class="message-bubble from-admin">
-                        <div class="message-meta">
-                          <span class="sender">Administrador</span>
-                          <span class="time">{formatDate(outMsg.sentAt)}</span>
-                        </div>
-                        <div class="message-content">
-                          <p>{outMsg.content}</p>
+                  {/* Respuesta del Admin */}
+                  {outMsg && outMsg.content && (
+                    <div class="message admin-message">
+                      <div class="message-header">
+                        <div class="user-info">
+                          <div class="avatar-wrapper admin">
+                             <span class="material-symbols-outlined">headset_mic</span>
+                          </div>
+                          <div class="name-time">
+                            <strong>Administrador</strong>
+                            <span class="time">{formatDate(outMsg.sentAt)}</span>
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </>
-                );
-              })}
-            </div>
+                      <div class="message-body">
+                        <p>{outMsg.content}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })}
+          </div>
 
-            <!-- Zona de Respuesta -->
-            <div class="reply-container">
-               <form id="reply-form" class="reply-form">
-                 <input type="hidden" name="prospectId" id="prospectId" value={id} />
-                 <div class="input-group">
-                   <label for="replyContent">Enviar respuesta</label>
-                   <textarea 
-                     id="replyContent" 
-                     name="replyContent" 
-                     rows="4" 
-                     placeholder="Escribe tu mensaje aquí..." 
-                     required
-                   ></textarea>
-                 </div>
-                 <div class="form-actions">
-                   <button type="submit" class="btn-primary" id="btn-submit-reply">
-                     <span class="material-symbols-outlined">send</span> Enviar Mensaje
-                   </button>
-                 </div>
-                 <div id="reply-feedback" class="feedback-msg"></div>
-               </form>
+          {/* Área de Respuesta */}
+          <div class="message admin-message focus-message">
+            <div class="message-header">
+              <div class="user-info">
+                <div class="avatar-wrapper admin">
+                   <span class="material-symbols-outlined">reply</span>
+                </div>
+                <div class="name-time">
+                  <strong>Responder Consulta</strong>
+                </div>
+              </div>
+            </div>
+            <div class="reply-body">
+              <form id="reply-form">
+                <input type="hidden" name="prospectId" id="prospectId" value={id} />
+                <textarea 
+                  id="replyContent" 
+                  name="replyContent" 
+                  placeholder="Escribe tu respuesta aquí..." 
+                  required
+                ></textarea>
+                <div class="form-actions-wrapper">
+                  <button type="submit" class="btn-cta" id="btn-submit-reply">
+                    ENVIAR RESPUESTA
+                  </button>
+                </div>
+                <div id="reply-feedback" class="feedback-msg"></div>
+              </form>
             </div>
           </div>
         </div>
@@ -167,7 +196,7 @@ const formatDate = (dateValue: any) => {
       
       try {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="material-symbols-outlined spinner">sync</span> Enviando...';
+        submitBtn.classList.add('btn-loading');
         feedback.className = 'feedback-msg'; // Reset
         feedback.textContent = '';
         
@@ -195,7 +224,7 @@ const formatDate = (dateValue: any) => {
          feedback.classList.add('error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Enviar Mensaje';
+        submitBtn.classList.remove('btn-loading');
       }
     });
   }

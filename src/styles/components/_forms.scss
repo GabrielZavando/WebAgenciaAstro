@@ -20,11 +20,11 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
 
-  .required {
-    color: var(--color-primary);
-    margin-left: 2px;
-  }
+.required {
+  color: var(--color-primary) !important;
+  margin-left: 2px;
 }
 
 .form-input,
@@ -52,41 +52,76 @@ textarea {
 select {
   cursor: pointer;
   padding-right: 2.5rem;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.2em;
-  background-color: var(--color-surface-secondary); // Asegurar bg
-
-  // Adapt for Dark Mode
-  html[data-theme='dark'] & {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  }
-
-  // Hover styles
-  &:hover {
-    border-color: var(--color-primary);
-  }
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--color-surface-secondary);
+  // Eliminamos background-image estático para evitar repeticiones y permitir rotación vía wrapper
 }
 
-/* Select Wrapper & Icons */
-.input-with-icon,
+/* Select Wrapper & Icons - El estándar para flechas animadas */
 .select-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 
-  .form-select,
   select {
-    padding-right: 2.5rem;
-    cursor: pointer;
-    background-image: none !important; /* Anular background si usamos icono absoluto */
+    width: 100%;
+    padding-right: 3rem !important;
   }
 
-  .icon-select,
-  .sort-icon,
-  .select-field-arrow,
-  svg {
+  // Flecha usando Material Symbols via pseudo-elemento
+  &::after {
+    content: 'expand_more';
+    font-family: 'Material Symbols Outlined';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  // Estado abierto (controlado por JS en utils.ts)
+  &.is-open::after {
+    transform: translateY(-50%) rotate(180deg);
+    color: var(--color-primary);
+  }
+
+  &:hover::after {
+    color: var(--color-text);
+  }
+}
+
+/* Soporte para iconos a la izquierda + flecha a la derecha */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  .material-symbols-outlined:not(.select-field-arrow) {
+    position: absolute;
+    left: 1rem;
+    z-index: 1;
+    color: var(--color-text-muted);
+    font-size: 1.2rem;
+    pointer-events: none;
+  }
+
+  select, input {
+    padding-left: 2.75rem !important;
+  }
+
+  // Si es un select dentro de input-with-icon, le añadimos la flecha también
+  select + .select-field-arrow,
+  &.is-select::after {
+    content: 'expand_more';
+    font-family: 'Material Symbols Outlined';
     position: absolute;
     right: 1rem;
     top: 50%;
@@ -94,10 +129,10 @@ select {
     pointer-events: none;
     transition: transform 0.3s ease;
     color: var(--color-text-muted);
+    font-size: 1.25rem;
   }
 
-  &.is-open svg,
-  &.active svg {
+  &.is-open::after {
     transform: translateY(-50%) rotate(180deg);
   }
 }
@@ -120,4 +155,89 @@ select {
   font-weight: 600;
   margin-top: 0.4rem;
   display: block;
+}
+/* Component: File Drop (Atomic Design - Molecule) */
+.file-drop {
+  background: var(--color-surface-secondary);
+  border: 2px dotted var(--color-border);
+  border-radius: 0;
+  padding: 3rem 2rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+
+  span.material-symbols-outlined {
+    font-size: 3.5rem;
+    color: var(--color-text-muted);
+    transition: all 0.3s ease;
+  }
+
+  p {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .file-types {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .file-input-hidden {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:hover, &.drag-over {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.04);
+    
+    span.material-symbols-outlined {
+      color: var(--color-primary);
+      transform: translateY(-5px);
+    }
+  }
+
+  &.has-file {
+    border-style: solid;
+    border-color: var(--color-success);
+    background: rgba(var(--color-success-rgb), 0.02);
+
+    span.material-symbols-outlined {
+      color: var(--color-success);
+    }
+  }
+
+  // Mini variant for restricted spaces (e.g., tickets)
+  &.file-drop--mini {
+    min-height: 120px;
+    padding: 1.5rem;
+    gap: 0.75rem;
+
+    span.material-symbols-outlined {
+      font-size: 2.25rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .file-types {
+      font-size: 0.75rem;
+      display: none; // Ocultamos tipos en mini por defecto o reducimos mucho
+    }
+    
+    &:hover .file-types { display: block; } // Mostrar al hacer hover en mini
+  }
 }

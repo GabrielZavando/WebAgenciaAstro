@@ -64,7 +64,7 @@ import ModalMessage from '../components/shared/ModalMessage.astro';
         <!-- El error ahora se muestra solo en el modal según requerimiento -->
         
         <button type="button" class="btn-primary" id="loginBtn" disabled>
-            <span class="btn-text">Iniciar sesión</span>
+            Iniciar sesión
         </button>
       </div>
     </div>
@@ -127,7 +127,7 @@ import ModalMessage from '../components/shared/ModalMessage.astro';
 
     // Loading state
     loginBtn.disabled = true;
-    loginBtn.classList.add('loading');
+    loginBtn.classList.add('btn-loading');
     
     const email = emailInput?.value?.trim() || '';
     const password = passwordInput?.value || '';
@@ -186,12 +186,12 @@ import ModalMessage from '../components/shared/ModalMessage.astro';
         msg = "Demasiados intentos. Intenta más tarde.";
       }
       
-      loginBtn.classList.remove('loading');
+      loginBtn.classList.remove('btn-loading');
       
       // Mostrar modal de error
-      if ((window as any).modalHelpers) {
-        (window as any).modalHelpers.updateModalMessage('errorModal', msg);
-        (window as any).modalHelpers.openModal('errorModal');
+      if (window.modalHelpers) {
+        window.modalHelpers.updateModalMessage('errorModal', msg);
+        window.modalHelpers.openModal('errorModal');
       }
       
       validateFields();
@@ -200,8 +200,8 @@ import ModalMessage from '../components/shared/ModalMessage.astro';
 
   // Abrir modal de recuperación
   openForgotBtn?.addEventListener('click', () => {
-    if ((window as any).openForgotPasswordModal) {
-      (window as any).openForgotPasswordModal();
+    if (window.openForgotPasswordModal) {
+      window.openForgotPasswordModal();
     }
   });
 </script>
@@ -419,25 +419,7 @@ import ModalMessage from '../components/shared/ModalMessage.astro';
     cursor: not-allowed;
   }
 
-  .btn-primary.loading {
-    cursor: wait;
-    
-    .btn-text {
-        opacity: 0.5;
-    }
-
-    &::after {
-        content: "";
-        position: absolute;
-        right: 1.5rem;
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-        border-top: 2px solid var(--btn-spinner-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-  }
+  /* loading state handled by global .btn-loading */
 
   @keyframes spin {
     0% { transform: rotate(0deg); }

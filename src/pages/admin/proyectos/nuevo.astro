@@ -8,7 +8,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Nuevo Proyecto | Panel Admin" role="admin">
+<DashboardLayout title="Nuevo Proyecto | Panel Admin" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Proyectos', href: '/admin/proyectos' }, { label: 'Nuevo' }]} role="admin">
   <div class="project-form-container">
     <div class="form-header">
       <a href="/admin/proyectos" class="btn-back">
@@ -47,7 +47,7 @@ if (!token) {
 
         <div class="form-actions">
           <button type="submit" class="btn btn-cta" id="submitBtn">
-             Siguiente <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-left:0.25rem;">arrow_forward</span>
+             Crear Proyecto <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-left:0.25rem;">add_circle</span>
           </button>
         </div>
       </form>

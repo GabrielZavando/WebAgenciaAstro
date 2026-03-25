@@ -10,7 +10,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Editar Proyecto | Panel Admin" role="admin">
+<DashboardLayout title="Editar Proyecto | Panel Admin" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Proyectos', href: '/admin/proyectos' }, { label: 'Detalle' }]} role="admin">
   <div class="project-form-container" data-project-id={id}>
     <div class="form-header">
       <a href="/admin/proyectos" class="btn-back">

@@ -8,7 +8,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Panel de Administración" role="admin">
+<DashboardLayout title="Panel de Administración" breadcrumbs={[{ label: 'Admin', href: '/admin' }]} role="admin">
   <div class="admin-dashboard">
     <div class="welcome-section">
       <h1 id="welcomeTitle">Bienvenido, Administrador</h1>
@@ -94,8 +94,7 @@ if (!token) {
 <script>
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
-
-  const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
+  import { apiClient } from "../../lib/api-client";
   const welcomeTitle = document.getElementById('welcomeTitle');
   const statsGrid = document.getElementById('adminStatsGrid');
   
@@ -131,29 +130,23 @@ if (!token) {
   });
 
   async function loadAdminDashboardData(token: string) {
-    const headers = { 'Authorization': `Bearer ${token}` };
-
     // Cargar Usuarios
-    fetch(`${API}/users`, { headers })
-      .then(res => res.json())
+    apiClient.get<any[]>('users', { token })
       .then(data => { if (usersCount) usersCount.textContent = `${data.length || 0} usuarios registrados`; })
       .catch(() => { if (usersCount) usersCount.textContent = "Error al cargar"; });
 
     // Cargar Clientes
-    fetch(`${API}/clients`, { headers })
-      .then(res => res.json())
+    apiClient.get<any[]>('clients', { token })
       .then(data => { if (clientsCount) clientsCount.textContent = `${data.length || 0} clientes activos`; })
       .catch(() => { if (clientsCount) clientsCount.textContent = "Error al cargar"; });
 
     // Cargar Proyectos (Global)
-    fetch(`${API}/projects`, { headers })
-      .then(res => res.json())
+    apiClient.get<any[]>('projects', { token })
       .then(data => { if (projectsCount) projectsCount.textContent = `${data.length || 0} proyectos en total`; })
       .catch(() => { if (projectsCount) projectsCount.textContent = "Error al cargar"; });
 
     // Cargar Tickets (Global)
-    fetch(`${API}/support/tickets`, { headers })
-      .then(res => res.json())
+    apiClient.get<any[]>('support/tickets', { token })
       .then(data => { 
         const pending = data.filter((t: any) => t.status !== 'resolved').length;
         if (ticketsCount) ticketsCount.textContent = `${pending} ticket(s) pendiente(s)`; 
@@ -161,8 +154,7 @@ if (!token) {
       .catch(() => { if (ticketsCount) ticketsCount.textContent = "Error al cargar"; });
 
     // Cargar Blog
-    fetch(`${API}/blog`, { headers })
-      .then(res => res.json())
+    apiClient.get<any[]>('blog', { token })
       .then(data => { if (blogCount) blogCount.textContent = `${data.length || 0} artículos publicados`; })
       .catch(() => { if (blogCount) blogCount.textContent = "Error al cargar"; });
   }
@@ -208,120 +200,3 @@ if (!token) {
   }
 </script>
 
-<style>
-  .welcome-section {
-    margin-bottom: 2.5rem;
-  }
-  .welcome-section h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--color-text);
-  }
-  .text-muted {
-    color: var(--color-text-muted);
-    font-size: 1.1rem;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .stat-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    cursor: grab;
-    user-select: none;
-  }
-  
-  .stat-card:active { cursor: grabbing; }
-
-  .stat-card.dragging {
-    border: 2px solid var(--color-primary);
-    transform: scale(1.02);
-    box-shadow: var(--shadow-lg);
-    z-index: 10;
-    background: var(--color-surface);
-  }
-
-  .stats-grid.is-dragging-any .stat-card:not(.dragging) {
-    opacity: 0.2;
-    transform: scale(0.98);
-    filter: grayscale(1);
-    border: 2px dashed var(--color-primary);
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .stats-grid.is-dragging-any .stat-card:not(.dragging) * {
-    visibility: hidden;
-  }
-
-  .stat-card:hover:not(.dragging) {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-primary);
-  }
-
-  .stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    flex-shrink: 0;
-  }
-
-  /* Colores temáticos para admin */
-  .users-icon { background: rgba(var(--color-primary-rgb), 0.1); color: var(--color-primary); }
-  .clients-icon { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
-  .project-icon { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
-  .support-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-  .blog-icon { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
-  .files-icon { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-
-  .stat-details {
-    flex: 1;
-    min-width: 0;
-  }
-  .stat-details h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-  .stat-details p {
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-    margin: 0 0 1.25rem 0;
-  }
-
-  .btn-stat {
-    display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background: var(--color-primary);
-    color: white;
-    text-decoration: none;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: opacity 0.2s;
-    text-align: center;
-  }
-  .btn-stat:hover { opacity: 0.9; }
-
-  @media (max-width: 640px) {
-    .stat-card { padding: 1.5rem; }
-    .stat-icon { width: 48px; height: 48px; font-size: 1.25rem; }
-  }
-</style>

@@ -5,7 +5,7 @@ import ModalConfirm from '../../../components/shared/ModalConfirm.astro';
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
-<DashboardLayout title="Gestión del Blog" role="admin">
+<DashboardLayout title="Gestión del Blog" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Blog' }]} role="admin">
   <div class="blog-header">
       <h2>Artículos</h2>
       <a href="/admin/blog/new" class="btn btn-cta btn-new-post">+ Nuevo Post</a>
@@ -13,8 +13,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 
   <div class="blog-toolbar">
       <div class="search-wrapper">
-          <input type="text" id="searchInput" class="search-input" placeholder="Buscar artículo por nombre...">
-          <button type="button" class="btn btn-cta search-btn">Buscar</button>
+          <form class="search-form" onsubmit="return false;">
+              <input type="text" id="searchInput" class="search-input" placeholder="Buscar artículo por nombre..." autocomplete="off" />
+              <button type="submit" class="search-btn">Buscar</button>
+          </form>
       </div>
       <div class="select-wrapper sort-wrapper">
           <select id="sortFilter" class="sort-select">
@@ -26,7 +28,6 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
               <option value="category">Categoría</option>
               <option value="tag">Etiqueta</option>
           </select>
-          <span class="material-symbols-outlined select-field-arrow">expand_more</span>
       </div>
   </div>
 
@@ -129,8 +130,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
                         <h3 class="post-title">${post.title}</h3>
                         <div class="post-actions-footer">
                             <div class="primary-actions">
-                                <a href="/admin/blog/${post.id}" class="btn-cta__border"><span class="material-symbols-outlined">edit</span> <span>Editar</span></a>
-                                <a href="/blog/${post.slug || post.id}" target="_blank" class="btn-cta"><span class="material-symbols-outlined">open_in_new</span> <span>Ver</span></a>
+                                <a href="/admin/blog/${post.id}" class="btn-cta__border"><span class="material-symbols-outlined">edit</span> Editar</a>
+                                <a href="/blog/${post.slug || post.id}" target="_blank" class="btn-cta"><span class="material-symbols-outlined">open_in_new</span> Ver</a>
                             </div>
                             <button onclick="window.deletePost('${post.id}')" class="btn-cta__danger"><span class="material-symbols-outlined">delete</span></button>
                         </div>

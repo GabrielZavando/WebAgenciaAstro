@@ -96,6 +96,7 @@
   --color-input-text: #{color(input-text)};
   --color-border: #{color(border)};
   --color-border-secondary: #{color(border-secondary)};
+  --color-headings: var(--color-text);
   
   /* Botones tema claro */
   --btn-primary-bg: #{color(btn-primary-bg)};
@@ -142,6 +143,7 @@
   --color-input-text: #{color(input-text, dark)};
   --color-border: #{color(border, dark)};
   --color-border-secondary: #{color(border-secondary, dark)};
+  --color-headings: var(--color-white);
   
   /* Botones tema oscuro (mismos valores) */
   --btn-primary-bg: #{color(btn-primary-bg, dark)};

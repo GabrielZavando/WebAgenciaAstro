@@ -1,6 +1,6 @@
 ---
-import ModalConfirm from './ModalConfirm.astro';
-import ModalMessage from './ModalMessage.astro';
+import ModalConfirm from '../shared/ModalConfirm.astro';
+import ModalMessage from '../shared/ModalMessage.astro';
 
 interface Props {
   clientId?: string;
@@ -20,14 +20,16 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
   data-allow-delete={allowDelete ? "true" : "false"}
 >
   <div class="filters-bar">
-    <div class="search-input-wrapper">
-      <span class="material-symbols-outlined search-icon">search</span>
-      <input type="text" class="reportSearchInput" placeholder="Buscar por título..." autocomplete="off" />
-    </div>
+    <form class="search-form" onsubmit="return false;">
+      <input type="text" class="reportSearchInput search-input" placeholder="Buscar por título..." autocomplete="off" />
+      <button type="submit" class="search-btn">Buscar</button>
+    </form>
     <div class="filter-group">
-      <select class="reportProjectFilter select-filter">
-        <option value="">Todos los proyectos</option>
-      </select>
+      <div class="select-wrapper">
+        <select class="reportProjectFilter select-filter">
+          <option value="">Todos los proyectos</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -235,9 +237,13 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
             <td class="col-date col-date-data" data-label="Fecha">${fmtDate(r.createdAt)}</td>
             <td class="col-actions text-center" data-label="Acciones">
               <div class="td-actions">
-                <button class="btn-action-icon view-btn" data-id="${r.id}" title="Ver informe"><span class="material-symbols-outlined">visibility</span></button>
-                <button class="btn-action-icon dl-btn" data-id="${r.id}" title="Descargar informe"><span class="material-symbols-outlined">download</span></button>
-                ${allowDelete ? `<button class="btn-action-icon delete-btn" data-id="${r.id}" title="Eliminar informe"><span class="material-symbols-outlined">delete</span></button>` : ''}
+                <button class="btn-icon view-btn" data-id="${r.id}" title="Ver informe">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button class="btn-icon dl-btn" data-id="${r.id}" title="Descargar informe">
+                  <span class="material-symbols-outlined">download</span>
+                </button>
+                ${allowDelete ? `<button class="btn-icon delete-btn" data-id="${r.id}" title="Eliminar informe"><span class="material-symbols-outlined">delete</span></button>` : ''}
               </div>
             </td>
           </tr>`}).join('');
@@ -253,16 +259,16 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
       const handleAction = async (id: string, action: string) => {
         if (action === 'delete') {
           const modalId = `deleteReportModal-${tableId}`;
-          (window as any).confirmModalHelpers.open(modalId, async () => {
+          window.confirmModalHelpers.open(modalId, async () => {
             try {
               const res = await fetch(`${API_URL}/reports/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${currentToken}` },
               });
               if (!res.ok) throw new Error();
-              if ((window as any).showToast) (window as any).showToast('Informe eliminado correctamente', 'success');
+              if (window.showToast) window.showToast('Informe eliminado correctamente', 'success');
             } catch {
-              if ((window as any).showToast) (window as any).showToast('Error al eliminar el informe.', 'error');
+              if (window.showToast) window.showToast('Error al eliminar el informe.', 'error');
             }
           });
           return;
@@ -279,7 +285,7 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
           if (action === 'view') {
             window.open(url, '_blank');
           } else {
-            if ((window as any).showToast) (window as any).showToast('Iniciando descarga...', 'info');
+            if (window.showToast) window.showToast('Iniciando descarga...', 'info');
             const a = document.createElement('a');
             a.href = url;
             document.body.appendChild(a);
@@ -288,8 +294,8 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
           }
         } catch (err) {
           console.error('Error al procesar el informe:', err);
-          if ((window as any).modalHelpers) {
-            (window as any).modalHelpers.openModal(`errorReportModal-${tableId}`);
+          if (window.modalHelpers) {
+            window.modalHelpers.openModal(`errorReportModal-${tableId}`);
           } else {
             alert('Error al obtener el informe.');
           }

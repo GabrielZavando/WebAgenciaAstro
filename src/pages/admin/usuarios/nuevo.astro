@@ -9,7 +9,7 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title="Nuevo Usuario" role="admin">
+<DashboardLayout title="Nuevo Usuario" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Usuarios', href: '/admin/usuarios' }, { label: 'Nuevo' }]} role="admin">
   <div class="user-form-container">
     <div class="header-actions">
       <div>
@@ -31,10 +31,12 @@ if (!token) {
           
           <div class="form-group">
             <label for="role">Rol <span class="required">*</span></label>
-            <select id="role" name="role" required>
-              <option value="client" selected>Cliente (Acceso a Dashboard)</option>
-              <option value="admin">Administrador (Acceso Total)</option>
-            </select>
+            <div class="select-wrapper">
+              <select id="role" name="role" required>
+                <option value="client" selected>Cliente (Acceso a Dashboard)</option>
+                <option value="admin">Administrador (Acceso Total)</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -54,8 +56,7 @@ if (!token) {
 
         <div class="form-actions">
           <button type="submit" class="btn-primary" id="submitBtn">
-            <span class="btn-spinner hidden"><span class="material-symbols-outlined spinner">sync</span></span>
-            <span class="btn-text">Crear Usuario</span>
+            Crear Usuario
           </button>
         </div>
       </form>
@@ -114,7 +115,7 @@ if (!token) {
 
       // Estado de carga
       submitBtn.disabled = true;
-      btnSpinner?.classList.remove('hidden');
+      submitBtn.classList.add('btn-loading');
 
       try {
         const response = await fetch(`${API_URL}/users/register`, {
@@ -141,16 +142,16 @@ if (!token) {
         showGlobalMessage('No se pudo conectar con el servidor.', 'error');
       } finally {
         submitBtn.disabled = false;
-        btnSpinner?.classList.add('hidden');
+        submitBtn.classList.remove('btn-loading');
       }
     });
   });
 
   function showGlobalMessage(message: string, type: 'error' | 'success') {
     const modalId = type === 'success' ? 'successModal' : 'errorModal';
-    if ((window as any).modalHelpers) {
-      (window as any).modalHelpers.updateModalMessage(modalId, message);
-      (window as any).modalHelpers.openModal(modalId);
+    if (window.modalHelpers) {
+      window.modalHelpers.updateModalMessage(modalId, message);
+      window.modalHelpers.openModal(modalId);
     } else {
       alert(message);
     }

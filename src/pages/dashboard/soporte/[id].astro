@@ -74,7 +74,7 @@ if (ticket) {
 }
 ---
 
-<DashboardLayout title="Ver Ticket" role="client">
+<DashboardLayout title="Ver Ticket" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Soporte', href: '/dashboard/soporte' }, { label: 'Detalle' }]} role="client">
   <div class="header-actions">
     <div>
         <a href="/dashboard/soporte" class="back-link">
@@ -183,17 +183,17 @@ if (ticket) {
           <div class="message-body">
             <form id="clientReplyForm" data-id={ticket.id}>
               <textarea name="body" placeholder="Escribe tu mensaje para el equipo de soporte..." rows="4" required></textarea>
-              <div class="attachment-input-wrapper" style="margin-top: 0.5rem;">
-                <label for="clientAttachment" style="font-size: 0.85rem; color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-surface); padding: 0.5rem; border: 1px dashed var(--color-border); width: 100%; box-sizing: border-box;">
+              <div class="attachment-input-wrapper">
+                <label for="clientAttachment" class="attachment-label-btn">
                   <span class="material-symbols-outlined">image</span>
-                  <span>Adjuntar imagen (opcional)</span>
+                  <span class="attachment-label-text">Adjuntar imagen (opcional)</span>
                   <input type="file" id="clientAttachment" name="attachment" accept="image/*" style="display: none;" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
                 </label>
               </div>
-              <div style="display: flex; justify-content: flex-end; margin-top: 0.75rem;">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-text"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.25rem;">send</span> Enviar Mensaje</span>
-                  <span class="loader hidden"></span>
+              <div class="form-actions" style="justify-content: flex-end; margin-top: 1rem;">
+                <button type="submit" class="btn btn-cta" style="min-width: 200px; max-width: 400px;">
+                  <span class="material-symbols-outlined" id="submitBtnIcon">send</span> 
+                  Enviar Mensaje
                 </button>
               </div>
               <div class="feedback-message hidden" id="replyFeedback"></div>
@@ -304,8 +304,7 @@ if (ticket) {
       if (!body) return;
 
       submitBtn.disabled = true;
-      submitBtn.querySelector('.btn-text')?.classList.add('hidden');
-      submitBtn.querySelector('.loader')?.classList.remove('hidden');
+      submitBtn.classList.add('btn-loading');
 
       try {
         const formData = new FormData();
@@ -337,9 +336,9 @@ if (ticket) {
 
         await loadMessages();
       } catch (err: any) {
-        if ((window as any).modalHelpers) {
-          (window as any).modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al enviar');
-          (window as any).modalHelpers.openModal('ticketResponseErrorModal');
+        if (window.modalHelpers) {
+          window.modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al enviar');
+          window.modalHelpers.openModal('ticketResponseErrorModal');
         } else {
           feedback.textContent = err.message || 'Error al enviar';
           feedback.className = 'feedback-message error';
@@ -347,8 +346,7 @@ if (ticket) {
         }
       } finally {
         submitBtn.disabled = false;
-        submitBtn.querySelector('.btn-text')?.classList.remove('hidden');
-        submitBtn.querySelector('.loader')?.classList.add('hidden');
+        submitBtn.classList.remove('btn-loading');
       }
     });
   }
@@ -766,6 +764,40 @@ if (ticket) {
     0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(var(--color-primary-rgb), 0); }
     100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0); }
+  }
+
+  .attachment-input-wrapper {
+    margin-top: 1rem;
+  }
+
+  .attachment-label-btn {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--color-surface-secondary);
+    padding: 0.75rem 1rem;
+    border: 2px dashed var(--color-border);
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+  }
+
+  .attachment-label-btn:hover {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.04);
+    color: var(--color-primary);
+  }
+
+  .attachment-label-btn:hover .material-symbols-outlined {
+    transform: translateY(-2px);
+  }
+
+  .attachment-label-btn .material-symbols-outlined {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
   }
 
   /* Responsive */

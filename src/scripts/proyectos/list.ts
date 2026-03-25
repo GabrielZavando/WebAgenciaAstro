@@ -51,7 +51,7 @@ export const initProjectList = async () => {
         (client.displayName || client.email) : 'Sin cliente'
 
       return `
-        <tr>
+        <tr class="project-row">
           <td data-label="Nombre">
             <div class="project-name-cell">${project.name}</div>
           </td>
@@ -65,13 +65,12 @@ export const initProjectList = async () => {
           </td>
           <td data-label="Acciones">
             <div class="td-actions">
-              <a href="/admin/proyectos/${project.id}" 
-                 class="btn-action view-btn" title="Ver Proyecto">
-                <span class="material-symbols-outlined">visibility</span> Ver
+              <a href="/admin/proyectos/${project.id}" class="btn-details" title="Ver detalles">
+                <span class="material-symbols-outlined">visibility</span>
+                <span class="btn-text">Ver</span>
               </a>
-              <button class="btn-action delete-btn" 
-                      title="Eliminar" data-id="${project.id}">
-                <span class="material-symbols-outlined">delete</span> Eliminar
+              <button class="btn-icon del-btn" data-id="${project.id}" title="Eliminar proyecto">
+                <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
           </td>
@@ -79,7 +78,23 @@ export const initProjectList = async () => {
       `
     }).join('')
 
-    listBody.querySelectorAll('.delete-btn').forEach(btn => {
+    // Implementación de Búsqueda
+    const searchInput = document.getElementById('projectSearch') as HTMLInputElement;
+    searchInput?.addEventListener('input', () => {
+      const term = searchInput.value.toLowerCase();
+      const rows = listBody.querySelectorAll('.project-row');
+      rows.forEach(row => {
+        const name = row.querySelector('.project-name-cell')?.textContent?.toLowerCase() || '';
+        const client = row.querySelector('.client-name-cell')?.textContent?.toLowerCase() || '';
+        if (name.includes(term) || client.includes(term)) {
+          (row as HTMLElement).style.display = '';
+        } else {
+          (row as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+
+    listBody.querySelectorAll('.del-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget
         if (!(target instanceof HTMLElement)) return

@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
-import Banner from "../../components/sections/Banner.astro";
+import Banner from "../../components/landing/Banner.astro";
 import Search from "../../components/shared/Search.astro";
 
 const { slug } = Astro.params;
@@ -190,7 +190,7 @@ try {
             background-color: transparent !important;
         }
 
-        :global(p), :global(span), :global(li), :global(div), :global(td), :global(th) {
+        :global(p), :global(span), :global(li), :global(div), :global(td), :global(th), :global(em), :global(i), :global(u), :global(s) {
             color: var(--color-text) !important;
             background-color: transparent !important;
         }
