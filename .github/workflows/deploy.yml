@@ -70,7 +70,8 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars NODE_ENV=production \
+            --update-env-vars NODE_ENV=production \
+            --set-secrets "FIREBASE_SERVICE_ACCOUNT=FIREBASE_SERVICE_ACCOUNT:latest" \
             --min-instances=0 \
             --max-instances=5 \
             --memory=512Mi \
