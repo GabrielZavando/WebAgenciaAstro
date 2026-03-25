@@ -2,6 +2,30 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versión siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.0](https://github.com/GabrielZavando/WebAgenciaAstro/compare/landing-page-v1.3.1...landing-page-v1.4.0) (2026-03-25)
+
+
+### Features
+
+* add idea submission form and admin moderation interface ([15d660c](https://github.com/GabrielZavando/WebAgenciaAstro/commit/15d660c7e4cf3d0f1b5c10ba9a5d1fdd4ccd0ffc))
+* add UI for files, reports, and support in dashboard and admin ([2809959](https://github.com/GabrielZavando/WebAgenciaAstro/commit/2809959ca7c2901d0fe57fd6168e86c076b4be7d))
+* **admin:** unifica creación y edición de posts del blog y mejoras generales ([8984c87](https://github.com/GabrielZavando/WebAgenciaAstro/commit/8984c8732e4474f7e952c03e0db85d451f5a7341))
+* **anti-spam:** Cloudflare Turnstile, Double Opt-In y campaña de re-confirmación ([90c97e3](https://github.com/GabrielZavando/WebAgenciaAstro/commit/90c97e3f115ffb539708cf85eeba1c9851a1a085))
+* **blog:** refactor blog views to SSR with vanilla JS, improve UI, translate anchors and add dynamic sitemap ([c8e6052](https://github.com/GabrielZavando/WebAgenciaAstro/commit/c8e60527e95bc76755eb6fd3fed9aff7b09d8f88))
+* **components:** mejora implementación de modales y sistema de diseño ([7f6a5b9](https://github.com/GabrielZavando/WebAgenciaAstro/commit/7f6a5b9ce574e5fce4b3535cc92adb58a74d4079))
+* dashboard improvements, card reordering, and rebranding to Gabriel Zavando ([326fcff](https://github.com/GabrielZavando/WebAgenciaAstro/commit/326fcff7277936aa1e3033abb0531fcd05379adb))
+* Implementación completa del sistema de diseño flat y workflow infográfico ([8af0749](https://github.com/GabrielZavando/WebAgenciaAstro/commit/8af074977c4f080289cebfc7b233ecc2161ccfd9))
+* refactor responsivo y actualización de tokens ([9a2037b](https://github.com/GabrielZavando/WebAgenciaAstro/commit/9a2037bfe82a918abcd64ea96dd18d817a903604))
+* standardize dashboard popups and enhance UI components ([a85977c](https://github.com/GabrielZavando/WebAgenciaAstro/commit/a85977cbf0c8d7fdb0fbad9fddf0d55b923f0924))
+* **support:** UI updates for project-centric ticket quotas ([b97ee9d](https://github.com/GabrielZavando/WebAgenciaAstro/commit/b97ee9d5e951e01d3b76b666e9c19ae092be5f2d))
+* **ui:** unified search component, firebase i18n auth reset, and round ticket spinners ([994fde3](https://github.com/GabrielZavando/WebAgenciaAstro/commit/994fde33bc02102dba44bf29b5614dc19a637408))
+
+
+### Bug Fixes
+
+* **blog:** remove literal script/style tags from comments to fix astro compiler bug ([f478edd](https://github.com/GabrielZavando/WebAgenciaAstro/commit/f478edd6071191041d3ef290cffb67ef47278d42))
+* resolve global window types for modal helpers in TypeScript ([46d5956](https://github.com/GabrielZavando/WebAgenciaAstro/commit/46d5956650b579f71aa3153c3c19f78b761f0aff))
+
 ## [1.0.2] - 2025-10-27
 ### Añadido
 - Nueva imagen de perfil `src/assets/img/gabriel.jpeg`.
