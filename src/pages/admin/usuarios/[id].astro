@@ -8,6 +8,8 @@ import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 import { apiClient } from '../../../lib/api-client';
 
+import type { ClientResponseDto, ProjectResponseDto, StorageQuotaDto, ReportResponseDto } from '../../../types/api';
+
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -16,23 +18,23 @@ if (!token) {
 
 const { id } = Astro.params;
 
-let user = null;
-let projects = [];
-let storage = null;
-let reports = [];
+let user: ClientResponseDto | null = null;
+let projects: ProjectResponseDto[] = [];
+let storage: StorageQuotaDto | null = null;
+let reports: ReportResponseDto[] = [];
 let errorMsg = null;
 
 try {
   const [userData, projectsData, storageData, reportsData] = await Promise.all([
-    apiClient.get<any>(`/users/${id}`, { token }).catch((e) => {
+    apiClient.get<ClientResponseDto>(`/users/${id}`, { token }).catch((e) => {
       errorMsg = e.status === 403 
         ? "No tienes permisos de Administrador para ver esta página." 
         : `Error al cargar datos del usuario: ${e.message}`;
       return null;
     }),
-    apiClient.get<any[]>(`/projects/client/${id}`, { token }).catch(() => []),
-    apiClient.get<any>(`/files/storage/quota/${id}`, { token }).catch(() => null),
-    apiClient.get<any[]>(`/reports?clientId=${id}`, { token }).catch(() => [])
+    apiClient.get<ProjectResponseDto[]>(`/projects/client/${id}`, { token }).catch(() => []),
+    apiClient.get<StorageQuotaDto>(`/files/storage/quota/${id}`, { token }).catch(() => null),
+    apiClient.get<ReportResponseDto[]>(`/reports?clientId=${id}`, { token }).catch(() => [])
   ]);
 
   user = userData;
@@ -170,7 +172,7 @@ if (!user && !errorMsg) {
             <h2>Editar Perfil</h2>
             <p class="text-muted">Modifica la información básica del usuario.</p>
           </div>
-          <form id="editUserForm" data-userid={user.uid || id}>
+          <form id="editUserForm" data-userid={user.id}>
             <div class="form-row">
               <div class="form-group">
                 <label for="displayName">Nombre Completo <span class="required-mark">*</span></label>
@@ -272,7 +274,7 @@ if (!user && !errorMsg) {
           </div>
           
           <div class="project-form-container">
-            <form id="createProjectForm" class="project-form" data-clientid={user.uid || id}>
+            <form id="createProjectForm" class="project-form" data-clientid={user.id}>
               <div class="form-row project-form-row">
                 <div class="form-group flex-grow">
                   <label for="projectName">Nombre del Proyecto</label>
@@ -330,7 +332,7 @@ if (!user && !errorMsg) {
                         </tr>
                       </thead>
                       <tbody>
-                        {projects.map((p: any) => (
+                        {projects.map((p: ProjectResponseDto) => (
                           <tr class="project-row" data-name={p.name.toLowerCase()}>
                             <td><strong>{p.name}</strong></td>
                             <td>
@@ -428,6 +430,7 @@ if (!user && !errorMsg) {
 <script>
   import { apiClient } from '../../../lib/api-client';
   import { validatePassword } from '../../../lib/utils/security';
+  import type { ClientResponseDto, ProjectResponseDto } from '../../../types/api';
 
   // Lógica de navegación y eventos para la página de detalles de usuario
   function initUserDetail() {
@@ -522,7 +525,7 @@ if (!user && !errorMsg) {
         
         setLoading(profileSubmitBtn, true);
         try {
-          await apiClient.patch(`/users/${userId}`, data);
+          await apiClient.patch<ClientResponseDto>(`/users/${userId}`, data);
           
           if (window.modalHelpers) {
             window.modalHelpers.openModal('successProfileModal');
@@ -615,7 +618,7 @@ if (!user && !errorMsg) {
 
       setLoading(btnCreateProject, true);
       try {
-        await apiClient.post(`/projects`, data);
+        await apiClient.post<ProjectResponseDto>(`/projects`, data);
         showFeedback('projectFormFeedback', 'Proyecto creado exitosamente.', 'success');
         setTimeout(() => window.location.reload(), 1000);
       } catch (err: any) {
