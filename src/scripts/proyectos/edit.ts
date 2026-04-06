@@ -15,24 +15,34 @@ export const initEditProject = async () => {
 
     const loadInitialData = async () => {
       try {
-        const clientsData = await apiClient.get('/clients')
-        const clients = clientsData as Client[]
-        clients.forEach(client => {
+        const users = await apiClient.get('/clients/assignable') as any[]
+        
+        // Ordenar: admins primero, luego clientes
+        users.sort((a, b) => {
+          if (a.role === b.role) {
+            return (a.displayName || '').localeCompare(b.displayName || '')
+          }
+          return a.role === 'admin' ? -1 : 1
+        })
+
+        users.forEach(user => {
           const option = document.createElement('option')
-          option.value = client.uid || client.id
-          option.textContent = client.displayName || client.email
+          option.value = user.uid || user.id
+          const roleLabel = user.role === 'admin' ? '[Admin]' : '[Cliente]'
+          option.textContent = `${roleLabel} ${user.displayName || user.email}`
           clientSelect.appendChild(option)
         })
 
         const projectData = await apiClient.get(`/projects/${id}`)
-        const project = projectData as Project
+        const project = projectData as any
         
         const nameInput = document.getElementById('projectName')
         if (nameInput instanceof HTMLInputElement) {
           nameInput.value = project.name
         }
         
-        clientSelect.value = project.clientUid || ''
+        // El backend usa clientId
+        clientSelect.value = project.clientId || ''
         
         const statusInput = document.getElementById('projectStatus')
         if (statusInput instanceof HTMLSelectElement) {
@@ -42,6 +52,12 @@ export const initEditProject = async () => {
         const percentInput = document.getElementById('projectPercentage')
         if (percentInput instanceof HTMLInputElement) {
           percentInput.value = String(project.percentage || 0)
+        }
+
+        // Nuevo campo: Límite de tickets
+        const limitInput = document.getElementById('monthlyTicketLimit')
+        if (limitInput instanceof HTMLInputElement) {
+          limitInput.value = String(project.monthlyTicketLimit || 3)
         }
 
         const descInput = document.getElementById('projectDescription')
@@ -61,9 +77,14 @@ export const initEditProject = async () => {
 
       const formData = new FormData(form)
       const data = Object.fromEntries(formData.entries())
-      const updateData: Partial<Project> = {
-        ...data,
-        percentage: Number(data.percentage)
+      
+      const updateData = {
+        name: data.name as string,
+        clientId: data.clientId as string,
+        status: data.status as string,
+        percentage: Number(data.percentage),
+        monthlyTicketLimit: Number(data.monthlyTicketLimit),
+        description: data.description as string
       }
 
       try {

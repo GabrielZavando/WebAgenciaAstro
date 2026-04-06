@@ -2,9 +2,12 @@
 import DashboardLayout from "../../../layouts/DashboardLayout.astro";
 
 // Obtenemos el endpoint desde el env o formamos uno por default
+import type { ProspectResponseDto } from "../../../types/api";
+
+// Obtenemos el endpoint desde el env o formamos uno por default
 const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-let prospects = [];
+let prospects: ProspectResponseDto[] = [];
 let error = null;
 
 try {
@@ -73,12 +76,12 @@ const formatDate = (dateValue: any) => {
 
       {prospects.length > 0 && (
         <div class="prospects-grid">
-          {prospects.map((prospect: any) => {
+          {prospects.map((prospect: ProspectResponseDto) => {
              const conversationLength = prospect.conversations ? prospect.conversations.length : 0;
              const hasReplies = conversationLength > 1;
 
              return (
-              <a href={`/admin/contacto/${prospect.prospectId}`} class="prospect-card">
+              <a href={`/admin/contacto/${prospect.id}`} class="prospect-card">
                 <div class="card-header">
                   <div class="prospect-info">
                     <h3 class="prospect-name search-target-name">{prospect.name}</h3>
@@ -99,7 +102,7 @@ const formatDate = (dateValue: any) => {
                   </p>
                   <div class="latest-message">
                     <p class="message-preview search-target-message">
-                       {prospect.conversations?.[0]?.incomingMessage?.content?.substring(0, 100)}...
+                       {prospect.message?.substring(0, 100) || prospect.conversations?.[0]?.incomingMessage?.content?.substring(0, 100)}...
                     </p>
                   </div>
                 </div>

@@ -43,9 +43,8 @@ const getExcerpt = (post: any) => {
 <Layout title="Blog | Agencia Digital">
   <!-- Banner Utilizando el componente unificado -->
   <Banner image={bannerBlogImg} size="half" align="center">
-      <h1 class="page-title fade-in">Blog</h1>
-      <p class="page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
-      
+      <h1 class="blog-page-title fade-in">Blog</h1>
+      <p class="blog-page-subtitle fade-in">Noticias, consejos y estrategias digitales.</p>
       <Search />
   </Banner>
 
@@ -56,25 +55,40 @@ const getExcerpt = (post: any) => {
         <p>No hay coincidencias con la búsqueda.</p>
       </div>
 
-      {error && <div class="error-message">{error}</div>}
+      {error && <div class="blog-error-message">{error}</div>}
 
       <div class="posts-grid">
         {posts.map((post: any) => (
           <article class="post-card fade-in" data-title={post.title.toLowerCase()} data-category={post.category ? post.category.toLowerCase() : ''}>
-             {post.coverImage && (
-                 <div class="post-image">
-                     <img src={post.coverImage} alt={post.title} />
-                 </div>
-             )}
-            <div class="post-content">
-              <h2 class="post-title">
+            {post.coverImage && (
+              <div class="post-card__image">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  loading="lazy"
+                  decoding="async"
+                  width="800"
+                  height="450"
+                />
+              </div>
+            )}
+            <div class="post-card__content">
+              <h2 class="post-card__title">
                 <a href={`/blog/${post.slug}`}>{post.title}</a>
               </h2>
-              <div class="post-meta">
-                  <span class="post-author"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1rem; margin-right: 0.2rem;">edit_note</span> {post.author || 'Administrador'}</span>
-                  {post.category && <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-category"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1rem; margin-right: 0.2rem;">label</span> {post.category}</a>}
+              <div class="post-card__meta">
+                <span>
+                  <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+                  {post.author || 'Administrador'}
+                </span>
+                {post.category && (
+                  <a href={`/blog?category=${encodeURIComponent(post.category)}`} class="post-card__category">
+                    <span class="material-symbols-outlined" aria-hidden="true">label</span>
+                    {post.category}
+                  </a>
+                )}
               </div>
-              <p class="post-excerpt">
+              <p class="post-card__excerpt">
                 {getExcerpt(post)}
               </p>
               <a href={`/blog/${post.slug}`} class="btn-cta">Leer más</a>
@@ -86,141 +100,3 @@ const getExcerpt = (post: any) => {
   </section>
 </Layout>
 
-<style lang="scss">
-  @use "../../styles/config" as *;
-
-  .blog-section {
-    padding: 4rem 0 4rem 0;
-    min-height: 50vh;
-  }
-  
-  .container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
-
-  .page-title {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    color: var(--color-white);
-    margin-bottom: 0.5rem;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  .page-subtitle {
-     text-align: center;
-     color: var(--color-accent); // Cambiado a accent (#00FFE0) como solicitado
-     opacity: 0.9;
-     margin-bottom: 3rem;
-     font-size: 1.2rem;
-  }
-
-  .posts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-
-  .post-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: transform 0.2s;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .post-card:hover {
-     transform: translateY(-5px);
-     box-shadow: var(--shadow-lg);
-  }
-  
-  .post-image img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-  }
-
-  .post-content {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    text-align: left;
-  }
-
-  .post-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.75rem;
-    line-height: 1.3;
-  }
-
-  .post-title a {
-    color: var(--color-text);
-    text-decoration: none;
-  }
-
-  .post-title a:hover {
-      color: var(--color-primary);
-  }
-  
-  .post-meta {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-      margin-bottom: 1.25rem;
-  }
-
-  .post-category {
-      color: var(--color-text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-  }
-  
-  .post-category:hover {
-      color: var(--color-primary);
-  }
-
-  .post-meta span i, .post-meta a i {
-      width: 14px;
-      color: var(--color-primary);
-      text-align: center;
-  }
-
-  .post-excerpt {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    flex-grow: 1;
-    text-align: left;
-  }
-  
-  .error-message {
-      text-align: center;
-      color: var(--color-error);
-      padding: 2rem;
-  }
-
-  .no-results-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    text-align: center;
-    color: var(--color-text-muted);
-    font-size: 1.1rem;
-  }
-
-  .no-results-message i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-</style>

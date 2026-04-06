@@ -1,12 +1,15 @@
 {
-  "name": "landing-page",
+  "name": "@webastro/landing",
   "version": "1.4.0",
-  "description": "Landing Page para mi agencia digital",
+  "description": "Landing page con Astro para Agencia Digital Gabriel Zavando",
   "scripts": {
     "dev": "astro dev --open",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest run",
+    "test:ui": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -21,7 +24,10 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.2",
     "dotenv": "^17.3.1",
-    "sass": "^1.89.0"
+    "jsdom": "^29.0.1",
+    "sass": "^1.89.0",
+    "vitest": "^4.1.2"
   }
 }

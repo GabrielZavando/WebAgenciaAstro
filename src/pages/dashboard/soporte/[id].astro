@@ -1,6 +1,8 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ModalMessage from '../../../components/shared/ModalMessage.astro';
+import TicketDetailView from '../../../components/support/TicketDetailView.astro';
+import type { TicketResponseDto } from '../../../types/api';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -10,7 +12,7 @@ if (!token) {
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 const { id } = Astro.params;
 
-let ticket = null;
+let ticket: TicketResponseDto | null = null;
 let errorMsg = null;
 
 try {
@@ -91,117 +93,7 @@ if (ticket) {
   )}
 
   {!errorMsg && ticket && (
-    <div class="ticket-details-container fade-in">
-      <div class="ticket-meta-card">
-        <div class="meta-item">
-          <span class="meta-label">ID Ticket</span>
-          <span class="meta-value ticket-id">#{ticket.id.slice(0, 8).toUpperCase()}</span>
-        </div>
-        {ticket.projectName && (
-          <div class="meta-item">
-            <span class="meta-label">Proyecto</span>
-            <span class="meta-value">{ticket.projectName}</span>
-          </div>
-        )}
-        <div class="meta-item">
-          <span class="meta-label">Estado</span>
-          <span class={`status-badge ${statusInfo?.className}`}>
-            <span class="material-symbols-outlined">{statusInfo?.icon}</span> {statusInfo?.label}
-          </span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Prioridad</span>
-          <div class="priority-badge-wrapper">
-            <span class="priority-dot" style={`background-color: ${priorityInfo?.color}`}></span>
-            {priorityInfo?.label}
-          </div>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Fecha de Envío</span>
-          <span class="meta-value"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.2rem;">calendar_today</span> {formatFullDate(ticket.createdAt)}</span>
-        </div>
-        {ticket.status === 'resolved' && (
-          <div class="meta-item resolved-meta">
-            <span class="meta-label">Resuelto el</span>
-            <span class="meta-value resolved-date"><span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.2rem;">done_all</span> {formatFullDate(ticket.updatedAt)}</span>
-          </div>
-        )}
-      </div>
-
-      <div class="conversation" id="conversationBox">
-        <!-- Mensaje inicial del cliente -->
-        <div class="message client-message">
-          <div class="message-header">
-            <div class="user-info">
-              <div class="avatar-wrapper">
-                {ticket.clientPhotoUrl ? (
-                  <img src={ticket.clientPhotoUrl} alt="Avatar" class="msg-avatar-img" />
-                ) : (
-                  <div class="msg-avatar-placeholder client"></div>
-                )}
-              </div>
-              <div class="name-time">
-                <strong>Tú (Cliente)</strong>
-                <span class="time">{formatFullDate(ticket.createdAt)}</span>
-              </div>
-            </div>
-          </div>
-          <div class="message-body">
-            {ticket.message.split('\n').map((line: string) => (<p>{line}</p>))}
-            {ticket.attachmentUrl && (
-              <div class="attachment-container">
-                <hr class="attachment-divider" />
-                <p class="attachment-label"><span class="material-symbols-outlined">attach_file</span> Archivo Adjunto</p>
-                <a href={ticket.attachmentUrl} target="_blank" rel="noopener noreferrer" class="attachment-link">
-                  <img src={ticket.attachmentUrl} alt="Adjunto" class="ticket-attachment-img" />
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <!-- Banner de ticket resuelto -->
-      {ticket.status === 'resolved' && (
-        <div class="resolved-banner">
-          <span class="material-symbols-outlined">check_circle</span>
-          <span>Este ticket está <strong>resuelto</strong>. Ya no se pueden enviar más mensajes.</span>
-        </div>
-      )}
-
-      <!-- Formulario de respuesta del cliente (solo si no está resuelto) -->
-      {ticket.status !== 'resolved' && (
-        <div class="message client-message reply-area" id="replyArea">
-          <div class="message-header">
-            <div class="user-info">
-              <div class="avatar-wrapper">
-                <div class="msg-avatar-placeholder client" id="replyAvatarContainer"></div>
-              </div>
-              <div class="name-time"><strong>Responder al Equipo de Soporte</strong></div>
-            </div>
-          </div>
-          <div class="message-body">
-            <form id="clientReplyForm" data-id={ticket.id}>
-              <textarea name="body" placeholder="Escribe tu mensaje para el equipo de soporte..." rows="4" required></textarea>
-              <div class="attachment-input-wrapper">
-                <label for="clientAttachment" class="attachment-label-btn">
-                  <span class="material-symbols-outlined">image</span>
-                  <span class="attachment-label-text">Adjuntar imagen (opcional)</span>
-                  <input type="file" id="clientAttachment" name="attachment" accept="image/*" style="display: none;" onchange="this.previousElementSibling.textContent = this.files[0]?.name || 'Adjuntar imagen (opcional)'" />
-                </label>
-              </div>
-              <div class="form-actions" style="justify-content: flex-end; margin-top: 1rem;">
-                <button type="submit" class="btn btn-cta" style="min-width: 200px; max-width: 400px;">
-                  <span class="material-symbols-outlined" id="submitBtnIcon">send</span> 
-                  Enviar Mensaje
-                </button>
-              </div>
-              <div class="feedback-message hidden" id="replyFeedback"></div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+    <TicketDetailView ticket={ticket} role="client" />
   )}
 
   <Fragment slot="modals">
@@ -215,159 +107,8 @@ if (ticket) {
 </DashboardLayout>
 
 <script>
-  import { auth } from '../../../lib/firebase/client';
-  import { onAuthStateChanged } from 'firebase/auth';
-
-  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
-  const ticketId = window.location.pathname.split('/').pop()!;
-  let token = '';
-
-  function fmtDate(raw: any): string {
-    if (!raw) return '';
-    const d = raw._seconds ? new Date(raw._seconds * 1000) : new Date(raw);
-    if (isNaN(d.getTime())) return '';
-    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-  }
-
-  function renderMessages(messages: any[]) {
-    const box = document.getElementById('conversationBox')!;
-    if (!messages.length) return;
-    
-    // Mantener el primer mensaje (el del servidor) y limpiar el resto
-    const initialMsg = box.firstElementChild;
-    box.innerHTML = '';
-    if (initialMsg) box.appendChild(initialMsg);
-    
-    const clientPhotoUrl = document.querySelector('.client-message .msg-avatar-img')?.getAttribute('src') || '';
-    
-    messages.forEach(m => {
-      const isAdmin = m.senderRole === 'admin';
-      
-      let avatarHtml = '';
-      if (m.senderPhotoUrl) {
-        avatarHtml = `<img src="${m.senderPhotoUrl}" alt="Avatar" class="msg-avatar-img" />`;
-      } else if (!isAdmin && clientPhotoUrl) {
-        avatarHtml = `<img src="${clientPhotoUrl}" alt="Avatar" class="msg-avatar-img" />`;
-      } else if (!isAdmin) {
-        avatarHtml = `<div class="msg-avatar-placeholder client"></div>`;
-      } else {
-        avatarHtml = `<div class="msg-avatar-placeholder admin"><span class="material-symbols-outlined">headset_mic</span></div>`;
-      }
-      
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${isAdmin ? 'admin-message' : 'client-message'}`;
-      msgDiv.innerHTML = `
-          <div class="message-header">
-            <div class="user-info">
-              <div class="avatar-wrapper">
-                ${avatarHtml}
-              </div>
-              <div class="name-time">
-                <strong>${isAdmin ? 'Equipo de Soporte' : 'Tú'}</strong>
-                <span class="time">${fmtDate(m.createdAt)}</span>
-              </div>
-            </div>
-          </div>
-          <div class="message-body">
-            ${m.body.split('\n').map((l: string) => `<p>${l}</p>`).join('')}
-            ${m.attachmentUrl ? `
-              <div class="attachment-container">
-                <p class="attachment-label"><span class="material-symbols-outlined">attach_file</span> Archivo Adjunto</p>
-                <a href="${m.attachmentUrl}" target="_blank" rel="noopener noreferrer">
-                  <img src="${m.attachmentUrl}" alt="Adjunto" class="ticket-attachment-img" />
-                </a>
-              </div>` : ''}
-          </div>`;
-      box.appendChild(msgDiv);
-    });
-  }
-
-  async function loadMessages() {
-    if (!token) return;
-    try {
-      const res = await fetch(`${API_URL}/support/tickets/${ticketId}/messages`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) renderMessages(await res.json());
-    } catch {}
-  }
-
-  const form = document.getElementById('clientReplyForm') as HTMLFormElement | null;
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const feedback = document.getElementById('replyFeedback') as HTMLElement;
-      const bodyEl = form.querySelector<HTMLTextAreaElement>('[name="body"]')!;
-      const body = bodyEl.value.trim();
-      if (!body) return;
-
-      submitBtn.disabled = true;
-      submitBtn.classList.add('btn-loading');
-
-      try {
-        const formData = new FormData();
-        formData.append('body', body);
-        formData.append('senderRole', 'client');
-        if (auth.currentUser?.photoURL) {
-          formData.append('senderPhotoUrl', auth.currentUser.photoURL);
-        }
-        const fileInput = form.querySelector<HTMLInputElement>('[name="attachment"]');
-        if (fileInput?.files?.[0]) {
-          formData.append('attachment', fileInput.files[0]);
-        }
-
-        const res = await fetch(`${API_URL}/support/tickets/${ticketId}/messages`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
-        
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.message || 'Error al enviar el mensaje al servidor.');
-        }
-
-        bodyEl.value = '';
-        if (fileInput) fileInput.value = '';
-        const fileLabel = form.querySelector('.attachment-input-wrapper span');
-        if (fileLabel) fileLabel.textContent = 'Adjuntar imagen (opcional)';
-
-        await loadMessages();
-      } catch (err: any) {
-        if (window.modalHelpers) {
-          window.modalHelpers.updateModalMessage('ticketResponseErrorModal', err.message || 'Error al enviar');
-          window.modalHelpers.openModal('ticketResponseErrorModal');
-        } else {
-          feedback.textContent = err.message || 'Error al enviar';
-          feedback.className = 'feedback-message error';
-          setTimeout(() => { feedback.className = 'feedback-message hidden'; }, 4000);
-        }
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('btn-loading');
-      }
-    });
-  }
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      token = await user.getIdToken();
-      
-      // Actualizar avatar en el área de respuesta
-      const replyAvatarContainer = document.getElementById('replyAvatarContainer');
-      if (replyAvatarContainer) {
-        if (user.photoURL) {
-          replyAvatarContainer.innerHTML = `<img src="${user.photoURL}" alt="Avatar" class="msg-avatar-img" />`;
-        } else {
-          replyAvatarContainer.innerHTML = `<div class="msg-avatar-placeholder client"></div>`;
-        }
-      }
-
-      await loadMessages();
-    }
-  });
+  // El componente TicketDetailView ya maneja toda la lógica de mensajes y comunicación.
+  // Aquí solo mantenemos lógica específica de la página del dashboard si fuera necesaria.
 </script>
 
 <style is:global>

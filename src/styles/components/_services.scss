@@ -42,50 +42,115 @@
 }
 
 // Estilos para el contenido del modal
-.modal-content {
+.service-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  @include respond-to(md) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
   &__description {
-    margin-bottom: var(--space-lg);
     color: var(--color-text);
-    line-height: 1.6;
+    line-height: 1.7;
+    margin-bottom: var(--space-md);
+    font-size: 1.125rem;
+
+    @include respond-to(md) {
+      grid-column: 1 / -1;
+    }
   }
 
   &__benefits,
   &__implementation {
-    margin-bottom: var(--space-lg);
+    background: var(--color-surface-secondary);
+    padding: var(--space-lg);
+    height: 100%;
+    border: 1px solid var(--color-border);
+    transition: transform var(--transition-normal) ease;
+
+    &:hover {
+      border-color: var(--color-primary);
+    }
 
     h4 {
       color: var(--color-primary);
       font-family: var(--font-headings);
-      font-weight: 600;
-      margin-bottom: var(--space-sm);
-      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+
+      &::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 1.25rem;
+        background: var(--color-primary);
+      }
     }
 
     ul, ol {
       padding-left: var(--space-md);
+      margin: 0;
       
       li {
-        margin-bottom: var(--space-xs);
+        margin-bottom: var(--space-sm);
         color: var(--color-text);
-        line-height: 1.5;
+        line-height: 1.6;
+        font-size: 1rem;
       }
     }
   }
 
   &__video {
-    margin-bottom: var(--space-lg);
+    @include respond-to(md) {
+      grid-column: 1 / -1;
+    }
+    
+    margin: var(--space-md) 0;
     
     iframe {
-      border-radius: 0;
-      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+      box-shadow: none !important; // Eliminada la sombra como se solicitó
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  &__hook {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.15rem;
+    text-align: center;
+    margin-top: var(--space-md);
+    font-style: italic;
+    white-space: pre-line;
+    line-height: 1.4;
+
+    @include respond-to(md) {
+      grid-column: 1 / -1;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 
   &__cta {
-    margin-top: var(--space-lg);
+    @include respond-to(md) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      min-width: 300px;
+    }
+    
+    margin-top: var(--space-xl);
     display: block;
-    margin-left: auto;
-    margin-right: auto;
     text-align: center;
   }
 }

@@ -95,6 +95,8 @@ if (!token) {
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
   import { apiClient } from "../../lib/api-client";
+  import type { ClientResponseDto, ProjectResponseDto, TicketResponseDto } from "../../types/api";
+
   const welcomeTitle = document.getElementById('welcomeTitle');
   const statsGrid = document.getElementById('adminStatsGrid');
   
@@ -131,24 +133,24 @@ if (!token) {
 
   async function loadAdminDashboardData(token: string) {
     // Cargar Usuarios
-    apiClient.get<any[]>('users', { token })
+    apiClient.get<ClientResponseDto[]>('users', { token })
       .then(data => { if (usersCount) usersCount.textContent = `${data.length || 0} usuarios registrados`; })
       .catch(() => { if (usersCount) usersCount.textContent = "Error al cargar"; });
 
     // Cargar Clientes
-    apiClient.get<any[]>('clients', { token })
+    apiClient.get<ClientResponseDto[]>('clients', { token })
       .then(data => { if (clientsCount) clientsCount.textContent = `${data.length || 0} clientes activos`; })
       .catch(() => { if (clientsCount) clientsCount.textContent = "Error al cargar"; });
 
     // Cargar Proyectos (Global)
-    apiClient.get<any[]>('projects', { token })
+    apiClient.get<ProjectResponseDto[]>('projects', { token })
       .then(data => { if (projectsCount) projectsCount.textContent = `${data.length || 0} proyectos en total`; })
       .catch(() => { if (projectsCount) projectsCount.textContent = "Error al cargar"; });
 
     // Cargar Tickets (Global)
-    apiClient.get<any[]>('support/tickets', { token })
+    apiClient.get<TicketResponseDto[]>('support/tickets', { token })
       .then(data => { 
-        const pending = data.filter((t: any) => t.status !== 'resolved').length;
+        const pending = data.filter((t: TicketResponseDto) => t.status !== 'resolved').length;
         if (ticketsCount) ticketsCount.textContent = `${pending} ticket(s) pendiente(s)`; 
       })
       .catch(() => { if (ticketsCount) ticketsCount.textContent = "Error al cargar"; });

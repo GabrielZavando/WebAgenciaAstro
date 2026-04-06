@@ -2,41 +2,52 @@
 import Header from "../components/shared/Header.astro";
 import Footer from "../components/shared/Footer.astro";
 import Head from "../components/shared/Head.astro";
+import { getSystemConfig } from "../utils/config";
+
+const config = await getSystemConfig();
 
 interface Props {
   title?: string;
   description?: string;
   alwaysScrolledNav?: boolean;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
 }
 const {
-  title = "Desarrollador Freelance | Sitios Web,"
-    + " E-commerce y Chatbots con IA",
-  description = "Construyo sitios web a medida, tiendas"
-    + " online y chatbots con IA. Desarrollo freelance"
-    + " con experiencia, claridad y soporte cercano"
-    + " para tu proyecto digital.",
+  title = config.name,
+  description = config.description,
   alwaysScrolledNav = false,
+  hideHeader = false,
+  hideFooter = false,
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <Head title={title} description={description} />
+    <Head title={title} description={description} faviconUrl={config.faviconUrl} />
     {/* Cloudflare Turnstile - Centralizado */}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
   <body>
-    <Header alwaysScrolled={alwaysScrolledNav} />
+    {import.meta.env.PUBLIC_GTM_ID && (
+      <!-- Google Tag Manager (noscript) -->
+      <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${import.meta.env.PUBLIC_GTM_ID}`}
+      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+      <!-- End Google Tag Manager (noscript) -->
+    )}
+    {!hideHeader && <Header alwaysScrolled={alwaysScrolledNav} config={config} />}
     <slot />
-    <Footer />
-    <button id="scroll-top" class="btn-up" aria-label="Volver arriba">
-      <span class="material-symbols-outlined">north</span>
-    </button>   
+    {!hideFooter && <Footer config={config} />}
+    {!hideFooter && (
+      <button id="scroll-top" class="btn-up" aria-label="Volver arriba">
+        <span class="material-symbols-outlined">north</span>
+      </button>
+    )}
 
     <!-- Scripts -->
     <script>
-            function initLayout() {
+      function initLayout() {
         // Scroll top button
         const scrollBtn = document.getElementById('scroll-top');
         if (scrollBtn) {
@@ -86,5 +97,3 @@ const {
     </script>
   </body>
 </html>
-
-

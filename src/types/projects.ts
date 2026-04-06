@@ -1,15 +1,17 @@
 export interface Client {
-  uid: string
   id: string
   displayName: string
   email: string
+  role?: string
 }
 
 export interface Project {
   id: string
   name: string
-  clientUid: string
+  clientId: string
   status: string
   percentage: number
   description: string
+  createdAt?: any
+  updatedAt?: any
 }

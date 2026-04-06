@@ -43,3 +43,4 @@ jobs:
           PUBLIC_FIREBASE_MESSAGING_SENDER_ID: placeholder
           PUBLIC_FIREBASE_APP_ID: placeholder
           PUBLIC_TURNSTILE_SITE_KEY: placeholder
+          PUBLIC_GTM_ID: placeholder

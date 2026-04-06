@@ -84,8 +84,11 @@
 }
 
 .modal-message__icon {
-  font-size: 6rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+
+  span.material-symbols-outlined {
+    font-size: 3.5rem; /* Al menos 2 rem */
+  }
 
   .success-modal & {
     color: var(--color-success);

@@ -22,6 +22,12 @@ const { title, role = 'admin', breadcrumbs } = Astro.props;
   <Head title={`${title} | Gabriel Zavando`} />
 </head>
 <body class="dashboard-body">
+  {import.meta.env.PUBLIC_GTM_ID && (
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${import.meta.env.PUBLIC_GTM_ID}`}
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+  )}
   <div class="dashboard-layout">
     <!-- Sidebar -->
     <aside id="main-sidebar" class="sidebar" transition:persist>

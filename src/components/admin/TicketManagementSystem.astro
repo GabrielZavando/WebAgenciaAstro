@@ -33,6 +33,7 @@ const { clientId, clientEmail } = Astro.props;
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
   import { formatDate, getStatusInfo, getPriorityInfo } from "../../lib/support-utils";
+  import type { TicketResponseDto, ClientResponseDto, ProjectResponseDto } from "../../types/api";
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -40,7 +41,7 @@ const { clientId, clientEmail } = Astro.props;
     const container = document.querySelector('.ticket-management-system') as HTMLElement;
     if (!container) return;
 
-    const clientId = container.dataset.clientId;
+    const clientIdProp = container.dataset.clientId;
     const clientEmailFilter = container.dataset.clientEmail;
     
     const ticketsListBody = document.getElementById('ticketsListBody');
@@ -48,36 +49,9 @@ const { clientId, clientEmail } = Astro.props;
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
     const btnSearch = document.getElementById('btnSearchTicket');
 
-    interface Ticket {
-      id: string;
-      subject: string;
-      message: string;
-      priority: 'low' | 'medium' | 'high';
-      status: 'open' | 'in-progress' | 'resolved';
-      adminResponse: string;
-      createdAt: { _seconds: number } | string;
-      updatedAt: { _seconds: number } | string;
-      clientEmail?: string;
-      clientId?: string;
-      projectId?: string;
-      projectName?: string;
-    }
-
-    interface Client {
-      id: string;
-      displayName: string;
-      email: string;
-    }
-    
-    interface Project {
-      id: string;
-      name: string;
-      clientId: string;
-    }
-
-    let allTickets: Ticket[] = [];
-    let allClients: Client[] = [];
-    let allProjects: Project[] = [];
+    let allTickets: TicketResponseDto[] = [];
+    let allClients: ClientResponseDto[] = [];
+    let allProjects: ProjectResponseDto[] = [];
     let token = '';
 
     const loadClients = async () => {
@@ -86,13 +60,9 @@ const { clientId, clientEmail } = Astro.props;
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error();
-        const rawClients = await res.json();
-        allClients = rawClients.map((c: any) => ({
-          id: c.uid || c.id || '',
-          displayName: c.displayName || c.name || 'Sin nombre',
-          email: c.email
-        }));
+        allClients = await res.json();
         populateClientSelect();
+        applyFilters(); 
       } catch {
         console.error("No se pudieron cargar los clientes");
         if (clientSelect) clientSelect.innerHTML = '<option value="">Todos los clientes</option>';
@@ -104,7 +74,10 @@ const { clientId, clientEmail } = Astro.props;
         const res = await fetch(`${API_URL}/projects`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }).catch(() => null);
-        if (res && res.ok) allProjects = await res.json();
+        if (res && res.ok) {
+          allProjects = await res.json();
+          applyFilters(); 
+        }
       } catch {
         console.error("No se pudieron cargar los proyectos");
       }
@@ -115,12 +88,11 @@ const { clientId, clientEmail } = Astro.props;
       const defaultOption = '<option value="">Todos los clientes</option>';
       const options = allClients.map(c => `<option value="${c.email}">${c.displayName} (${c.email})</option>`);
       clientSelect.innerHTML = defaultOption + options.join('');
-      clientSelect.addEventListener('change', applyFilters);
     };
 
     const loadTickets = async () => {
       try {
-        const url = clientId ? `${API_URL}/support/tickets/client/${clientId}` : `${API_URL}/support/tickets`;
+        const url = clientIdProp ? `${API_URL}/support/tickets/client/${clientIdProp}` : `${API_URL}/support/tickets`;
         const res = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -129,7 +101,7 @@ const { clientId, clientEmail } = Astro.props;
         applyFilters();
       } catch {
         if (ticketsListBody) {
-          ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
+          ticketsListBody.innerHTML = `<tr><td colspan="${clientIdProp ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
         }
       }
     };
@@ -146,10 +118,10 @@ const { clientId, clientEmail } = Astro.props;
       renderTickets(filtered);
     };
 
-    const renderTickets = (tickets: Ticket[]) => {
+    const renderTickets = (tickets: TicketResponseDto[]) => {
       if (!ticketsListBody) return;
       if (tickets.length === 0) {
-        ticketsListBody.innerHTML = `<tr><td colspan="${clientId ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+        ticketsListBody.innerHTML = `<tr><td colspan="${clientIdProp ? '7' : '8'}"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
         return;
       }
 
@@ -158,16 +130,19 @@ const { clientId, clientEmail } = Astro.props;
         const dateResolved = ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-';
         const statusInfo = getStatusInfo(ticket.status);
         const priorityInfo = getPriorityInfo(ticket.priority);
-        const projectName = ticket.projectName || (allProjects.find(p => p.id === ticket.projectId)?.name || 'S/P');
-        const badgeHtml = projectName !== 'S/P' ? `<span class="project-badge">${projectName}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`;
-        const clientObj = allClients.find(c => c.email === ticket.clientEmail || (ticket.clientId && c.id === ticket.clientId));
-        const clientNameDisplay = clientObj && clientObj.displayName && clientObj.displayName !== clientObj.email 
-          ? clientObj.displayName 
-          : ((ticket as any).clientName || 'Sin nombre');
+        
+        // Uso directo de campos del DTO estandarizado
+        const projectName = ticket.projectName || 'S/P';
+        const badgeHtml = projectName !== 'S/P' 
+          ? `<span class="project-badge">${projectName}</span>` 
+          : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`;
+        
+        // El DTO ya provee el nombre del cliente si está disponible
+        const clientNameDisplay = ticket.clientName || ticket.clientEmail;
 
         return `
           <tr>
-            ${!clientId ? `<td class="col-client-data" data-label="Cliente"><div style="font-size: 0.9rem; font-weight: 500;">${clientNameDisplay}</div></td>` : ''}
+            ${!clientIdProp ? `<td class="col-client-data" data-label="Cliente"><div style="font-size: 0.9rem; font-weight: 500;">${clientNameDisplay}</div></td>` : ''}
             <td data-label="Proyecto">${badgeHtml}</td>
             <td data-label="Estado">
               <span class="status-badge ${statusInfo.className}" title="${statusInfo.label}">
@@ -206,7 +181,7 @@ const { clientId, clientEmail } = Astro.props;
       if (!user) return;
       token = await user.getIdToken();
       const promises = [loadProjects(), loadTickets()];
-      if (!clientId) promises.push(loadClients());
+      if (!clientIdProp) promises.push(loadClients());
       await Promise.all(promises);
     };
 

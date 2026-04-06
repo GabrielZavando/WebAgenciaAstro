@@ -91,7 +91,7 @@ const { id, title } = Astro.props;
     });
 
     // Event listeners para botones CTA del modal
-    const ctaButtons = document.querySelectorAll('.modal-content__cta');
+    const ctaButtons = document.querySelectorAll('.service-details__cta');
     ctaButtons.forEach(button => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -104,7 +104,7 @@ const { id, title } = Astro.props;
         
         // Navegar al formulario de contacto
         setTimeout(() => {
-          const contactSection = document.getElementById('contact');
+          const contactSection = document.getElementById('contacto');
           if (contactSection) {
             contactSection.scrollIntoView({ 
               behavior: 'smooth',

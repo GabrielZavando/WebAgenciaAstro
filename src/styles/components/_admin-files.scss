@@ -1,6 +1,6 @@
 @use '../config' as *;
 
-/* --- Archivos Admin --- */
+/* --- Archivos Admin & Client --- */
 .files-page {
   width: 100%;
 
@@ -10,10 +10,6 @@
     flex-direction: column;
     gap: 1.5rem;
 
-    #storageBanner {
-      margin-bottom: 1rem;
-    }
-
     @media (min-width: 1200px) {
       flex-direction: row;
       justify-content: space-between;
@@ -21,7 +17,6 @@
       gap: 3rem;
 
       .header-text { flex: 1; }
-      #storageBanner { margin-bottom: 0; }
     }
   }
 
@@ -31,16 +26,19 @@
   .toggle-col-text { display: flex; flex-direction: column; }
   .toggle-hint-text { font-size: 0.8rem; color: var(--color-text-muted); font-weight: 400; }
 
-  /* Cuota Storage Circular */
-  .storage-banner { 
+  /* Cuota Storage - Alineación unificada a la derecha */
+  #storageBanner, .storage-banner, .storage-banner-wrapper { 
     background: var(--color-surface); 
     border: 1px solid var(--color-border); 
     border-radius: 0; /* Flat */
     padding: 1.5rem 2rem; 
     box-shadow: none; /* Flat */
+    max-width: 350px;
+    margin-left: auto;
+    margin-bottom: 1rem;
     
-    &.storage-warning .circle { stroke: #f59e0b; }
-    &.storage-warning .percent-label { color: #f59e0b; }
+    &.warning .circle, &.storage-warning .circle { stroke: #f59e0b; }
+    &.warning .percentage, &.storage-warning .percent-label { color: #f59e0b; }
   }
 
   .circular-chart-wrapper-files {
@@ -60,8 +58,36 @@
   /* Controles */
   .actions-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: stretch; justify-content: space-between; }
 
-  /* Tabla de Archivos - Estilos Heredados de _tables.scss */
-  .files-table :global(.td-actions) { display: flex; justify-content: center; align-items: center; gap: 1.25rem; }
+  /* Tablas de Archivos - Reglas de Columnas */
+  :is(.files-table, .unified-project-table) {
+    table-layout: auto;
+    
+    :is(.col-name, .col-name-data, .col-desc, .col-desc-data) {
+      max-width: 400px;
+      min-width: 150px;
+      white-space: normal !important;
+      word-break: break-word;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      line-height: 1.5;
+    }
+
+    :is(.col-actions, .col-actions-data) {
+      min-width: 250px !important;
+      text-align: center;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+
+    .td-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+  }
 
   .files-table :global(.loading-state), .files-table :global(.empty-state) { text-align: center; padding: 5rem 2rem; color: var(--color-text-muted); }
   .files-table :global(.loading-state i), .files-table :global(.empty-state i),
@@ -74,25 +100,31 @@
   /* Modal de Subida - Mejoras UI/UX */
   .modal__header {
     border-bottom: 1px solid var(--color-border);
-    // h3 styles are now in _modal.scss or specific to modal variants
   }
 
-  // .file-drop styles moved to _forms.scss for Atomic Design consistency
-
   /* Responsive */
+  @media (max-width: 992px) {
+    :is(.col-name, .col-name-data, .col-desc, .col-desc-data) {
+      max-width: none !important;
+    }
+  }
+
   @media (max-width: 768px) {
     .actions-row { flex-direction: column; }
     .search-form { max-width: 100%; }
     
-    .files-table thead { display: none; }
-    .files-table, .files-table :global(tbody), .files-table :global(tr), .files-table :global(td) { display: block; width: 100%; }
-    .files-table :global(tr) {
-      border-bottom: 2px solid var(--color-border);
-      padding: 1.25rem;
-      position: relative;
+    :is(.files-table, .unified-project-table) {
+      thead { display: none; }
+      &, :global(tbody), :global(tr), :global(td) { display: block; width: 100%; }
+      :global(tr) {
+        border-bottom: 2px solid var(--color-border);
+        padding: 1.25rem;
+        position: relative;
+      }
+      :global(td) { padding: 0.35rem 0; border: none; }
+      :global(.col-actions-data) { margin-top: 1rem; padding-top: 1rem !important; border-top: 1px solid var(--color-border) !important; }
+      .td-actions { justify-content: flex-start; }
     }
-    .files-table :global(td) { padding: 0.35rem 0; border: none; }
-    .files-table :global(.col-actions-data) { margin-top: 1rem; padding-top: 1rem !important; border-top: 1px solid var(--color-border) !important; }
-    .files-table :global(.td-actions) { justify-content: flex-start; }
   }
 }
+

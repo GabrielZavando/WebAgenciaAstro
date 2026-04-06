@@ -171,10 +171,10 @@ try {
           <button type="button" id="closeImageModal" class="modal__close">&times;</button>
         </div>
         <div class="modal__body">
-          <div class="search-bar">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" id="imageSearchInput" placeholder="Buscar imágenes por título..." />
-          </div>
+          <form class="search-form" onsubmit="return false;">
+            <input type="text" id="imageSearchInput" class="search-input" placeholder="Buscar imágenes..." />
+            <button type="submit" class="search-btn">Buscar</button>
+          </form>
           <div id="imageGallery" class="image-gallery">
             <div class="loading-state">Cargando biblioteca...</div>
           </div>
@@ -411,7 +411,7 @@ try {
 
     function renderGallery(images: any[]) {
         if(images.length === 0) {
-            imageGallery.innerHTML = '<div class="loading-state">No se encontraron imágenes en tu biblioteca.</div>';
+            imageGallery.innerHTML = '';
             return;
         }
         

@@ -11,16 +11,25 @@ export const initNewProject = async () => {
   ) {
     const init = async () => {
       try {
-        const clientsData = await apiClient.get('/clients')
-        const clients = clientsData as Client[]
-        clients.forEach(client => {
+        const users = await apiClient.get('/clients/assignable') as any[]
+        
+        // Ordenar: admins primero, luego clientes, luego por nombre
+        users.sort((a, b) => {
+          if (a.role === b.role) {
+            return (a.displayName || '').localeCompare(b.displayName || '')
+          }
+          return a.role === 'admin' ? -1 : 1
+        })
+
+        users.forEach(user => {
           const option = document.createElement('option')
-          option.value = client.uid || client.id
-          option.textContent = client.displayName || client.email
+          option.value = user.uid || user.id
+          const roleLabel = user.role === 'admin' ? '[Admin]' : '[Cliente]'
+          option.textContent = `${roleLabel} ${user.displayName || user.email}`
           clientSelect.appendChild(option)
         })
       } catch (err) {
-        console.error('Error cargando clientes:', err)
+        console.error('Error cargando usuarios asignables:', err)
       }
     }
 
@@ -33,10 +42,11 @@ export const initNewProject = async () => {
       const formData = new FormData(form)
       const data = Object.fromEntries(formData.entries())
       
-      const projectData: Partial<Project> = {
-        ...data,
-        status: 'pending',
-        percentage: 0
+      const projectData = {
+        name: data.name as string,
+        clientId: data.clientId as string,
+        description: data.description as string,
+        monthlyTicketLimit: Number(data.monthlyTicketLimit),
       }
 
       try {

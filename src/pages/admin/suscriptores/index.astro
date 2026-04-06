@@ -52,11 +52,17 @@ const formatDate = (dateValue: any) => {
           <button id="btnExport" class="btn btn-cta__border btn-sm">
             <span class="material-symbols-outlined">download</span> Exportar
           </button>
-          <button id="btnCampaign" class="btn btn-cta btn-sm">
-            <span class="material-symbols-outlined">mail</span> Campaña
+          <button id="btnNewsletter" class="btn btn-cta btn-sm" disabled>
+            <span class="material-symbols-outlined">campaign</span> Newsletter
+          </button>
+          <button id="btnCampaign" class="btn btn-cta__border btn-sm">
+            <span class="material-symbols-outlined">mail</span> Confirmar
+          </button>
+          <button id="btnDeleteSelected" class="btn btn-danger btn-sm" disabled style="display: none;">
+            <span class="material-symbols-outlined">delete</span> Eliminar
           </button>
           <button id="btnCleanup" class="btn btn-cta__border btn-sm">
-            <span class="material-symbols-outlined">delete</span> Limpiar
+            <span class="material-symbols-outlined">cleaning_services</span> Limpiar
           </button>
         </div>
       </div>
@@ -97,10 +103,12 @@ const formatDate = (dateValue: any) => {
           <table class="subscribers-table">
             <thead>
               <tr>
+                <th style="width: 50px; text-align: center;">
+                  <input type="checkbox" id="selectAll" class="custom-checkbox" />
+                </th>
                 <th>Email</th>
                 <th>Estado</th>
                 <th>Fecha de Suscripción</th>
-                <th>User Agent</th>
               </tr>
             </thead>
             <tbody>
@@ -109,21 +117,24 @@ const formatDate = (dateValue: any) => {
                 const isConfirmed = sub.status === 'confirmed';
 
                 return (
-                  <tr class="subscriber-row">
-                    <td class="email-col cell-email">{sub.email}</td>
+                  <tr class="subscriber-row" data-id={sub.subscriberId}>
+                    <td style="text-align: center;">
+                      <input type="checkbox" class="sub-checkbox custom-checkbox" data-id={sub.subscriberId} />
+                    </td>
+                    <td class="email-col cell-email">
+                      <div class="email-wrapper">
+                        <span>{sub.email}</span>
+                        <button class="btn-copy-email" data-email={sub.email} title="Copiar email">
+                          <span class="material-symbols-outlined">content_copy</span>
+                        </button>
+                      </div>
+                    </td>
                     <td>
                       <span class={`status-badge ${isConfirmed ? 'confirmed' : 'pending'}`}>
                         {isConfirmed ? 'Confirmado' : 'Pendiente'}
                       </span>
                     </td>
                     <td>{formattedDate}</td>
-                    <td class="ua-col" title={sub.meta?.userAgent || 'Desconocido'}>
-                      {sub.meta?.userAgent
-                        ? (sub.meta.userAgent.length > 20
-                            ? sub.meta.userAgent.substring(0, 20) + '...'
-                            : sub.meta.userAgent)
-                        : 'Desconocido'}
-                    </td>
                   </tr>
                 );
               })}
@@ -147,20 +158,71 @@ const formatDate = (dateValue: any) => {
 
   <ModalConfirm 
     slot="modals"
+    id="confirmDeleteBulkModal"
+    title="¿Eliminar Suscriptores?"
+    message="Estás a punto de eliminar físicamente a los suscriptores seleccionados. Esta acción es definitiva y no se puede deshacer."
+    confirmText="Eliminar permanentemente"
+    type="danger"
+  />
+
+  <ModalConfirm 
+    slot="modals"
+    id="confirmBulkCampaignModal"
+    title="¿Enviar Confirmaciones?"
+    message="Se enviará un correo de confirmación a cada uno de los suscriptores seleccionados."
+    confirmText="Enviar ahora"
+    type="info"
+  />
+
+  <ModalConfirm 
+    slot="modals"
     id="confirmCleanupModal"
     title="¿Limpiar Inactivos?"
     message="¿Estás seguro de que deseas marcar como INACTIVOS a los suscriptores que no han confirmado en los últimos 7 días? Esta acción no borra los registros, solo cambia su estado."
     confirmText="Limpiar ahora"
     type="danger"
   />
+
+  <!-- Modal Newsletter -->
+  <div id="newsletterModal" class="modal" role="dialog" aria-modal="true" slot="modals">
+    <div class="modal__content" style="max-width: 500px;">
+      <div class="modal__header">
+        <h3 class="modal__title">Enviar Newsletter</h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p>Selecciona el artículo que deseas enviar a los <strong><span id="selectedCountMsg">0</span> suscriptores</strong> seleccionados.</p>
+        
+        <div class="form-group" style="margin-top: 20px;">
+          <label for="postSelector">Artículos Publicados:</label>
+          <select id="postSelector" class="form-control" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+            <option value="">Cargando artículos...</option>
+          </select>
+        </div>
+
+        <div id="postPreview" class="post-preview" style="display:none; margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 12px; border: 1px border: 1px solid #eee;">
+          <img id="previewImg" src="" alt="" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+          <h4 id="previewTitle" style="margin: 0; font-size: 16px;"></h4>
+          <p id="previewExcerpt" style="font-size: 13px; color: #666; margin-top: 5px;"></p>
+        </div>
+      </div>
+      <div class="modal__footer" style="padding: 20px; text-align: right; border-top: 1px solid #eee; margin-top: 20px;">
+        <button class="btn btn-cta__border btn-sm close-modal-btn">Cancelar</button>
+        <button id="btnDoSendNewsletter" class="btn btn-cta btn-sm" disabled>Enviar a seleccionados</button>
+      </div>
+    </div>
+  </div>
 </DashboardLayout>
 
 
 
-<script define:vars={{ apiUrl: API_URL }}>
+<script define:vars={{ apiUrl: API_URL, subscribersData: subscribers }}>
   const API = apiUrl.replace(/\/$/, '');
+  let selectedIds = new Set();
+  const allSubscribers = subscribersData;
 
   function setLoading(btn, Loading) {
+    if (!btn) return;
     btn.disabled = Loading;
     btn.classList.toggle('btn-loading', Loading);
   }
@@ -173,6 +235,86 @@ const formatDate = (dateValue: any) => {
     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  function updateBulkButtons() {
+    const deleteBtn = document.getElementById('btnDeleteSelected');
+    const hasSelection = selectedIds.size > 0;
+    
+    if (deleteBtn) {
+      deleteBtn.disabled = !hasSelection;
+      deleteBtn.style.display = hasSelection ? 'inline-flex' : 'none';
+      deleteBtn.querySelector('.material-symbols-outlined').textContent = 'delete';
+      if (hasSelection) {
+        deleteBtn.innerHTML = `<span class="material-symbols-outlined">delete</span> Eliminar (${selectedIds.size})`;
+      }
+    }
+
+    const exportBtn = document.getElementById('btnExport');
+    if (exportBtn) {
+      exportBtn.innerHTML = hasSelection 
+        ? `<span class="material-symbols-outlined">download</span> Exportar (${selectedIds.size})`
+        : `<span class="material-symbols-outlined">download</span> Exportar`;
+    }
+
+    const campaignBtn = document.getElementById('btnCampaign');
+    if (campaignBtn) {
+      campaignBtn.innerHTML = hasSelection 
+        ? `<span class="material-symbols-outlined">mail</span> Confirmar (${selectedIds.size})`
+        : `<span class="material-symbols-outlined">mail</span> Confirmar`;
+    }
+
+    const newsletterBtn = document.getElementById('btnSendNewsletter') || document.getElementById('btnNewsletter');
+    if (newsletterBtn) {
+      newsletterBtn.disabled = !hasSelection;
+      newsletterBtn.style.display = hasSelection ? 'inline-flex' : 'none';
+      if (hasSelection) {
+        newsletterBtn.innerHTML = `<span class="material-symbols-outlined">campaign</span> Newsletter (${selectedIds.size})`;
+      }
+    }
+  }
+
+  // --- Manejo de Selección ---
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.sub-checkbox');
+
+  selectAll?.addEventListener('change', () => {
+    const isChecked = selectAll.checked;
+    checkboxes.forEach(cb => {
+      // Solo seleccionar los que están visibles actualmente (por búsqueda)
+      const row = cb.closest('.subscriber-row');
+      if (row.style.display !== 'none') {
+        cb.checked = isChecked;
+        const id = cb.dataset.id;
+        if (isChecked) selectedIds.add(id);
+        else selectedIds.delete(id);
+      }
+    });
+    updateBulkButtons();
+  });
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      const id = cb.dataset.id;
+      if (cb.checked) selectedIds.add(id);
+      else {
+        selectedIds.delete(id);
+        if (selectAll) selectAll.checked = false;
+      }
+      updateBulkButtons();
+    });
+  });
+
+  // Copiar Email
+  document.querySelectorAll('.btn-copy-email').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const email = btn.dataset.email;
+      navigator.clipboard.writeText(email);
+      const icon = btn.querySelector('.material-symbols-outlined');
+      icon.textContent = 'check';
+      setTimeout(() => icon.textContent = 'content_copy', 2000);
+    });
+  });
+
   // Filtrado de Búsqueda
   const searchInput = document.getElementById('subscriberSearch');
   searchInput?.addEventListener('input', () => {
@@ -184,45 +326,62 @@ const formatDate = (dateValue: any) => {
         row.style.display = '';
       } else {
         row.style.display = 'none';
+        // Deseleccionar si se oculta
+        const cb = row.querySelector('.sub-checkbox');
+        if (cb && cb.checked) {
+          cb.checked = false;
+          selectedIds.delete(cb.dataset.id);
+        }
       }
     });
+    updateBulkButtons();
+    if (selectAll) selectAll.checked = false;
   });
 
-  // Exportar
+  // Exportar (Mejorado)
   document.getElementById('btnExport')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnExport');
-    setLoading(btn, true);
-    try {
-      const res = await fetch(`${API}/forms/admin/subscribers/export`);
-      const data = await res.json();
-      const blob = new Blob([JSON.stringify(data.subscribers, null, 2)], {
-        type: 'application/json',
-      });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `suscriptores-${new Date().toISOString().slice(0, 10)}.json`;
-      link.click();
-      showResult('✅ Exportación', `${data.count} suscriptores exportados.`);
-    } catch (e) {
-      showResult('❌ Error', `No se pudo exportar: ${e.message}`);
-    } finally {
-      setLoading(btn, false);
+    const hasSelection = selectedIds.size > 0;
+    let dataToExport = allSubscribers;
+    
+    if (hasSelection) {
+      dataToExport = allSubscribers.filter(s => selectedIds.has(s.subscriberId));
     }
+
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+      type: 'application/json',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `suscriptores-${hasSelection ? 'seleccionados-' : 'todos-'}${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    showResult('✅ Exportación', `${dataToExport.length} suscriptores exportados.`);
   });
 
-  // Campaña de Re-confirmación
+  // Confirmar (Bulk / Individual)
   document.getElementById('btnCampaign')?.addEventListener('click', async () => {
     const btn = document.getElementById('btnCampaign');
+    const hasSelection = selectedIds.size > 0;
     
     if (!window.confirmModalHelpers) return;
+
+    const modalId = hasSelection ? 'confirmBulkCampaignModal' : 'confirmCampaignModal';
     
-    window.confirmModalHelpers.open('confirmCampaignModal', async () => {
+    window.confirmModalHelpers.open(modalId, async () => {
       setLoading(btn, true);
       try {
-        const res = await fetch(
-          `${API}/forms/admin/subscribers/reconfirmation-campaign`,
-          { method: 'POST' },
-        );
+        let res;
+        if (hasSelection) {
+          res = await fetch(`${API}/forms/admin/subscribers/bulk-confirm`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: Array.from(selectedIds) }),
+          });
+        } else {
+          res = await fetch(`${API}/forms/admin/subscribers/reconfirmation-campaign`, {
+            method: 'POST'
+          });
+        }
+
         const data = await res.json();
         const lines = [
           `✅ Enviados: ${data.sent}`,
@@ -231,44 +390,127 @@ const formatDate = (dateValue: any) => {
           '',
           ...(data.details ?? []),
         ].join('\n');
-        showResult('📧 Resultado de la Campaña', lines);
+        showResult('📧 Resultado del Envío', lines);
       } catch (e) {
-        showResult('❌ Error', `No se pudo ejecutar la campaña: ${e.message}`);
+        showResult('❌ Error', `No se pudo ejecutar la acción: ${e.message}`);
       } finally {
         setLoading(btn, false);
       }
     });
   });
 
-  // Limpieza de Inactivos
-  document.getElementById('btnCleanup')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnCleanup');
+  // Eliminar Seleccionados (Físico)
+  document.getElementById('btnDeleteSelected')?.addEventListener('click', () => {
+    if (selectedIds.size === 0) return;
     
     if (!window.confirmModalHelpers) return;
 
-    window.confirmModalHelpers.open('confirmCleanupModal', async () => {
+    window.confirmModalHelpers.open('confirmDeleteBulkModal', async () => {
+      const btn = document.getElementById('btnDeleteSelected');
       setLoading(btn, true);
       try {
-        const res = await fetch(
-          `${API}/forms/admin/subscribers/cleanup-inactive`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ daysThreshold: 7 }),
-          },
-        );
+        const res = await fetch(`${API}/forms/admin/subscribers/bulk-delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: Array.from(selectedIds) }),
+        });
+        
         const data = await res.json();
-        const lines = [
-          `🗑️  Marcados como inactivos: ${data.marked} de ${data.total}`,
-          '',
-          ...(data.details ?? []),
-        ].join('\n');
-        showResult('🧹 Resultado de la Limpieza', lines);
+        if (data.success) {
+          showResult('🗑️ Eliminación Exitosa', data.message);
+          // Recargar página para ver cambios
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          showResult('❌ Error', data.message);
+        }
       } catch (e) {
-        showResult('❌ Error', `No se pudo ejecutar la limpieza: ${e.message}`);
+        showResult('❌ Error', `No se pudo eliminar: ${e.message}`);
       } finally {
         setLoading(btn, false);
       }
     });
+  });
+
+  // --- Newsletter ---
+  const newsletterModal = document.getElementById('newsletterModal');
+  const postSelector = document.getElementById('postSelector');
+  const btnDoSendNewsletter = document.getElementById('btnDoSendNewsletter');
+  let currentPosts = [];
+
+  document.getElementById('btnNewsletter')?.addEventListener('click', async () => {
+    document.getElementById('selectedCountMsg').textContent = selectedIds.size;
+    newsletterModal.classList.add('active');
+    
+    // Cargar posts si no han sido cargados
+    if (currentPosts.length === 0) {
+      try {
+        const res = await fetch(`${API}/blog?published=true`);
+        currentPosts = await res.json();
+        
+        postSelector.innerHTML = '<option value="">-- Seleccionar Artículo --</option>';
+        currentPosts.forEach(post => {
+          const option = document.createElement('option');
+          option.value = post.id;
+          option.textContent = post.title;
+          postSelector.appendChild(option);
+        });
+      } catch (e) {
+        postSelector.innerHTML = '<option value="">Error cargando artículos</option>';
+      }
+    }
+  });
+
+  postSelector?.addEventListener('change', () => {
+    const postId = postSelector.value;
+    const post = currentPosts.find(p => p.id === postId);
+    const preview = document.getElementById('postPreview');
+    
+    if (post) {
+      document.getElementById('previewImg').src = post.coverImage || '';
+      document.getElementById('previewTitle').textContent = post.title;
+      document.getElementById('previewExcerpt').textContent = post.excerpt || post.description || '';
+      preview.style.display = 'block';
+      btnDoSendNewsletter.disabled = false;
+    } else {
+      preview.style.display = 'none';
+      btnDoSendNewsletter.disabled = true;
+    }
+  });
+
+  // Cerrar modal newsletter
+  document.querySelectorAll('.close-modal-btn').forEach(btn => {
+    btn.addEventListener('click', () => newsletterModal.classList.remove('active'));
+  });
+
+  btnDoSendNewsletter?.addEventListener('click', async () => {
+    const postId = postSelector.value;
+    if (!postId || selectedIds.size === 0) return;
+
+    setLoading(btnDoSendNewsletter, true);
+    try {
+      const res = await fetch(`${API}/forms/admin/subscribers/send-newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: Array.from(selectedIds),
+          postId: postId
+        })
+      });
+
+      const data = await res.json();
+      newsletterModal.classList.remove('active');
+      
+      const lines = [
+        `✅ Enviados: ${data.sent}`,
+        `❌ Errores: ${data.errors}`,
+        '',
+        ...(data.details ?? []),
+      ].join('\n');
+      showResult('📧 Resultado del Newsletter', lines);
+    } catch (e) {
+      showResult('❌ Error', `No se pudo enviar el newsletter: ${e.message}`);
+    } finally {
+      setLoading(btnDoSendNewsletter, false);
+    }
   });
 </script>
