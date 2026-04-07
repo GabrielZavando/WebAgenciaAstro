@@ -12,6 +12,7 @@ interface Props {
   alwaysScrolledNav?: boolean;
   hideHeader?: boolean;
   hideFooter?: boolean;
+  forcedTheme?: 'light' | 'dark';
 }
 const {
   title = config.name,
@@ -19,13 +20,14 @@ const {
   alwaysScrolledNav = false,
   hideHeader = false,
   hideFooter = false,
+  forcedTheme,
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <Head title={title} description={description} faviconUrl={config.faviconUrl} />
+    <Head title={title} description={description} faviconUrl={config.faviconUrl} forcedTheme={forcedTheme} />
     {/* Cloudflare Turnstile - Centralizado */}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>

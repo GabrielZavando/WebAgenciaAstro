@@ -11,6 +11,7 @@ export interface ClientResponseDto {
   role: 'client' | 'admin'
   phoneNumber?: string
   companyName?: string
+  storageLimitBytes?: number
   createdAt: { _seconds: number; _nanoseconds: number } | string | Date
 }
 
@@ -78,11 +79,12 @@ export interface SubscriberResponseDto {
 export interface ProjectResponseDto {
   id: string
   name: string
+  description: string
+  monthlyTicketLimit: number
   clientId: string
   clientName?: string
   status: string
   percentage: number
-  description: string
   createdAt: any
   updatedAt: any
 }

@@ -6,6 +6,7 @@ interface Props {
   title: string
   description?: string
   faviconUrl?: string
+  forcedTheme?: 'light' | 'dark'
 }
 
 const {
@@ -13,7 +14,8 @@ const {
   description = "Construyo sitios web a medida, tiendas online"
     + " y chatbots con IA. Desarrollo freelance con"
     + " experiencia, claridad y soporte cercano.",
-  faviconUrl = "/favicon.svg"
+  faviconUrl = "/favicon.svg",
+  forcedTheme
 } = Astro.props
 
 const gtmId = import.meta.env.PUBLIC_GTM_ID
@@ -40,8 +42,12 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID
   rel="stylesheet"
 />
 
-<script is:inline>
+<script is:inline define:vars={{ forcedTheme }}>
   const setTheme = () => {
+    if (forcedTheme) {
+      document.documentElement.setAttribute('data-theme', forcedTheme)
+      return
+    }
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme)

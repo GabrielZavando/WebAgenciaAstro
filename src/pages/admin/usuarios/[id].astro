@@ -386,7 +386,7 @@ if (!user && !errorMsg) {
                   <label for="storageLimitGb">Límite Total (GB)</label>
                   <div class="tickets-stepper storage-stepper">
                     <button type="button" class="stepper-btn btn-minus-storage"><span class="material-symbols-outlined">remove</span></button>
-                    <input type="number" id="storageLimitGb" name="storageLimitGb" required min="1" value={user.storageLimitGb || (storage ? Math.ceil(storage.limitBytes / (1024*1024*1024)) : 5)} readonly />
+                    <input type="number" id="storageLimitGb" name="storageLimitGb" required min="1" value={storage ? Math.ceil((user.storageLimitBytes || storage.limitBytes) / (1024*1024*1024)) : 5} readonly />
                     <button type="button" class="stepper-btn btn-plus-storage"><span class="material-symbols-outlined">add</span></button>
                   </div>
                 </div>
@@ -654,10 +654,11 @@ if (!user && !errorMsg) {
 
       setLoading(btn, true);
       try {
-        await apiClient.patch(`/users/${userId}`, { storageLimitGb });
+        const storageLimitBytes = storageLimitGb * 1024 * 1024 * 1024;
+        await apiClient.patch(`/users/${userId}`, { storageLimitBytes });
         
         // Actualizar UI reactivamente
-        const newLimitBytes = storageLimitGb * 1024 * 1024 * 1024;
+        const newLimitBytes = storageLimitBytes;
         const newPct = Math.min(100, Math.round((usedBytes / newLimitBytes) * 100));
         const newLimitFormatted = `${storageLimitGb} GB`;
 
