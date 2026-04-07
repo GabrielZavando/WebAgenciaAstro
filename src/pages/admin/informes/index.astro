@@ -1,6 +1,7 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import ReportTable from '../../../components/admin/ReportTable.astro';
+import ModalMessage from '../../../components/shared/ModalMessage.astro';
 
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
@@ -58,22 +59,23 @@ if (!token) {
           <label>Archivo PDF <span class="required">*</span></label>
           <div class="file-drop file-drop--mini" id="dropZone">
             <input type="file" id="reportFile" name="file" accept="application/pdf" class="file-input-hidden" required />
-            <div id="uploadInfo">
+            
+            <div id="uploadInfo" class="upload-placeholder">
               <span class="material-symbols-outlined">cloud_upload</span>
               <p>Arrastra o selecciona el archivo PDF</p>
               <small class="file-types">Máximo recomendado: 10MB</small>
             </div>
-          </div>
 
-          <div class="file-selected-info hidden" id="selectedFileInfo">
-            <span class="material-symbols-outlined">picture_as_pdf</span>
-            <div class="file-details">
-              <span class="file-name" id="fileNameDisplay">nombre-archivo.pdf</span>
-              <span class="file-size" id="fileSizeDisplay">1.2 MB</span>
+            <div class="file-selected-info hidden" id="selectedFileInfo">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+              <div class="file-details">
+                <span class="file-name" id="fileNameDisplay">nombre-archivo.pdf</span>
+                <span class="file-size" id="fileSizeDisplay">1.2 MB</span>
+              </div>
+              <button type="button" class="btn-cta__danger btn-sm del-btn" id="removeFileBtn" title="Quitar archivo">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
             </div>
-            <button type="button" class="btn-remove-file" id="removeFileBtn" title="Quitar archivo">
-              <span class="material-symbols-outlined">close</span>
-            </button>
           </div>
         </div>
 
@@ -93,12 +95,21 @@ if (!token) {
       </div>
       <ReportTable role="admin" id="adminReportsTable" allowDelete={true} />
     </div>
+
+    <!-- Modales de Estado -->
+    <ModalMessage 
+      id="successReportModal" 
+      type="success" 
+      title="Informe Enviado" 
+      message="El informe se ha cargado y enviado al cliente correctamente." 
+    />
   </div>
 </DashboardLayout>
 
 <script>
   import { auth, db } from "../../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
+  import { addReport } from "../../../lib/stores/reportsStore";
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   const form = document.getElementById('uploadReportForm') as HTMLFormElement;
@@ -223,7 +234,12 @@ if (!token) {
   });
 
   function updateFileUI(file: File) {
-    if (!uploadInfo || !selectedFileInfo || !fileNameDisplay || !fileSizeDisplay) return;
+    if (!uploadInfo || !selectedFileInfo || !fileNameDisplay || !fileSizeDisplay || !dropZone) return;
+    
+    // Feedback visual verde
+    dropZone.classList.add('has-file');
+    const dropIcon = dropZone.querySelector('.material-symbols-outlined');
+    if (dropIcon) dropIcon.textContent = 'check_circle';
     
     uploadInfo.classList.add('hidden');
     selectedFileInfo.classList.remove('hidden');
@@ -234,6 +250,11 @@ if (!token) {
   }
 
   function resetFileUI() {
+    if (!dropZone) return;
+    dropZone.classList.remove('has-file');
+    const dropIcon = dropZone.querySelector('.material-symbols-outlined');
+    if (dropIcon) dropIcon.textContent = 'cloud_upload';
+    
     uploadInfo?.classList.remove('hidden');
     selectedFileInfo?.classList.add('hidden');
   }
@@ -273,18 +294,29 @@ if (!token) {
       });
 
       if (res.ok) {
-        showToast('Informe enviado correctamente', 'success');
+        // Inyectar el nuevo informe directamente en el store (observable)
+        const newReport = await res.json();
+        addReport(newReport);
+        
+        // Mostrar modal de éxito
+        if (window.modalHelpers) {
+          window.modalHelpers.openModal('successReportModal');
+        } else {
+          showToast('Informe enviado correctamente', 'success');
+        }
+
+        // Limpiar formulario y estados
         form.reset();
         resetFileUI();
         validateForm();
-        // Ya no necesitamos loadReports() porque el listener se encarga
       } else {
         const error = await res.json();
         showToast(error.message || 'Error al enviar el informe', 'error');
-        submitBtn.disabled = false;
       }
     } catch (e) {
       showToast('Error de conexión con el servidor', 'error');
+    } finally {
+      // SIEMPRE quitar el estado de carga
       submitBtn.disabled = false;
       submitBtn.classList.remove('btn-loading');
     }

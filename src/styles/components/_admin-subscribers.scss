@@ -41,11 +41,39 @@
       &.email-col {
         font-weight: 600;
         color: var(--color-primary);
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .email-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: space-between;
+    }
+
+    .btn-copy-email {
+      background: none;
+      border: none;
+      padding: 4px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      opacity: 0.5;
+
+      &:hover {
+        opacity: 1;
+        color: var(--color-primary);
+        transform: scale(1.1);
       }
 
-      &.ua-col {
-        color: var(--color-text-muted);
-        font-size: 0.85rem;
+      .material-symbols-outlined {
+        font-size: 1.1rem;
       }
     }
 
@@ -88,6 +116,63 @@
     display: flex;
     justify-content: flex-end;
     border-top: 1px solid var(--color-border);
+  }
+}
+
+/* --- Checkbox Personalizado (Flat Premium) --- */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  display: block;
+  margin: 0 auto;
+
+  &:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+
+    &::after {
+      content: 'check';
+      font-family: 'Material Symbols Outlined';
+      color: white;
+      font-size: 0.9rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 900;
+    }
+  }
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+  }
+}
+
+.btn-danger {
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(var(--color-error-rgb), 0.2);
+  
+  &:hover:not(:disabled) {
+    background: var(--color-error);
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 

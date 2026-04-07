@@ -23,7 +23,14 @@ export const adminNav: NavItem[] = [
   { label: 'Tickets', href: '/admin/tickets', icon: 'confirmation_number' },
   { label: 'Informes', href: '/admin/informes', icon: 'picture_as_pdf' },
   { label: 'Ideas', href: '/admin/ideas', icon: 'lightbulb' },
-  { label: 'Estilos', href: '/admin/estilos', icon: 'palette' },
+  { 
+    label: 'Sistema', 
+    icon: 'settings',
+    children: [
+      { label: 'Configuración', href: '/admin/sistema/configuracion', icon: 'settings_applications' },
+      { label: 'Estilos', href: '/admin/estilos', icon: 'palette' },
+    ]
+  },
 ];
 
 export const clientNav: NavItem[] = [

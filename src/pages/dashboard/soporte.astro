@@ -2,6 +2,7 @@
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import TicketTable from '../../components/admin/TicketTable.astro';
 import FormModal from '../../components/shared/FormModal.astro';
+import ModalMessage from '../../components/shared/ModalMessage.astro';
 const token = Astro.cookies.get('session')?.value;
 if (!token) {
   return Astro.redirect('/login');
@@ -101,46 +102,168 @@ if (!token) {
     </FormModal>
 
     <TicketTable role="client" id="ticketsListBody" />
+    
+    <ModalMessage 
+      id="successTicketModal" 
+      type="success" 
+      title="¡Ticket Creado!" 
+      message="Tu solicitud de soporte ha sido enviada correctamente. Te responderemos a la brevedad." 
+    />
   </div>
 </DashboardLayout>
+
+<style>
+  .file-drop.file-selected {
+    border-color: var(--color-success, #10b981) !important;
+    background-color: rgba(16, 185, 129, 0.05) !important;
+    border-style: solid !important;
+  }
+  .file-drop.file-selected #uploadInfo {
+    color: var(--color-success, #10b981) !important;
+  }
+  .file-drop.file-selected #uploadInfo span {
+    color: var(--color-success, #10b981) !important;
+  }
+</style>
 
 <script>
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
   import { formatDate, getStatusInfo, getPriorityInfo, getRawDate } from "../../lib/support-utils";
+  import type { TicketResponseDto, ProjectResponseDto } from "../../types/api";
 
   const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-  interface FirebaseTimestamp {
-    _seconds: number;
-  }
-
-  interface Ticket {
-    id: string;
-    subject: string;
-    priority: 'low' | 'medium' | 'high';
-    status: 'open' | 'in-progress' | 'resolved';
-    createdAt: FirebaseTimestamp | string;
-    updatedAt: FirebaseTimestamp | string;
-    projectId?: string;
-  }
-
-  interface Project {
-    id: string;
-    clientId: string;
-    name: string;
-    description?: string;
-    monthlyTicketLimit?: number;
-  }
-
-  let allTickets: Ticket[] = [];
-  let allProjects: Project[] = [];
+  let allTickets: TicketResponseDto[] = [];
+  let allProjects: ProjectResponseDto[] = [];
   let currentToken = '';
+
+  async function loadTickets(token: string) {
+    const ticketsListBody = document.getElementById('ticketsListBody');
+    if (!ticketsListBody) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/support/tickets/my`, { 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
+      if (!res.ok) throw new Error();
+      allTickets = await res.json();
+      applyFilters();
+    } catch {
+      ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
+    }
+  }
+
+  async function loadProjects(token: string) {
+    try {
+      const res = await fetch(`${API_URL}/projects/my`, { 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
+      if (res.ok) {
+        allProjects = await res.json();
+        populateProjectSelect();
+      }
+    } catch (e) {
+      console.error('Error cargando proyectos', e);
+    }
+  }
+
+  function populateProjectSelect() {
+    const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
+    const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
+    if (!projectSelect) return;
+    
+    const options = allProjects.map(p => `<option value="${p.id}">${p.name}</option>`);
+    projectSelect.innerHTML = '<option value="" disabled selected>Selecciona un proyecto</option>' + options.join('');
+    if (projectQuerySelect) projectQuerySelect.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
+  }
+
+  function applyFilters() {
+    const ticketsListBody = document.getElementById('ticketsListBody');
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const projectQuerySelect = document.getElementById('projectQuerySelect') as HTMLSelectElement;
+    if (!ticketsListBody) return;
+    
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    const selectedProjectId = projectQuerySelect?.value || '';
+    let filtered = allTickets.filter(t => 
+      (!query || t.subject.toLowerCase().includes(query)) && 
+      (!selectedProjectId || t.projectId === selectedProjectId)
+    );
+    renderTickets(filtered);
+  }
+
+  function renderTickets(tickets: TicketResponseDto[]) {
+    const ticketsListBody = document.getElementById('ticketsListBody');
+    if (!ticketsListBody) return;
+    
+    if (tickets.length === 0) {
+      ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
+      return;
+    }
+
+    // Group monthly tickets by project to calculate order
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const monthlyTicketsByProject: Record<string, TicketResponseDto[]> = {};
+    
+    allTickets.forEach(t => { 
+      if (getRawDate(t.createdAt) >= startOfMonth && t.projectId) {
+        if (!monthlyTicketsByProject[t.projectId]) {
+          monthlyTicketsByProject[t.projectId] = [];
+        }
+        monthlyTicketsByProject[t.projectId].push(t);
+      }
+    });
+
+    // Sort chronologically within each project group
+    Object.keys(monthlyTicketsByProject).forEach(projectId => {
+      monthlyTicketsByProject[projectId].sort((a, b) => 
+        getRawDate(a.createdAt).getTime() - getRawDate(b.createdAt).getTime()
+      );
+    });
+
+    ticketsListBody.innerHTML = tickets.map(ticket => {
+      const statusInfo = getStatusInfo(ticket.status);
+      const priorityInfo = getPriorityInfo(ticket.priority);
+      const proj = ticket.projectId ? allProjects.find(p => p.id === ticket.projectId) : null;
+      
+      // Calculate index / total for this project this month
+      const projTickets = ticket.projectId ? monthlyTicketsByProject[ticket.projectId] || [] : [];
+      let ticketPos = '-';
+      if (ticket.projectId && projTickets.length > 0) {
+        const index = projTickets.findIndex(t => t.id === ticket.id);
+        if (index !== -1) {
+          ticketPos = `${index + 1}/${projTickets.length}`;
+        }
+      }
+      
+      return `
+        <tr>
+          <td data-label="Proyecto">${proj ? `<span class="project-badge">${proj.name}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`}</td>
+          <td style="text-align: center;" data-label="Tickets"><strong>${ticketPos}</strong></td>
+          <td data-label="Estado"><span class="status-badge ${statusInfo.className}" title="${statusInfo.label}"><span class="material-symbols-outlined" style="font-size:1rem;margin-right:0.25rem">${statusInfo.icon}</span> ${statusInfo.label}</span></td>
+          <td data-label="Prioridad"><div class="priority-badge-wrapper" title="${priorityInfo.label}"><span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}</div></td>
+          <td data-label="Asunto"><div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div></td>
+          <td class="col-date-data" data-label="Fecha Enviado">${formatDate(ticket.createdAt)}</td>
+          <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-'}</td>
+          <td class="col-actions-data" data-label="Ver Ticket"><div class="td-actions"><a href="/dashboard/soporte/${ticket.id}" class="btn-details" title="Ver Ticket"><span class="material-symbols-outlined">visibility</span><span class="btn-text">Ver</span></a></div></td>
+        </tr>`;
+    }).join('');
+  }
 
   function initSupport() {
     const ticketForm = document.getElementById('ticketForm') as HTMLFormElement;
+    if (!ticketForm || ticketForm.dataset.initialized === 'true') {
+      // Si ya está inicializado pero tenemos token, recargar datos
+      if (currentToken) {
+        loadProjects(currentToken);
+        loadTickets(currentToken);
+      }
+      return;
+    }
+    
+    ticketForm.dataset.initialized = 'true';
     const submitBtn = document.getElementById('submitTicketBtn') as HTMLButtonElement;
-    const ticketsListBody = document.getElementById('ticketsListBody');
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
     const projectSelect = document.getElementById('projectSelect') as HTMLSelectElement;
     const subjectInput = document.getElementById('subject') as HTMLInputElement;
@@ -154,137 +277,83 @@ if (!token) {
     const toggleFormBtn = document.getElementById('toggleFormBtn');
     const closeFormBtn = document.getElementById('closeFormBtn');
     const cancelTicketBtn = document.getElementById('cancelTicketBtn');
-    const formContainer = document.getElementById('formContainer');
-    const listView = document.getElementById('listView');
-
-    if (!ticketsListBody) return;
-
-    async function loadTickets(token: string) {
-        try {
-            const res = await fetch(`${API_URL}/support/tickets/my`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (!res.ok) throw new Error();
-            allTickets = await res.json();
-            applyFilters();
-        } catch {
-            if (ticketsListBody) ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">report</span><p>Error al cargar tickets.</p></div></td></tr>`;
-        }
-    }
-
-    async function loadProjects(token: string) {
-        try {
-            const res = await fetch(`${API_URL}/projects/my`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (res.ok) {
-                allProjects = await res.json();
-                populateProjectSelect();
-            }
-        } catch (e) { console.error('Error cargando proyectos', e); }
-    }
-
-    function populateProjectSelect() {
-        if (!projectSelect) return;
-        const options = allProjects.map(p => `<option value="${p.id}">${p.name}</option>`);
-        projectSelect.innerHTML = '<option value="" disabled selected>Selecciona un proyecto</option>' + options.join('');
-        if (projectQuerySelect) projectQuerySelect.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
-        
-        projectSelect.addEventListener('change', () => {
-            if (projectNameInput) {
-                const selectedProject = allProjects.find(p => p.id === projectSelect.value);
-                projectNameInput.value = selectedProject?.name || '';
-            }
-            validateForm();
-        });
-    }
 
     function validateForm() {
-        if (!submitBtn) return;
-        const isValid = !!projectSelect?.value && !!subjectInput?.value.trim() && !!messageInput?.value.trim() && !!prioritySelect?.value;
-        submitBtn.disabled = !isValid;
-        submitBtn.title = isValid ? 'Enviar Ticket' : 'Completa todos los campos obligatorios';
+      if (!submitBtn) return;
+      const isValid = !!projectSelect?.value && !!subjectInput?.value.trim() && !!messageInput?.value.trim() && !!prioritySelect?.value;
+      submitBtn.disabled = !isValid;
+      submitBtn.title = isValid ? 'Enviar Ticket' : 'Completa todos los campos obligatorios';
     }
+
+    projectSelect?.addEventListener('change', () => {
+      if (projectNameInput) {
+        const selectedProject = allProjects.find(p => p.id === projectSelect.value);
+        projectNameInput.value = selectedProject?.name || '';
+      }
+      validateForm();
+    });
 
     [subjectInput, messageInput].forEach(el => el?.addEventListener('input', validateForm));
     prioritySelect?.addEventListener('change', validateForm);
 
     attachmentInput?.addEventListener('change', () => {
-        if (fileNameLabel) {
-            fileNameLabel.textContent = attachmentInput.files?.length ? attachmentInput.files[0].name : 'Arrastra o selecciona una imagen';
-            fileNameLabel.classList.toggle('file-selected', !!attachmentInput.files?.length);
-        }
+      const dropZone = document.getElementById('dropZone');
+      if (fileNameLabel) {
+        const hasFile = !!attachmentInput.files?.length;
+        fileNameLabel.textContent = hasFile ? attachmentInput.files![0].name : 'Arrastra o selecciona una imagen';
+        fileNameLabel.classList.toggle('file-selected', hasFile);
+        if (dropZone) dropZone.classList.toggle('file-selected', hasFile);
+      }
     });
 
     searchInput?.addEventListener('input', applyFilters);
     projectQuerySelect?.addEventListener('change', applyFilters);
 
-    function applyFilters() {
-        if (!ticketsListBody) return;
-        const query = searchInput?.value.toLowerCase().trim() || '';
-        const selectedProjectId = projectQuerySelect?.value || '';
-        let filtered = allTickets.filter(t => (!query || t.subject.toLowerCase().includes(query)) && (!selectedProjectId || t.projectId === selectedProjectId));
-        renderTickets(filtered);
-    }
-
-    function openForm() { 
-        if ((window as any).formModalHelpers) (window as any).formModalHelpers.open('ticketModal');
-    }
     function closeForm() { 
-        if ((window as any).formModalHelpers) (window as any).formModalHelpers.close('ticketModal');
-        ticketForm?.reset(); 
-        if(fileNameLabel) fileNameLabel.textContent = 'Arrastra o selecciona una imagen'; 
-        validateForm(); 
-        if(feedback) feedback.className = 'feedback-message hidden'; 
+      if ((window as any).formModalHelpers) (window as any).formModalHelpers.close('ticketModal');
+      ticketForm?.reset(); 
+      if(fileNameLabel) fileNameLabel.textContent = 'Arrastra o selecciona una imagen'; 
+      validateForm(); 
+      if(feedback) feedback.className = 'feedback-message hidden'; 
+      const dropZone = document.getElementById('dropZone');
+      if (dropZone) dropZone.classList.remove('file-selected');
     }
 
-    toggleFormBtn?.addEventListener('click', openForm);
+    toggleFormBtn?.addEventListener('click', () => {
+      if ((window as any).formModalHelpers) (window as any).formModalHelpers.open('ticketModal');
+    });
     closeFormBtn?.addEventListener('click', closeForm);
     cancelTicketBtn?.addEventListener('click', closeForm);
 
-    function renderTickets(tickets: Ticket[]) {
-        if (!ticketsListBody) return;
-        if (tickets.length === 0) {
-            ticketsListBody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">inbox</span><h3>Sin resultados</h3><p>No se encontraron tickets.</p></div></td></tr>`;
-            return;
-        }
-
-        const projectUsage: Record<string, number> = {};
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        allTickets.forEach(t => { if (getRawDate(t.createdAt) >= startOfMonth && t.projectId) projectUsage[t.projectId] = (projectUsage[t.projectId] || 0) + 1; });
-
-        ticketsListBody.innerHTML = tickets.map(ticket => {
-            const statusInfo = getStatusInfo(ticket.status);
-            const priorityInfo = getPriorityInfo(ticket.priority);
-            const proj = ticket.projectId ? allProjects.find(p => p.id === ticket.projectId) : null;
-            const limit = proj?.monthlyTicketLimit || 10;
-            const used = ticket.projectId ? (projectUsage[ticket.projectId] || 0) : 0;
-            
-            return `
-                <tr>
-                    <td data-label="Proyecto">${proj ? `<span class="project-badge">${proj.name}</span>` : `<span class="project-badge" style="background:#e2e8f0;color:#64748b">S/P</span>`}</td>
-                    <td style="text-align: center;" data-label="Tickets"><strong>${used}</strong> de ${limit}</td>
-                    <td data-label="Estado"><span class="status-badge ${statusInfo.className}" title="${statusInfo.label}"><span class="material-symbols-outlined" style="font-size:1rem;margin-right:0.25rem">${statusInfo.icon}</span> ${statusInfo.label}</span></td>
-                    <td data-label="Prioridad"><div class="priority-badge-wrapper" title="${priorityInfo.label}"><span class="priority-dot" style="background-color: ${priorityInfo.color}"></span> ${priorityInfo.label}</div></td>
-                    <td data-label="Asunto"><div class="ticket-subject-cell"><span class="file-title" title="${ticket.subject}">${ticket.subject}</span></div></td>
-                    <td class="col-date-data" data-label="Fecha Enviado">${formatDate(ticket.createdAt)}</td>
-                    <td class="col-date-data ${ticket.status === 'resolved' ? 'resolved-date' : ''}" data-label="Fecha Resuelto">${ticket.status === 'resolved' && ticket.updatedAt ? formatDate(ticket.updatedAt) : '-'}</td>
-                    <td class="col-actions-data" data-label="Ver Ticket"><div class="td-actions"><a href="/dashboard/soporte/${ticket.id}" class="btn-details" title="Ver Ticket"><span class="material-symbols-outlined">visibility</span><span class="btn-text">Ver</span></a></div></td>
-                </tr>`;
-        }).join('');
-    }
-
     ticketForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!submitBtn || !feedback || !currentToken) return;
-        setLoading(submitBtn, true);
-        try {
-            const res = await fetch(`${API_URL}/support/tickets`, { method: 'POST', headers: { 'Authorization': `Bearer ${currentToken}` }, body: new FormData(ticketForm) });
-            if (!res.ok) throw new Error((await res.json()).message || 'Error creando ticket');
-            showFeedback(feedback, 'Ticket creado exitosamente.', 'success');
-            await loadTickets(currentToken);
-            setTimeout(closeForm, 1500);
-        } catch (error: any) { showFeedback(feedback, error.message || 'Error de conexión', 'error'); }
-        finally { setLoading(submitBtn, false); }
+      e.preventDefault();
+      if (!submitBtn || !feedback || !currentToken) return;
+      setLoading(submitBtn, true);
+      try {
+        const res = await fetch(`${API_URL}/support/tickets`, { 
+          method: 'POST', 
+          headers: { 'Authorization': `Bearer ${currentToken}` }, 
+          body: new FormData(ticketForm) 
+        });
+        if (!res.ok) throw new Error((await res.json()).message || 'Error creando ticket');
+        
+        closeForm();
+        if ((window as any).modalHelpers) {
+          (window as any).modalHelpers.openModal('successTicketModal');
+        }
+        
+        await loadTickets(currentToken);
+      } catch (error: any) { 
+        showFeedback(feedback, error.message || 'Error de conexión', 'error'); 
+      } finally { 
+        setLoading(submitBtn, false); 
+      }
     });
 
-    if (currentToken) { loadProjects(currentToken); loadTickets(currentToken); }
+    if (currentToken) {
+      loadProjects(currentToken);
+      loadTickets(currentToken);
+    }
   }
 
   function setLoading(btn: HTMLButtonElement, isLoading: boolean) {
@@ -301,10 +370,10 @@ if (!token) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;
     currentToken = await user.getIdToken();
-    if (document.getElementById('ticketsListBody')) initSupport();
+    initSupport();
   });
 
   document.addEventListener('astro:page-load', () => {
-    if (document.getElementById('ticketsListBody')) initSupport();
+    initSupport();
   });
 </script>

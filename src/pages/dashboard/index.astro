@@ -83,6 +83,7 @@ if (!token) {
 <script>
   import { auth } from "../../lib/firebase/client";
   import { onAuthStateChanged } from "firebase/auth";
+  import type { ProjectResponseDto, ReportResponseDto, TicketResponseDto } from "../../types/api";
 
   const API = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
   let userDataLoaded = false;
@@ -120,7 +121,7 @@ if (!token) {
         // Proyectos
         try {
             const res = await fetch(`${API}/projects/my`, { headers });
-            const projects = await res.json();
+            const projects: ProjectResponseDto[] = await res.json();
             if (projectsCount) projectsCount.textContent = `${projects.length} proyecto(s) activo(s)`;
         } catch { if (projectsCount) projectsCount.textContent = "Error al cargar"; }
 
@@ -130,15 +131,15 @@ if (!token) {
         // Informes
         try {
             const res = await fetch(`${API}/reports`, { headers });
-            const reports = await res.json();
+            const reports: ReportResponseDto[] = await res.json();
             if (reportsCount) reportsCount.textContent = `${reports.length} informe(s) disponible(s)`;
         } catch { if (reportsCount) reportsCount.textContent = "Error al cargar"; }
 
         // Tickets
         try {
             const res = await fetch(`${API}/support/tickets/my`, { headers });
-            const tickets = await res.json();
-            const openTickets = tickets.filter((t: any) => t.status !== 'resolved').length;
+            const tickets: TicketResponseDto[] = await res.json();
+            const openTickets = tickets.filter((t: TicketResponseDto) => t.status !== 'resolved').length;
             if (ticketsCount) ticketsCount.textContent = `${openTickets} ticket(s) pendiente(s)`;
         } catch { if (ticketsCount) ticketsCount.textContent = "Error al cargar"; }
     }

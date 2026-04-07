@@ -3,22 +3,26 @@ import { Image } from "astro:assets";
 import Logo from "../../assets/img/logo-medium.png";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
 import menuData from "../../data/menu.json";
+import type { SystemConfig } from "../../utils/config";
 
 const currentPath = Astro.url.pathname;
 const { menuItems } = menuData;
+
 interface Props {
-    alwaysScrolled?: boolean;
+  alwaysScrolled?: boolean;
+  config: SystemConfig;
 }
-const { alwaysScrolled = false } = Astro.props;
+
+const { alwaysScrolled = false, config } = Astro.props;
 ---
 
 <header class:list={["header fade-in-down", { "scrolled": alwaysScrolled }]} data-always-scrolled={alwaysScrolled ? "true" : undefined} transition:persist="header">
     <div class="header__container">
         <h1 class="header__logo" transition:name="site-logo">
             <a href="/">
-                <Image
-                    src={Logo}
-                    alt="Logo de la agencia"
+                <img
+                    src={config.logoUrl}
+                    alt={config.name}
                     width="150"
                     height="150"
                     class="logo"

@@ -77,17 +77,10 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
   </div>
 
 <script>
-  import { db, auth } from "../../lib/firebase/client";
-  import { onAuthStateChanged, type User } from "firebase/auth";
-  import { 
-    collection, 
-    query, 
-    where, 
-    orderBy, 
-    onSnapshot,
-    Timestamp,
-    getDocs
-  } from "firebase/firestore";
+  import { auth } from "../../lib/firebase/client";
+  import { onAuthStateChanged } from "firebase/auth";
+  import type { ReportResponseDto, ClientResponseDto } from "../../types/api";
+  import { reportsStore, setReports, removeReport } from "../../lib/stores/reportsStore";
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -108,74 +101,53 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
       const projectFilter = container.querySelector('.reportProjectFilter') as HTMLSelectElement;
       const sortHeaders = container.querySelectorAll('.sortable');
 
-      let allReports: any[] = [];
-      let allClients: any[] = [];
-      let currentToken = '';
+      let allReports: ReportResponseDto[] = [];
+      let allClients: ClientResponseDto[] = [];
+      let token = '';
       let currentSort = { field: 'date', direction: 'desc' };
-      let unsubscribe: (() => void) | null = null;
 
-      // Cargar clientes en segundo plano si es admin y no hay clientId específico
-      if (role === 'admin' && !clientId) {
-        getDocs(collection(db, 'users')).then(snapshot => {
-          allClients = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
-          if (allReports.length > 0) applyFiltersAndSort();
-        }).catch(e => console.error("Error cargando clientes:", e));
-      }
-
-      const setupRealtimeListener = (userUid: string) => {
-        if (unsubscribe) {
-          unsubscribe();
-          unsubscribe = null;
-        }
-
-        let reportsQuery;
-        const reportsCol = collection(db, 'reports');
-
-        if (role === 'client') {
-          reportsQuery = query(
-            reportsCol, 
-            where('clientId', '==', userUid),
-            orderBy('createdAt', 'desc')
-          );
-        } else if (role === 'admin' && clientId) {
-          reportsQuery = query(
-            reportsCol, 
-            where('clientId', '==', clientId),
-            orderBy('createdAt', 'desc')
-          );
-        } else {
-          reportsQuery = query(
-            reportsCol, 
-            orderBy('createdAt', 'desc')
-          );
-        }
-
-        unsubscribe = onSnapshot(reportsQuery, (snapshot) => {
-          allReports = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          
-          populateProjectFilter();
-          applyFiltersAndSort();
-        }, (error) => {
-          console.error("Error en el listener de informes:", error);
+      const loadReports = async () => {
+        try {
+          const url = clientId ? `${API_URL}/reports?clientId=${clientId}` : `${API_URL}/reports`;
+          const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error();
+          const reports = await res.json();
+          setReports(reports);
+        } catch (error) {
+          console.error("Error cargando informes:", error);
           if (tableBody) {
             const colSpan = role === 'admin' && !clientId ? 6 : 5;
-            tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5 text-error">Error al sincronizar informes.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5 text-error">Error al cargar informes.</td></tr>`;
           }
-        });
+        }
+      };
+
+      const loadClients = async () => {
+        if (role !== 'admin' || clientId) return;
+        try {
+          const res = await fetch(`${API_URL}/clients`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            allClients = await res.json();
+          }
+        } catch (e) {
+          console.error("Error cargando clientes:", e);
+        }
       };
 
       const populateProjectFilter = () => {
         if (!projectFilter) return;
-        const projects = [...new Set(allReports.map(r => r.projectName).filter(Boolean))];
+        const reports = reportsStore.get();
+        const projects = [...new Set(reports.map(r => r.projectName).filter(Boolean))];
         const options = projects.map(p => `<option value="${p}">${p}</option>`);
         projectFilter.innerHTML = '<option value="">Todos los proyectos</option>' + options.join('');
       };
 
       const applyFiltersAndSort = () => {
-        let filtered = [...allReports];
+        let filtered = [...reportsStore.get()];
         
         const q = searchInput?.value.toLowerCase().trim();
         if (q) {
@@ -197,8 +169,8 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
             valA = getTimestamp(a.createdAt);
             valB = getTimestamp(b.createdAt);
           } else {
-            valA = (a[currentSort.field] || '').toString().toLowerCase();
-            valB = (b[currentSort.field] || '').toString().toLowerCase();
+            valA = ((a[currentSort.field as keyof ReportResponseDto] as any) || '').toString().toLowerCase();
+            valB = ((b[currentSort.field as keyof ReportResponseDto] as any) || '').toString().toLowerCase();
           }
 
           if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
@@ -210,14 +182,18 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
       };
 
       const getTimestamp = (raw: any) => {
-        if (raw instanceof Timestamp) return raw.toMillis();
+        if (!raw) return Date.now();
+        if (typeof raw === 'number') return raw;
         if (raw?._seconds) return raw._seconds * 1000;
-        return new Date(raw).getTime();
+        if (raw?.seconds) return raw.seconds * 1000;
+        
+        const date = new Date(raw);
+        return isNaN(date.getTime()) ? Date.now() : date.getTime();
       };
 
-      const renderReports = (reports: any[]) => {
+      const renderReports = (reports: readonly ReportResponseDto[]) => {
         if (!tableBody) return;
-        const colSpan = role === 'admin' && !clientId ? 6 : 5;
+        const colSpan = (role === 'admin' && !clientId) ? 6 : 5;
 
         if (reports.length === 0) {
           tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-5"><div class="empty-state"><span class="material-symbols-outlined">folder_open</span><h3>No se encontraron informes</h3></div></td></tr>`;
@@ -225,8 +201,8 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
         }
 
         tableBody.innerHTML = reports.map(r => {
-          const client = allClients.find(c => c.uid === r.clientId);
-          const clientName = client ? (client.displayName || client.name) : 'Cargando...';
+          const client = allClients.find(c => (c.id === r.clientId || (c as any).uid === r.clientId));
+          const clientName = client ? (client.displayName || client.email) : (r.clientName || 'Desconocido');
           
           return `
           <tr>
@@ -263,10 +239,11 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
             try {
               const res = await fetch(`${API_URL}/reports/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${currentToken}` },
+                headers: { 'Authorization': `Bearer ${token}` },
               });
               if (!res.ok) throw new Error();
               if (window.showToast) window.showToast('Informe eliminado correctamente', 'success');
+              removeReport(id);
             } catch {
               if (window.showToast) window.showToast('Error al eliminar el informe.', 'error');
             }
@@ -277,7 +254,7 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
         try {
           const isDownload = action === 'download';
           const res = await fetch(`${API_URL}/reports/${id}/download?download=${isDownload}`, {
-            headers: { 'Authorization': `Bearer ${currentToken}` },
+            headers: { 'Authorization': `Bearer ${token}` },
           });
           if (!res.ok) throw new Error();
           const { url } = await res.json();
@@ -336,13 +313,16 @@ const { clientId, role, id = "reportsTableBody", allowDelete = false } = Astro.p
       });
 
       // Auth Listener
-      onAuthStateChanged(auth, async (user: User | null) => {
-        if (!user) {
-          if (unsubscribe) unsubscribe();
-          return;
-        }
-        currentToken = await user.getIdToken();
-        setupRealtimeListener(user.uid);
+      onAuthStateChanged(auth, async (user: any | null) => {
+        if (!user) return;
+        token = await user.getIdToken();
+        await Promise.all([loadClients(), loadReports()]);
+      });
+
+      // SUSCRIPCIÓN REACTIVA AL STORE (observable)
+      reportsStore.subscribe(() => {
+        populateProjectFilter();
+        applyFiltersAndSort();
       });
     });
   }

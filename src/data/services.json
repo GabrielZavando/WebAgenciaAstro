@@ -1,119 +1,117 @@
 {
   "section": {
     "title": "Servicios",
-    "description": "Descubre cómo te acompaño a transformar tu negocio. Mis servicios son soluciones digitales pensadas para optimizar tus procesos. Desde el desarrollo web a medida hasta la implementación de Agentes inteligentes, te ayudo a automatizar lo repetitivo para que tú y tu equipo se concentren en hacer crecer sus ideas"
+    "description": "Soluciones digitales diseñadas para optimizar tu operativa y acelerar tu crecimiento. Utilizo tecnología de vanguardia para convertir problemas complejos en herramientas simples y escalables."
   },
   "services": [
     {
       "id": 1,
       "icon": "<span class='material-symbols-outlined'>bolt</span>",
-      "title": "Sitios Web Estáticos",
-      "description": "Crea presencia en línea con sitios web rápidos, optimizados y hechos a medida para tus necesidades.",
+      "title": "Webs de Alto Rendimiento",
+      "description": "Sitios ultra rápidos desarrollados con Astro. Ideales para marcas que buscan velocidad de carga instantánea, seguridad total y el mejor posicionamiento SEO.",
       "modalContent": {
-        "extendedDescription": "Desarrollo sitios web estáticos de alto rendimiento utilizando tecnologías modernas como Astro o Angular. Estos sitios son la base ideal para presentar tu marca, servicios o portafolio con la máxima estabilidad y eficiencia. Están pensados para profesionales y empresas que buscan una presencia sólida en línea sin la necesidad de una actualización constante de contenido.",
+        "extendedDescription": "Llega a tus clientes antes que tu competencia. Desarrollo sitios web de alto rendimiento con Astro y Angular, garantizando una carga instantánea que mejora tu posicionamiento en Google y la retención de usuarios. Es la solución definitiva para marcas que exigen una presencia impecable, segura y con el mínimo costo de mantenimiento.",
         "benefits": [
-          "Velocidad excepcional y rendimiento optimizado.",
-          "Máxima seguridad al no depender de bases de datos.",
-          "SEO optimizado desde el primer día",
-          "Carga rápida en dispositivos móviles.",
-          "Experiencia de usuario fluida y profesional.",
-          "Bajo mantenimiento técnico."
+          "Velocidad que convierte: Optimizo cada línea de código para que tu web cargue en menos de 1 segundo.",
+          "Seguridad Superior: Al no depender de bases de datos tradicionales, elimino los puntos vulnerables de ataque",
+          "SEO de Élite: Construyo una arquitectura técnica que facilita a Google encontrarte y posicionarte.",
+          "Costo Operativo Mínimo: Disfruta de una web robusta que no requiere actualizaciones constantes de seguridad",
+          "Diseño a Medida: Sin plantillas genéricas; creo una interfaz única que proyecta la seriedad de tu negocio"
         ],
         "implementation": [
-            "Reunión inicial para definir objetivos, estructura y plazos.",
-            "Diseño UI/UX personalizado.",
-            "Desarrollo frontend con tecnologías modernas (Astro o Angular).",
-            "Optimización de imágenes y archivos.",
-            "Despliegue en servidor y configuración de dominio.",
-            "Alojamiento + mantenimiento mensual opcional."
+            "Estrategia: Sesión inicial conmigo para definir objetivos y estructura de navegación.",
+            "Diseño UI/UX: Creación de un prototipo personalizado enfocado en la experiencia de tu usuario.",
+            "Desarrollo Técnico: Construcción limpia y eficiente utilizando Astro o Angular.",
+            "Optimización: Pruebas rigurosas de velocidad, SEO técnico y adaptabilidad móvil.",
+            "Lanzamiento: Configuración de dominio, certificado SSL y despliegue en servidores rápidos.",
+            "Acompañamiento: Entrega del proyecto y soporte para asegurar que todo funcione perfecto."
         ],
+        "hook": "¿Buscas una web que realmente sea una herramienta de venta?",
         "videoId": "próximamente",
-        "ctaText": "Solicitar Servicio"
+        "ctaText": "Consultar por este servicio"
       }
     },
     {
       "id": 2,
       "icon": "<span class='material-symbols-outlined'>edit</span>",
-      "title": "Sitios Web Auto Administrados",
-      "description": "Gestión fácil y autónoma para blogs y sitios dinámicos. Publica y edita contenido cuando lo necesites.",
+      "title": "Gestión de Contenido (CMS)",
+      "description": "Sitios dinámicos y autoadministrables en WordPress. Diseñados para que tú o tu equipo gestionen el contenido con total autonomía y sin fricciones técnicas.",
       "modalContent": {
-        "extendedDescription": "Diseño y desarrollo sitios web que puedes administrar tú mismo de forma simple e intuitiva. Son ideales si tienes un blog, una página de noticias, un proyecto educativo o cualquier espacio donde necesites actualizar contenido con frecuencia. Trabajo con herramientas como WordPress, que te dan autonomía total sin depender de un desarrollador para cada cambio.",
+        "extendedDescription": "Toma el control total de tu comunicación digital. Diseño y desarrollo plataformas autoadministrables que te permiten actualizar contenidos de forma simple, rápida y sin depender de terceros. Utilizo herramientas líderes como WordPress, personalizadas para que tú y tu equipo se enfoquen en crear, mientras la tecnología trabaja a su favor.",
         "benefits": [
-          "Publica y actualiza contenido cuando lo necesites, sin grandes conocimientos técnicos.",
-          "Sistema de usuarios y roles, ideal si trabajas con un equipo (como editores o colaboradores)",
-          "Biblioteca multimedia para subir, organizar y reutilizar imágenes, videos, audios o documentos.",
-          "Herramientas integradas para mejorar el posicionamiento en buscadores (SEO)",
-          "Plataforma flexible y escalable: puedes añadir nuevas secciones o funcionalidades cuando lo necesites, sin reconstruir todo el sitio."
+          "Autonomía Real: Publica noticias, artículos o proyectos al instante, sin necesidad de conocimientos técnicos avanzados.",
+          "Colaboración Inteligente: Sistema de roles y permisos diseñado para que tu equipo trabaje de forma segura y organizada.",
+          "Biblioteca Multimedia Optimizada: Gestiona tus imágenes y videos con herramientas que mantienen la velocidad de tu sitio siempre al máximo.",
+          "SEO Integrado: Herramientas nativas para que cada contenido que publiques nazca listo para posicionarse en los primeros lugares de Google.",
+          "Escalabilidad Total: Tu sitio crece contigo. Añado nuevas funciones o secciones a medida que tu proyecto evolucione, sin reconstruir desde cero."
         ],
         "implementation": [
-            "Comenzamos con una reunión. Conversamos sobre tu proyecto para entender tus objetivos, requerimientos y plazos. Con esa base, definimos las funcionalidades clave y un plan de trabajo claro.",
-            "Diseño estructural y visual. Propongo una arquitectura intuitiva y un diseño alineado con tu identidad, enfocado en la experiencia del usuario.",
-            "Desarrollo del sitio. Construyo cada sección y funcionalidad acordada, personalizando cada elemento según tus necesidades.",
-            "Configuración de usuarios. Habilito el sistema de roles para que tú y tu equipo puedan gestionar el sitio de forma segura y ordenada.",
-            "Carga y optimización del contenido. Integro tus textos, imágenes o materiales, optimizándolos para lograr un sitio rápido y eficiente.",
-            "Capacitación personalizada. Te enseño cómo administrar el sitio paso a paso, para que lo manejes con confianza.",
-            "Lanzamiento. Realizo pruebas finales, ajustamos detalles y publico el sitio bajo tu dominio.",
-            "Alojamiento y soporte técnico mensual (altamente recomendado). Incluye copias de seguridad, actualizaciones de seguridad, informes mensuales y asistencia ante imprevistos técnicos."
+            "Consultoría Inicial: Reunión para definir tus objetivos de contenido, audiencia y requerimientos específicos.",
+            "Arquitectura de Información: Diseño una estructura intuitiva y visualmente alineada a tu marca, priorizando la facilidad de lectura.",
+            "Desarrollo Personalizado: Construyo las funcionalidades y secciones acordadas, asegurando que el panel de administración sea ultra sencillo para ti.",
+            "Ecosistema de Usuarios: Configuro los accesos necesarios para que tu equipo opere con total seguridad.",
+            "Carga y Optimización: Integro y optimizo tus materiales iniciales para garantizar un rendimiento técnico superior desde el día uno.",
+            "Capacitación de Usuario: Te entrego una guía práctica (o sesión en vivo) para que manejes tu nuevo sitio con total confianza.",
+            "Lanzamiento y Soporte: Despliegue final y opción de acompañamiento mensual para que nunca te preocupes por actualizaciones o respaldos."
         ],
+        "hook": "¿Listo para dejar de depender de programadores para cada cambio?\nEmpecemos a construir tu plataforma hoy.",
         "videoId": "próximamente",
-        "ctaText": "Solicitar Servicio"
+        "ctaText": "Solicitar presupuesto CMS"
       }
     },
     {
       "id": 3,
       "icon": "<span class='material-symbols-outlined'>shopping_cart</span>",
-      "title": "Tiendas Online",
-      "description": "Empieza a vender en línea con tiendas online modernas, rápidas y personalizadas.",
+      "title": "E-commerce Escalable",
+      "description": "Tiendas online robustas creadas para vender. Optimizamos todo el flujo de compra y gestión de inventario para que tu negocio crezca sin límites técnicos.",
       "modalContent": {
-        "extendedDescription": "Diseño y desarrollo plataformas de venta funcionales y personalizadas, construidas con WordPress + WooCommerce. Esta solución es para negocios que buscan profesionalizar y centralizar la gestión de su catálogo, clientes y pedidos. Te doy autonomía total para vender productos físicos o digitales, integrando métodos de pago confiables como WebPay, Flow o MercadoPago.",
+        "extendedDescription": "Diseño y desarrollo plataformas de venta de alto impacto con WordPress + WooCommerce, transformando tu catálogo en una máquina de ventas eficiente. Profesionaliza tu negocio con una gestión centralizada de pedidos, clientes y stock. Te entrego una solución lista para escalar, integrando los métodos de pago más confiables de Chile como Webpay, Flow o Mercado Pago.",
         "benefits": [
-          "Control total sobre tus productos, inventario y pedidos.",
-          "Integración con pasarelas de pago confiables (WebPay, Flow, MercadoPago, entre otras)",
-          "Configuración de métodos de envío personalizados (por zona, por peso, retiro en tienda, etc.).",
-          "Posibilidad de aplicar cupones de descuento, promociones o productos relacionados.",
-          "Panel de estadísticas de ventas, comportamiento de usuarios y seguimiento de pedidos."
+          "Gestión Centralizada: Control absoluto de tus productos, inventario y pedidos desde un solo panel intuitivo.",
+          "Conversión Optimizada: Experiencia de compra fluida (checkout rápido) para maximizar tus ventas y reducir carritos abandonados.",
+          "Logística Inteligente: Configuración de envíos personalizados por zona, peso o retiro en tienda, adaptados a tu operación.",
+          "Marketing Estratégico: Crea cupones, promociones y estrategias de venta cruzada de forma autónoma.",
+          "Analítica de Ventas: Visualiza reportes detallados para entender el comportamiento de tus clientes y tomar mejores decisiones."
         ],
         "implementation": [
-            "Primera reunión estratégica. Hablamos sobre tu negocio, tus productos y objetivos de venta. Definimos juntos las funcionalidades clave y establecemos los plazos del proyecto.",
-            "Diseño visual de la tienda. Propongo un diseño centrado en la experiencia del usuario y en tu identidad visual. Cada detalle está pensado para facilitar la navegación y mejorar las conversiones.",
-            "Configuración de WooCommerce. Instalo y configuro la plataforma con métodos de pago, opciones de envío, impuestos y moneda local.",
-            "Carga inicial del catálogo. Integro tus productos (físicos o digitales), con imágenes optimizadas, descripciones claras, precios y categorías.",
-            "Implementación de funcionalidades clave. Añadimos carritos, buscador de productos, filtros, opciones de compra rápida y formularios de contacto.",
-            "Pruebas completas. Simulo compras reales, reviso flujos de pago y entregas, y me aseguro de que todo funcione correctamente.",
-            "Capacitación personalizada. Te enseño a gestionar pedidos, modificar productos, revisar reportes y mantener tu tienda activa sin depender de nadie",
-            "Publicación y seguimiento. Dejamos la tienda en línea, revisamos el rendimiento inicial y realizamos ajustes si es necesario.",
-            "Alojamiento y soporte técnico mensual (altamente recomendado). Incluye mantenimiento preventivo, copias de seguridad, actualizaciones, asistencia ante errores, informes y mejoras evolutivas."
+            "Estrategia y Consultoría: Definimos tus objetivos de venta, funcionalidades críticas y plazos del proyecto.",
+            "Diseño UI/UX y Prototipado: Creación de una interfaz centrada en la conversión y alineada con tu identidad visual.",
+            "Desarrollo e Integración: Configuro WooCommerce, pasarelas de pago, logística de envíos y cargo tu catálogo inicial.",
+            "Testing y Marcha Blanca: Realizo pruebas de compra reales para asegurar que todo el flujo (pago y entrega) sea impecable.",
+            "Capacitación y Lanzamiento: Te enseño a gestionar tu tienda y publicamos el sitio con soporte técnico proactivo incluido.",
+            "Soporte y Evolución: Acompañamiento mensual con optimizaciones de seguridad, respaldos y mejoras según tus ventas."
         ],
+        "hook": "¿Listo para llevar tus ventas al siguiente nivel?\nConstruyamos tu tienda online profesional.",
         "videoId": "próximamente",
-        "ctaText": "Solicitar Servicio"
+        "ctaText": "Solicitar Consultoría E-commerce"
       }
     },
     {
       "id": 4,
       "icon": "<span class='material-symbols-outlined'>smart_toy</span>",
-      "title": "Agentes con IA",
-      "description": "Mejora la experiencia de tus clientes con Agentes inteligentes que responden y gestionan consultas al instante",
+      "title": "Automatización con IA",
+      "description": "Libera tu tiempo. Implemento Agentes Inteligentes y flujos con LLMs para automatizar la atención al cliente, el agendamiento y tareas operativas críticas.",
       "modalContent": {
-        "extendedDescription": "Diseño y desarrollo Agentes virtuales entrenados a partir del contenido real de tu negocio. Esta herramienta te permite una reducción significativa de la carga operativa en tareas repetitivas. Tu Agente no solo responderá preguntas frecuentes, sino que también podrá calificar clientes, agendar citas o guiar procesos. Estos Agentes se integran fácilmente en tu sitio web o en canales estratégicos como WhatsApp o Instagram, liberando a tu equipo para concentrarse en sus ideas.",
+        "extendedDescription": "Diseño y desarrollo Agentes Inteligentes entrenados exclusivamente con el conocimiento de tu negocio. No es solo un chatbot; es un asistente que califica prospectos, agenda citas y guía procesos complejos 24/7. Libera a tu equipo de las tareas repetitivas y permite que se concentren en lo que realmente genera valor, mientras la IA gestiona tu comunicación con precisión humana.",
         "benefits": [
-          "Atención automática y constante, sin interrupciones.",
-          "Reducción significativa de la carga operativa en tareas repetitivas.",
-          "Respuestas precisas y coherentes con tu marca.",
-          "Integración multicanal: sitio web, redes sociales y plataformas de mensajería.",
-          "Adaptación al tono y objetivos de tu negocio.",
-          "Mejora en la experiencia del cliente y en los tiempos de respuesta.",
-          "Acceso a métricas sobre comportamiento e interacciones de los usuarios."
+          "Disponibilidad Total: Atención inmediata y constante, 24 horas al día, 7 días a la semana, sin tiempos de espera.",
+          "Eficiencia Operativa: Reduce drásticamente la carga de trabajo manual en tareas de soporte y ventas.",
+          "Personalidad de Marca: Respuestas precisas, coherentes y alineadas 100% con el tono de voz de tu empresa.",
+          "Omnicanalidad Real: Presencia fluida en tu sitio web, WhatsApp o Instagram, centralizando la interacción.",
+          "Calificación de Leads: El Agente identifica clientes potenciales y filtra consultas, entregándote oportunidades listas para cerrar.",
+          "Datos para Decidir: Acceso a métricas detalladas sobre qué preguntan tus clientes y cómo interactúan con tu marca."
         ],
         "implementation": [
-            "Primera reunión estratégica.Conversamos sobre tu negocio, el tipo de clientes que atiendes y los objetivos específicos que quieres lograr con el Agente.",
-            "Recolección del contenido base. Reunimos información útil para entrenar al asistente: textos de tu sitio, manuales, PDFs, preguntas frecuentes, etc.",
-            "Entrenamiento del modelo. Utilizo tus textos, preguntas frecuentes y materiales relevantes para entrenar el Agente, asegurando respuestas precisas y coherentes con tu marca.",
-            "Integración en tu sitio web o redes sociales. Configuro el Agente para que funcione en los canales que elijas, como tu sitio web, WhatsApp o Instagram.",
-            "Pruebas funcionales. Simulo conversaciones reales para afinar respuestas y asegurar que el Agente actúe de forma coherente y útil.",
-            "Soporte técnico mensual. Incluye mantenimiento, mejoras continuas, revisión de métricas, entrega de informes y actualizaciones de contenido a medida que tu negocio evoluciona."
+            "Diagnóstico Estratégico: Analizamos tu flujo actual para identificar qué procesos son los más rentables de automatizar.",
+            "Curaduría de Conocimiento: Reunimos manuales, PDFs y base de datos para alimentar el cerebro de tu Agente.",
+            "Entrenamiento y Personalidad: Configuro el modelo para que responda con exactitud técnica y el tono adecuado para tu audiencia.",
+            "Integración de Canales: Despliegue del Agente en tu sitio web, WhatsApp o las plataformas donde estén tus clientes.",
+            "Optimización and QA: Pruebas intensivas con casos reales para pulir las respuestas antes de la puesta en marcha.",
+            "Evolución Continua: Monitoreo de métricas y actualizaciones periódicas para que tu IA aprenda y mejore con cada interacción."
         ],
+        "hook": "¿Listo para automatizar lo repetitivo y escalar tu atención?",
         "videoId": "próximamente",
-        "ctaText": "Solicitar Servicio"
+        "ctaText": "Consultar por tu Agente IA"
       }
     }
   ]

@@ -36,11 +36,11 @@ if (!token) {
           </div>
 
           <div class="form-group full-width">
-            <label for="projectClient">Cliente</label>
+            <label for="projectClient">Cliente o Responsable</label>
             <div class="input-with-icon select-wrapper">
               <span class="material-symbols-outlined">account_circle</span>
-              <select id="projectClient" name="clientUid" required>
-                <option value="" disabled>Selecciona un cliente</option>
+              <select id="projectClient" name="clientId" required>
+                <option value="" disabled>Selecciona un usuario</option>
               </select>
             </div>
           </div>
@@ -64,7 +64,28 @@ if (!token) {
             <label for="projectPercentage">Progreso (%)</label>
             <div class="input-with-icon">
               <span class="material-symbols-outlined">trending_up</span>
-              <input type="number" id="projectPercentage" name="percentage" min="0" max="100" required />
+              <input 
+                type="number" 
+                id="projectPercentage" 
+                name="percentage" 
+                min="0" 
+                max="100" 
+                required 
+              />
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="monthlyTicketLimit">Límite Mensual de Tickets</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">confirmation_number</span>
+              <input 
+                type="number" 
+                id="monthlyTicketLimit" 
+                name="monthlyTicketLimit" 
+                min="1" 
+                required 
+              />
             </div>
           </div>
 

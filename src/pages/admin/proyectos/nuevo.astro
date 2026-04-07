@@ -33,9 +33,24 @@ if (!token) {
             <label for="projectClient">Cliente</label>
             <div class="input-with-icon select-wrapper">
               <span class="material-symbols-outlined">account_circle</span>
-              <select id="projectClient" name="clientUid" required>
+              <select id="projectClient" name="clientId" required>
                 <option value="" disabled selected>Selecciona un cliente</option>
               </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="monthlyTicketLimit">Límite Mensual de Tickets</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">confirmation_number</span>
+              <input 
+                type="number" 
+                id="monthlyTicketLimit" 
+                name="monthlyTicketLimit" 
+                min="1" 
+                value="3" 
+                required 
+              />
             </div>
           </div>
 

@@ -1,10 +1,11 @@
 ---
 import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import type { ProspectResponseDto } from "../../../types/api";
 
 const { id } = Astro.params;
 const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-let prospect = null;
+let prospect: ProspectResponseDto | null = null;
 let error = null;
 
 try {
@@ -97,6 +98,26 @@ const formatDate = (dateValue: any) => {
 
           {/* Conversación */}
           <div class="conversation">
+            {/* Mensaje original si existe */}
+            {prospect.message && (
+              <div class="message client-message">
+                <div class="message-header">
+                  <div class="user-info">
+                    <div class="avatar-wrapper">
+                      {prospect.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="name-time">
+                      <strong>{prospect.name}</strong>
+                      <span class="time">{formatDate(prospect.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="message-body">
+                  <p>{prospect.message}</p>
+                </div>
+              </div>
+            )}
+
             {prospect.conversations?.map((conv: any) => {
               const inMsg = conv.incomingMessage;
               const outMsg = conv.outgoingResponse;
@@ -104,22 +125,24 @@ const formatDate = (dateValue: any) => {
               return (
                 <>
                   {/* Mensaje del Prospecto */}
-                  <div class="message client-message">
-                    <div class="message-header">
-                      <div class="user-info">
-                        <div class="avatar-wrapper">
-                          {prospect.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div class="name-time">
-                          <strong>{prospect.name}</strong>
-                          <span class="time">{formatDate(inMsg.receivedAt)}</span>
+                  {inMsg && inMsg.content && (
+                    <div class="message client-message">
+                      <div class="message-header">
+                        <div class="user-info">
+                          <div class="avatar-wrapper">
+                            {prospect?.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div class="name-time">
+                            <strong>{prospect?.name}</strong>
+                            <span class="time">{formatDate(inMsg.receivedAt)}</span>
+                          </div>
                         </div>
                       </div>
+                      <div class="message-body">
+                        <p>{inMsg.content}</p>
+                      </div>
                     </div>
-                    <div class="message-body">
-                      <p>{inMsg.content}</p>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Respuesta del Admin */}
                   {outMsg && outMsg.content && (

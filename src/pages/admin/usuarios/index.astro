@@ -1,6 +1,9 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import { apiClient } from '../../../lib/api-client';
+import { formatDate } from '../../../lib/utils/date';
+
+import type { ClientResponseDto } from '../../../types/api';
 
 // Proteger la ruta y obtener el token SSR
 const token = Astro.cookies.get('session')?.value;
@@ -8,11 +11,11 @@ if (!token) {
   return Astro.redirect('/login');
 }
 
-let users = [];
+let users: ClientResponseDto[] = [];
 let errorMsg = null;
 
 try {
-  users = await apiClient.get<any[]>('/users', { token });
+  users = await apiClient.get<ClientResponseDto[]>('/users', { token });
 } catch (error: any) {
   errorMsg = "No se pudo conectar con el servidor.";
   if (error.status === 403) {
@@ -82,7 +85,7 @@ const roleNames = {
               </tr>
             </thead>
             <tbody>
-              {users.map((user: any) => (
+              {users.map((user: ClientResponseDto) => (
                 <tr class="user-row">
                   <td>
                     <div class="user-info">
@@ -102,9 +105,9 @@ const roleNames = {
                       {roleNames[user.role as keyof typeof roleNames] || user.role}
                     </span>
                   </td>
-                  <td>{user.createdAt ? new Date(user.createdAt._seconds ? user.createdAt._seconds * 1000 : user.createdAt).toLocaleDateString() : 'Desconocida'}</td>
+                  <td>{formatDate(user.createdAt)}</td>
                   <td>
-                    <a href={`/admin/usuarios/${user.uid || user.id}`} class="btn-details">
+                    <a href={`/admin/usuarios/${user.id}`} class="btn-details">
                       <span class="material-symbols-outlined">visibility</span> ver detalles
                     </a>
                   </td>

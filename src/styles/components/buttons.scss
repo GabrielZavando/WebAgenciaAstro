@@ -46,11 +46,20 @@
     border-radius: 0;
   }
 
-  // Iconos: rely on gap in btn-base
+  // Iconos: Centrado perfecto para Material Symbols e iconos
+  .material-symbols-outlined,
   .icon {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    font-size: inherit;
+    /* Evita que el icono desplace el texto si existe */
+    vertical-align: middle; 
+  }
+
+  &.btn-sm .material-symbols-outlined {
+    font-size: 1.2rem;
   }
 }
 
@@ -121,20 +130,34 @@
   }
 }
 
-// CTA Variante Peligro (Ahora unificada al sistema de marca para consistencia)
+// CTA Variante Peligro (Reforzada con colores de error del sistema)
 .btn-cta__danger {
   @include btn-base;
-  background: transparent;
-  border: 2px solid var(--color-primary);
-  color: var(--color-primary);
+  background: transparent !important;
+  border: 2px solid var(--color-error) !important;
+  color: var(--color-error) !important;
   text-transform: uppercase;
   border-radius: 0;
-  padding: var(--space-sm) var(--space-md);
+  padding: 0 !important; /* Forzamos 0 para control total del centrado */
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+
+  .material-symbols-outlined {
+    font-size: 1.5rem !important;
+    line-height: normal !important;
+    color: inherit !important; 
+    display: block !important;
+    margin: 0 !important;
+  }
 
   &:hover {
-    background-color: var(--color-secondary);
-    border-color: var(--color-secondary);
-    color: var(--color-white);
+    background-color: var(--color-error) !important;
+    border-color: var(--color-error) !important;
+    color: var(--color-white) !important;
   }
 
   &:active {

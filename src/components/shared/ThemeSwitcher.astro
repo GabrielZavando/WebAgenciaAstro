@@ -1,5 +1,5 @@
 ---
-// No props necesarias por ahora
+// Componente Switcher de Tema (Light / Dark)
 ---
 
 <div class="theme-switcher">
@@ -25,57 +25,30 @@
   </button>
 </div>
 
-
 <script>
-  // Función para inicializar el tema
-  function initTheme() {
-    // Verificamos si hay un tema guardado en localStorage
-    const savedTheme = localStorage.getItem('theme');
-    
-    if (savedTheme) {
-      // Aplicamos el tema guardado
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      // Si no hay tema guardado, usamos la preferencia del sistema
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      if (prefersDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
+  import { getInitialTheme, setTheme, toggleTheme } from '../../utils/theme'
+
+  function init() {
+    // Inicializar el tema al cargar la página (soporta Astro View Transitions)
+    setTheme(getInitialTheme())
+
+    const btn = document.getElementById('theme-toggle')
+    if (btn) {
+      btn.onclick = () => toggleTheme()
     }
+
+    // Escuchar cambios en la preferencia del sistema
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', (e) => {
+        // Solo aplicamos automáticamente si el usuario no ha fijado uno manualmente
+        if (!localStorage.getItem('theme')) {
+          setTheme(e.matches ? 'dark' : 'light')
+        }
+      })
   }
 
-  // Función para cambiar el tema
-  function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    // Actualizamos el atributo en el HTML
-    document.documentElement.setAttribute('data-theme', newTheme);
-    
-    // Guardamos la preferencia en localStorage
-    localStorage.setItem('theme', newTheme);
-  }
-
-  // Iniciamos el tema cuando el DOM esté listo
-  document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    
-    // Configuramos el evento click en el botón
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener('click', toggleTheme);
-    }
-    
-    // También escuchamos cambios en la preferencia del sistema
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
-        // Solo aplicamos automáticamente si el usuario no ha seleccionado un tema
-        const newTheme = e.matches ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-      }
-    });
-  });
+  // Registrar listeners para carga inicial y navegación interna de Astro
+  document.addEventListener('DOMContentLoaded', init)
+  document.addEventListener('astro:page-load', init)
 </script>

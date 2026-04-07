@@ -1,6 +1,8 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+import { getSystemConfig } from "../utils/config";
 
+const config = await getSystemConfig();
 const status = Astro.url.searchParams.get("status");
 const isOk = status === "ok";
 ---
@@ -8,47 +10,65 @@ const isOk = status === "ok";
 <MainLayout
   title={isOk ? "¡Suscripción confirmada!" : "Error al confirmar"}
   description="Confirmación de suscripción al newsletter de Gabriel Zavando"
+  hideHeader={true}
+  hideFooter={true}
 >
-  <section class="confirm-section">
+  <nav class="assessment-nav fade-in-down">
+    <div class="assessment-nav__container">
+      <a href="/" class="assessment-nav__logo" title="Volver al inicio">
+        <img
+          src={config.logoUrl}
+          alt={config.name}
+          width="150"
+          height="150"
+          class="logo"
+        />
+      </a>
+      <a href="/" class="btn-cta__border btn-sm assessment-nav__back">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver al home
+      </a>
+    </div>
+  </nav>
+
+  <section class="confirm-section fade-in">
     <div class="confirm-container">
       {isOk ? (
-        <>
-          <div class="icon-wrapper success">
-            <span class="material-symbols-outlined" style="font-size: 4rem;">check_circle</span>
+        <div class="state-content">
+          <div class="icon-circle success">
+            <span class="material-symbols-outlined">check</span>
           </div>
-          <h1 class="confirm-title">¡Suscripción confirmada!</h1>
-          <p class="confirm-text">
+          <h1 class="state-title">¡Suscripción confirmada!</h1>
+          <p class="state-text">
             Genial, ya estás en la lista. Pronto recibirás tips de
             transformación digital directamente en tu bandeja de entrada.
           </p>
-        </>
+          <a href="/" class="btn-cta">Ir al inicio</a>
+        </div>
       ) : (
-        <>
-          <div class="icon-wrapper error">
-            <span class="material-symbols-outlined" style="font-size: 4rem;">cancel</span>
+        <div class="state-content">
+          <div class="icon-circle error">
+            <span class="material-symbols-outlined">warning</span>
           </div>
-          <h1 class="confirm-title">Enlace inválido o expirado</h1>
-          <p class="confirm-text">
+          <h1 class="state-title">Enlace inválido o expirado</h1>
+          <p class="state-text">
             El enlace de confirmación no es válido o ya fue usado. Si crees que
             es un error, intenta suscribirte nuevamente.
           </p>
-        </>
+          <a href="/" class="btn-cta">Volver al inicio</a>
+        </div>
       )}
-
-      <a href="/" class="btn-home">
-        <span class="material-symbols-outlined">arrow_back</span> Volver al inicio
-      </a>
     </div>
   </section>
 </MainLayout>
 
 <style>
   .confirm-section {
-    min-height: 60vh;
+    min-height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4rem 1rem;
+    padding: 2rem 1rem;
     background: var(--color-background);
   }
 
@@ -56,52 +76,74 @@ const isOk = status === "ok";
     max-width: 480px;
     width: 100%;
     text-align: center;
+  }
+
+  .state-content {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
   }
 
-  .icon-wrapper {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
   }
 
-  .icon-wrapper.success {
+  .icon-circle span {
+    font-size: 3rem;
+  }
+
+  .icon-circle.success {
+    background: rgba(16, 185, 129, 0.1);
     color: #10b981;
+    border: 2px solid #10b981;
   }
 
-  .icon-wrapper.error {
+  .icon-circle.error {
+    background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
+    border: 2px solid #ef4444;
   }
 
-  .confirm-title {
+  .state-title {
     font-family: var(--font-headings);
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 900;
     color: var(--color-text);
-    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
-  .confirm-text {
+  .state-text {
     color: var(--color-text-secondary);
     line-height: 1.7;
-    margin-bottom: 2rem;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
   }
 
-  .btn-home {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--color-primary);
-    color: #fff;
-    padding: 0.75rem 1.75rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s ease;
+  .btn-cta {
+    margin-top: 1rem;
+    width: 100%;
   }
 
-  .btn-home:hover {
-    background: var(--color-secondary);
+  /* Animación */
+  .fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
+

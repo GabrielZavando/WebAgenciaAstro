@@ -14,17 +14,20 @@
   align-items: center; // Centrar todo el contenido horizontalmente
   text-align: center; // Centrar texto e iconos
   height: 100%; // Permite que todas las cards tengan la misma altura en el grid
+  cursor: pointer;
 
   // Estilo flat moderno - hover con efecto de elevación
   &:hover {
-    border-color: var(--color-primary);
-    background: var(--color-surface-secondary);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    transform: scale(1.02);
+    border-color: var(--color-primary) !important;
+    background: var(--color-surface-secondary) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px) scale3d(1.03, 1.03, 1.03) !important;
+    transition-delay: 0s !important; // Resetear delay de fade-in
+    z-index: 10;
     
     .service-card__icon {
       color: var(--color-accent); // Color de acento en hover
-      transform: scale(1.05);
+      transform: scale(1.1);
     }
   }
 
