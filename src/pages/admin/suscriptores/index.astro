@@ -58,11 +58,14 @@ const formatDate = (dateValue: any) => {
           <button id="btnExport" class="btn btn-cta__border btn-sm">
             <span class="material-symbols-outlined">download</span> Exportar
           </button>
-          <button id="btnNewsletter" class="btn btn-cta btn-sm" disabled>
+          <button id="btnNewsletter" class="btn btn-cta btn-sm" disabled style="display: none;">
             <span class="material-symbols-outlined">campaign</span> Newsletter
           </button>
-          <button id="btnCampaign" class="btn btn-cta__border btn-sm">
-            <span class="material-symbols-outlined">mail</span> Confirmar
+          <button id="btnCampaign" class="btn btn-cta__border btn-sm" disabled style="display: none;">
+            <span class="material-symbols-outlined">mail</span> Confirmar Selección
+          </button>
+          <button id="btnCampaignAll" class="btn btn-cta__border btn-sm">
+            <span class="material-symbols-outlined">mail_lock</span> Re-confirmar a Todos
           </button>
           <button id="btnDeleteSelected" class="btn btn-danger btn-sm" disabled style="display: none;">
             <span class="material-symbols-outlined">delete</span> Eliminar
@@ -273,11 +276,20 @@ const formatDate = (dateValue: any) => {
         : `<span class="material-symbols-outlined">download</span> Exportar`;
     }
 
-    const campaignBtn = document.getElementById('btnCampaign');
+    const campaignBtn = document.getElementById('btnCampaign') as HTMLButtonElement | null;
+    const campaignAllBtn = document.getElementById('btnCampaignAll') as HTMLButtonElement | null;
+    
     if (campaignBtn) {
-      campaignBtn.innerHTML = hasSelection 
-        ? `<span class="material-symbols-outlined">mail</span> Confirmar (${selectedIds.size})`
-        : `<span class="material-symbols-outlined">mail</span> Confirmar`;
+      campaignBtn.disabled = !hasSelection;
+      campaignBtn.style.display = hasSelection ? 'inline-flex' : 'none';
+      if (hasSelection) {
+        campaignBtn.innerHTML = `<span class="material-symbols-outlined">mail</span> Confirmar (${selectedIds.size})`;
+      }
+    }
+    
+    if (campaignAllBtn) {
+      // Ocultar si hay selección para que no se presione por error
+      campaignAllBtn.style.display = hasSelection ? 'none' : 'inline-flex';
     }
 
     const newsletterBtn = document.getElementById('btnNewsletter') as HTMLButtonElement | null;
@@ -383,34 +395,50 @@ const formatDate = (dateValue: any) => {
     showResult('✅ Exportación', `${dataToExport.length} suscriptores exportados.`);
   });
 
-  // Confirmar (Bulk / Individual)
+  // Confirmar Selección (Bulk)
   document.getElementById('btnCampaign')?.addEventListener('click', async () => {
     const btn = document.getElementById('btnCampaign');
-    const hasSelection = selectedIds.size > 0;
-    
-    if (!window.confirmModalHelpers) return;
+    if (selectedIds.size === 0 || !window.confirmModalHelpers) return;
 
-    const modalId = hasSelection ? 'confirmBulkCampaignModal' : 'confirmCampaignModal';
-    
-    window.confirmModalHelpers.open(modalId, async () => {
+    window.confirmModalHelpers.open('confirmBulkCampaignModal', async () => {
       setLoading(btn, true);
       try {
-        let data: any;
-        if (hasSelection) {
-          data = await apiClient.post('/forms/admin/subscribers/bulk-confirm', { 
-            ids: Array.from(selectedIds) 
-          });
-        } else {
-          data = await apiClient.post('/forms/admin/subscribers/reconfirmation-campaign');
-        }
+        const data: any = await apiClient.post('/forms/admin/subscribers/bulk-confirm', { 
+          ids: Array.from(selectedIds) 
+        });
         const lines = [
-          `✅ Enviados: ${data.sent}`,
-          `⚠️  Omitidos: ${data.skipped}`,
-          `❌ Errores: ${data.errors}`,
+          `✅ Enviados: ${data.sent || (data.success ? '?' : 0)}`,
+          `⚠️  Omitidos: ${data.skipped || 0}`,
+          `❌ Errores: ${data.errors || 0}`,
           '',
           ...(data.details ?? []),
         ].join('\n');
-        showResult('📧 Resultado del Envío', lines);
+        showResult('📧 Resultado del Envío (Selección)', lines);
+      } catch (e: any) {
+        showResult('❌ Error', `No se pudo ejecutar la acción: ${e.message}`);
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+  });
+
+  // Confirmar Todos (Masivo)
+  document.getElementById('btnCampaignAll')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnCampaignAll');
+    if (!window.confirmModalHelpers) return;
+
+    window.confirmModalHelpers.open('confirmCampaignModal', async () => {
+      setLoading(btn, true);
+      try {
+        const data: any = await apiClient.post('/forms/admin/subscribers/reconfirmation-campaign');
+        const lines = [
+          `✅ Enviados: ${data.sent || (data.success ? '?' : 0)}`,
+          `⚠️  Omitidos: ${data.skipped || 0}`,
+          `❌ Errores: ${data.errors || 0}`,
+          '',
+          ...(data.details ?? []),
+        ].join('\n');
+        showResult('📧 Resultado del Envío (Masivo)', lines);
       } catch (e: any) {
         showResult('❌ Error', `No se pudo ejecutar la acción: ${e.message}`);
       } finally {
