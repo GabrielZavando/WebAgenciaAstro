@@ -58,14 +58,11 @@ const formatDate = (dateValue: any) => {
           <button id="btnExport" class="btn btn-cta__border btn-sm">
             <span class="material-symbols-outlined">download</span> Exportar
           </button>
-          <button id="btnNewsletter" class="btn btn-cta btn-sm" disabled style="display: none;">
+          <button id="btnNewsletter" class="btn btn-cta btn-sm" disabled>
             <span class="material-symbols-outlined">campaign</span> Newsletter
           </button>
-          <button id="btnCampaign" class="btn btn-cta__border btn-sm" disabled style="display: none;">
-            <span class="material-symbols-outlined">mail</span> Confirmar Selección
-          </button>
-          <button id="btnCampaignAll" class="btn btn-cta__border btn-sm">
-            <span class="material-symbols-outlined">mail_lock</span> Re-confirmar a Todos
+          <button id="btnCampaign" class="btn btn-cta__border btn-sm" disabled>
+            <span class="material-symbols-outlined">mail</span> Enviar Confirmaciones
           </button>
           <button id="btnDeleteSelected" class="btn btn-danger btn-sm" disabled style="display: none;">
             <span class="material-symbols-outlined">delete</span> Eliminar
@@ -126,9 +123,9 @@ const formatDate = (dateValue: any) => {
                 const isConfirmed = sub.status === 'confirmed';
 
                 return (
-                  <tr class="subscriber-row" data-id={sub.subscriberId}>
+                  <tr class="subscriber-row" data-id={sub.id}>
                     <td style="text-align: center;">
-                      <input type="checkbox" class="sub-checkbox custom-checkbox" data-id={sub.subscriberId} />
+                      <input type="checkbox" class="sub-checkbox custom-checkbox" data-id={sub.id} />
                     </td>
                     <td class="email-col cell-email">
                       <div class="email-wrapper">
@@ -277,19 +274,13 @@ const formatDate = (dateValue: any) => {
     }
 
     const campaignBtn = document.getElementById('btnCampaign') as HTMLButtonElement | null;
-    const campaignAllBtn = document.getElementById('btnCampaignAll') as HTMLButtonElement | null;
-    
     if (campaignBtn) {
       campaignBtn.disabled = !hasSelection;
-      campaignBtn.style.display = hasSelection ? 'inline-flex' : 'none';
       if (hasSelection) {
-        campaignBtn.innerHTML = `<span class="material-symbols-outlined">mail</span> Confirmar (${selectedIds.size})`;
+        campaignBtn.innerHTML = `<span class="material-symbols-outlined">mail</span> Enviar Confirmaciones (${selectedIds.size})`;
+      } else {
+        campaignBtn.innerHTML = `<span class="material-symbols-outlined">mail</span> Enviar Confirmaciones`;
       }
-    }
-    
-    if (campaignAllBtn) {
-      // Ocultar si hay selección para que no se presione por error
-      campaignAllBtn.style.display = hasSelection ? 'none' : 'inline-flex';
     }
 
     const newsletterBtn = document.getElementById('btnNewsletter') as HTMLButtonElement | null;
@@ -414,31 +405,6 @@ const formatDate = (dateValue: any) => {
           ...(data.details ?? []),
         ].join('\n');
         showResult('📧 Resultado del Envío (Selección)', lines);
-      } catch (e: any) {
-        showResult('❌ Error', `No se pudo ejecutar la acción: ${e.message}`);
-      } finally {
-        setLoading(btn, false);
-      }
-    });
-  });
-
-  // Confirmar Todos (Masivo)
-  document.getElementById('btnCampaignAll')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnCampaignAll');
-    if (!window.confirmModalHelpers) return;
-
-    window.confirmModalHelpers.open('confirmCampaignModal', async () => {
-      setLoading(btn, true);
-      try {
-        const data: any = await apiClient.post('/forms/admin/subscribers/reconfirmation-campaign');
-        const lines = [
-          `✅ Enviados: ${data.sent || (data.success ? '?' : 0)}`,
-          `⚠️  Omitidos: ${data.skipped || 0}`,
-          `❌ Errores: ${data.errors || 0}`,
-          '',
-          ...(data.details ?? []),
-        ].join('\n');
-        showResult('📧 Resultado del Envío (Masivo)', lines);
       } catch (e: any) {
         showResult('❌ Error', `No se pudo ejecutar la acción: ${e.message}`);
       } finally {
