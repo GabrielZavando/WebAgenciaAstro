@@ -56,14 +56,38 @@ export interface FileResponseDto {
   createdAt: any
 }
 
-export interface ProspectResponseDto {
+export interface ConsultaResponse {
+  consultaId: string
+  asunto?: string
+  fecha: any
+  contenido: string
+  estado: 'respondida_automaticamente' | 'no_respondida' | 'respondida_manualmente'
+  respuesta?: {
+    fecha: any
+    contenido: string
+    emailSent: boolean
+  }
+}
+
+export interface DiagnosticoResponse {
+  diagnosticoId: string
+  respuestas: boolean[]
+  estado: 'enviado' | 'no_enviado'
+  contenido: any
+  createdAt: any
+}
+
+export interface ContactoResponseDto {
   id: string
   name: string
   email: string
+  empresa?: string
+  industria?: string
   phone?: string
-  message: string
+  origen: string
   status: string
-  conversations: any[]
+  consultas?: ConsultaResponse[]
+  diagnosticos?: DiagnosticoResponse[]
   createdAt: any
   updatedAt: any
 }

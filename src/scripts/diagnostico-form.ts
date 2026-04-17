@@ -7,52 +7,63 @@ interface Question {
   pilar: string;
 }
 
-interface AssessmentResult {
+interface DiagnosticoResultado {
   score: number;
   level: string;
   name: string;
   description: string;
   recommendations: string[];
+  email: string;
 }
 
 const QUESTIONS: Question[] = [
-  { id: "q1", text: "¿Tienes un documento donde se defina claramente tu marca (nombre, colores, tono de comunicación y propuesta de valor)?", pilar: "Personas" },
-  { id: "q2", text: "¿Existe un espacio definido (aunque sea mínimo) para aprender o mejorar el uso de herramientas digitales?", pilar: "Personas" },
-  { id: "q3", text: "¿Cada persona del equipo tiene claramente definido su rol dentro de los procesos del negocio?", pilar: "Personas" },
+  // 1. Cultura y Organización
+  { id: "q1", text: "¿Dedico (o mi equipo dedica) tiempo formal cada semana a aprender y experimentar con nuevas herramientas digitales?", pilar: "Cultura y Organización" },
+  { id: "q2", text: "¿Existe un plan o disposición clara para para capacitar al equipo en nuevas competencias tecnológicas de forma regular?", pilar: "Cultura y Organización" },
+  { id: "q3", text: "¿El liderazgo del negocio promueve activamente la adopción de nuevas tecnologías y está abierto a abandonar procesos antiguos?", pilar: "Cultura y Organización" },
   
-  { id: "q4", text: "¿Tienes definido y documentado cómo llegan los clientes y qué pasos sigues para atenderlos?", pilar: "Procesos" },
-  { id: "q5", text: "¿Existe un método estándar para enviar cotizaciones y hacer seguimiento a potenciales clientes?", pilar: "Procesos" },
-  { id: "q6", text: "¿Está definido qué ocurre después de la venta para asegurar satisfacción del cliente?", pilar: "Procesos" },
+  // 2. Estrategia
+  { id: "q4", text: "¿Tienes una visión escrita de los objetivos digitales que quieres alcanzar en los próximos 12 meses?", pilar: "Estrategia" },
+  { id: "q5", text: "¿Cuentas con un presupuesto mensual asignado exclusivamente para software, servicios digitales o consultoría estratégica?", pilar: "Estrategia" },
+  { id: "q6", text: "¿Colaboro activamente con socios tecnológicos, proveedores digitales o utilizo plataformas externas para innovar y fortalecer mi oferta de valor?", pilar: "Estrategia" },
+
+  // 3. Operaciones y Procesos
+  { id: "q7", text: "¿Están mis procesos de venta, entrega y soporte documentados paso a paso (aunque sea de forma simple)?", pilar: "Operaciones y Procesos" },
+  { id: "q8", text: "¿He identificado claramente las 3 tareas manuales que más tiempo consumen a la semana y que podrían automatizarse?", pilar: "Operaciones y Procesos" },
+  { id: "q9", text: "¿Todo el equipo utiliza las mismas herramientas oficiales del negocio, evitando el uso de cuadernos personales o chats informales?", pilar: "Operaciones y Procesos" },
   
-  { id: "q7", text: "¿Eres dueño de tus activos digitales (dominio, sitio web, correos corporativos)?", pilar: "Tecnología" },
-  { id: "q8", text: "¿Registras tus clientes y sus interacciones en una herramienta centralizada?", pilar: "Tecnología" },
-  { id: "q9", text: "¿Tu información importante está disponible online y cuenta con respaldos?", pilar: "Tecnología" },
-  
-  { id: "q10", text: "¿Llevas control digital actualizado de ingresos, gastos y márgenes?", pilar: "Datos" },
-  { id: "q11", text: "¿Mides cuántos clientes contactas y cuántos compran?", pilar: "Datos" },
-  { id: "q12", text: "¿Has tomado decisiones recientes basadas en datos concretos?", pilar: "Datos" }
+  // 4. Datos y Analítica
+  { id: "q10", text: "¿Toda la información de mis clientes vive en una base de datos centralizada y digital en lugar de agendas o WhatsApp?", pilar: "Datos y Analítica" },
+  { id: "q11", text: "¿Reviso al menos una vez al mes indicadores clave de rendimiento (KPIs) para decidir el rumbo del negocio?", pilar: "Datos y Analítica" },
+  { id: "q12", text: "¿Puedo conocer el margen de utilidad y los costos de mi operación de forma digital y actualizada en tiempo real?", pilar: "Datos y Analítica" },
+
+  // 5. Tecnología
+  { id: "q13", text: "¿Soy el dueño absoluto de mis dominios, correos corporativos y accesos a todas mis plataformas?", pilar: "Tecnología" },
+  { id: "q14", text: "¿Mis herramientas principales están conectadas entre sí (ej: el sitio web envía datos al CRM) sin intervención humana?", pilar: "Tecnología" },
+  { id: "q15", text: "¿Uso gestores de contraseñas y cuento con respaldos automáticos en la nube de toda mi información crítica?", pilar: "Tecnología" }
 ];
 
 const LEVELS = {
-  INI: { name: "Nivel Inicial", emoji: "🌱", description: "Tu negocio está dando sus primeros pasos en el mundo digital. Hay una gran oportunidad para automatizar procesos y atraer más clientes." },
-  INT: { name: "Nivel Intermedio", emoji: "🚀", description: "Ya tienes una base digital establecida. Ahora el reto es optimizar la conversión y escalar tus operaciones." },
-  ADV: { name: "Nivel Avanzado", emoji: "💎", description: "¡Felicidades! Tu negocio tiene una madurez digital sólida. El siguiente paso es la hiper-personalización y el uso avanzado de IA." }
+  INI: { name: "Nivel SEMILLA", emoji: "🌱", description: "El negocio está en una etapa puramente analógica. La información es vulnerable y depende de tu memoria o presencia física. Prioridad: Ordenar procesos básicos y migrar la información crítica a la nube. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
+  INT: { name: "Nivel BROTE", emoji: "🚀", description: "Ya existe una base tecnológica, pero hay \"islas de información\". El equipo usa herramientas, pero de forma aislada y con mucha duplicidad. Prioridad: Integrar herramientas y capacitar al equipo en una cultura digital compartida. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
+  ADV: { name: "Nivel PLANTA", emoji: "💎", description: "Tu negocio tiene raíces digitales sólidas. El sistema trabaja para ti, permitiéndote escalar y tomar decisiones basadas en datos. Prioridad: Optimización avanzada con Inteligencia Artificial y búsqueda de máxima eficiencia operativa. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." }
 };
 
 const PILAR_ICONS: Record<string, string> = {
-  "Personas": "👨‍💻",
-  "Procesos": "⚙️",
-  "Tecnología": "💻",
-  "Datos": "📊"
+  "Cultura y Organización": "👨‍💻",
+  "Estrategia": "🧭",
+  "Operaciones y Procesos": "⚙️",
+  "Datos y Analítica": "📊",
+  "Tecnología": "💻"
 };
 
-class AssessmentForm extends HTMLElement {
+class DiagnosticoForm extends HTMLElement {
   private step: "intro" | "quiz" | "contact" | "result" = "intro";
   private currentPilarIndex = 0;
   private answers: Record<string, boolean> = {};
-  private pilars = ["Personas", "Procesos", "Tecnología", "Datos"];
+  private pilars = ["Cultura y Organización", "Estrategia", "Operaciones y Procesos", "Datos y Analítica", "Tecnología"]
   private loading = false;
-  private result: AssessmentResult | null = null;
+  private result: DiagnosticoResultado | null = null;
   private turnstileWidgetId: string | null = null;
 
   constructor() {
@@ -67,7 +78,7 @@ class AssessmentForm extends HTMLElement {
     if (this.step === "intro") {
       this.step = "quiz";
       // Disparamos evento para que el padre oculte el header
-      this.dispatchEvent(new CustomEvent('assessment-start', {
+      this.dispatchEvent(new CustomEvent('diagnostico-start', {
         bubbles: true,
         composed: true
       }));
@@ -134,7 +145,7 @@ class AssessmentForm extends HTMLElement {
     this.render();
 
     try {
-      const response = await fetch(`${getApiUrl()}/assessment`, {
+      const response = await fetch(`${getApiUrl()}/diagnostico`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -147,6 +158,9 @@ class AssessmentForm extends HTMLElement {
       
       this.result = await response.json();
       this.step = "result";
+      
+      // Emitir evento para lanzar confeti y modal en Astro
+      this.dispatchEvent(new CustomEvent('diagnostico-success', { bubbles: true, composed: true }));
     } catch (error: any) {
       console.error("Submission error:", error);
       alert(error.message || "Hubo un error al procesar tu diagnóstico. Por favor intenta de nuevo.");
@@ -200,7 +214,7 @@ class AssessmentForm extends HTMLElement {
         <h3 class="aform__title-small">Diagnóstico de Madurez Digital</h3>
         
         <p class="aform__subtitle">
-          Analiza 12 puntos clave y recibe una hoja de ruta estratégica para digitalizar tu empresa.
+          Analiza 15 puntos clave y recibe una hoja de ruta estratégica para digitalizar tu empresa.
         </p>
 
         <section class="aform__instructions">
@@ -244,6 +258,7 @@ class AssessmentForm extends HTMLElement {
         <div class="aform__pilar-info">
           <div class="aform__pilar-sup">${pilar}</div>
           <h3 class="aform__title">${this.getPilarTitle(pilar)}</h3>
+          <p class="aform__pilar-subtitle"><em>"${this.getPilarSubtitle(pilar)}"</em></p>
         </div>
       </div>
 
@@ -298,7 +313,7 @@ class AssessmentForm extends HTMLElement {
       <div class="aform__contact-grid">
         <div class="aform__contact-info">
           <div class="aform__contact-score">
-            <span class="aform__contact-score-num">${score}/12</span>
+            <span class="aform__contact-score-num">${score}/15</span>
             <span class="aform__contact-score-label">Puntos de Madurez</span>
           </div>
           <h3 class="aform__title">🎉 Tus resultados están listos</h3>
@@ -327,12 +342,22 @@ class AssessmentForm extends HTMLElement {
             <label class="form-label">Sector industrial</label>
             <div class="select-wrapper">
               <select name="sector" class="form-select" required>
-                <option value="" disabled selected>seleccione un sector industrial</option>
-                <option value="retail">Comercio</option>
-                <option value="servicios">Servicios</option>
-                <option value="gastronomia">Gastronomía</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="otros">Otro</option>
+                <option value="" disabled selected>Selecciona un sector industrial</option>
+                <option value="Comercio">Comercio</option>
+                <option value="Servicios Profesionales">Servicios Profesionales</option>
+                <option value="Gastronomía">Gastronomía</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Salud">Salud</option>
+                <option value="Educación">Educación</option>
+                <option value="Construcción e Inmobiliario">Construcción e Inmobiliario</option>
+                <option value="Manufactura y Producción">Manufactura y Producción</option>
+                <option value="Agricultura y Agroindustria">Agricultura y Agroindustria</option>
+                <option value="Transporte y Logística">Transporte y Logística</option>
+                <option value="Belleza y Bienestar">Belleza y Bienestar</option>
+                <option value="Legal y Contable">Legal y Contable</option>
+                <option value="Creativo y Marketing">Creativo y Marketing</option>
+                <option value="Turismo y Hospedaje">Turismo y Hospedaje</option>
+                <option value="Otros">Otros</option>
               </select>
             </div>
           </div>
@@ -340,11 +365,11 @@ class AssessmentForm extends HTMLElement {
           <div id="turnstile-container" class="aform__turnstile"></div>
 
           <div class="aform__nav">
-            <button type="button" class="btn-cta__border" id="btn-prev" style="min-width: 150px">
+            <button type="button" class="btn-cta__border" id="btn-prev">
               <span class="material-symbols-outlined" style="color: white">arrow_back</span>
               Anterior
             </button>
-            <button type="submit" class="btn-cta ${this.loading ? 'btn-loading' : ''}" ${this.loading ? "disabled" : ""} style="min-width: 250px">
+            <button type="submit" class="btn-cta ${this.loading ? 'btn-loading' : ''}" ${this.loading ? "disabled" : ""}>
               ${this.loading ? "" : "Finalizar Diagnóstico"}
               ${this.loading ? "" : '<span class="material-symbols-outlined" style="color: white">arrow_forward</span>'}
             </button>
@@ -365,14 +390,22 @@ class AssessmentForm extends HTMLElement {
     return `
       <div class="aform__success">
         <div class="aform__success-icon">
-          <span class="material-symbols-outlined">mark_email_read</span>
+          <span class="material-symbols-outlined">verified</span>
         </div>
 
-        <h2 class="aform__success-title">¡Diagnóstico enviado con éxito!</h2>
+        <h2 class="aform__success-title">¡Diagnóstico Completado!</h2>
+        
+        <div class="aform__result-badge">
+          <span class="emoji">${this.result?.level === 'semilla' ? '🌱' : this.result?.level === 'brote' ? '🚀' : '💎'}</span>
+          <span class="label">Nivel ${this.result?.level.toUpperCase()}</span>
+        </div>
+
+        <p class="aform__success-subtitle" style="max-width: 600px; font-style: italic; color: var(--color-text);">
+          "${this.result?.description}"
+        </p>
 
         <p class="aform__success-subtitle">
-          Gracias por completar la autoevaluación. Hemos recibido tus respuestas
-          y en breve recibirás en tu correo:
+          Hemos enviado el reporte estratégico completo a <strong>${this.result?.email || 'tu correo'}</strong>:
         </p>
 
         <ul class="aform__success-list">
@@ -397,7 +430,6 @@ class AssessmentForm extends HTMLElement {
             href="https://calendar.app.google/HbTU9z3qgBWTUzkK7"
             target="_blank"
             class="btn-cta"
-            style="min-width: 340px"
           >
             <span class="material-symbols-outlined" style="color: white">calendar_month</span>
             Agenda una sesión estratégica gratis
@@ -409,12 +441,24 @@ class AssessmentForm extends HTMLElement {
 
   private getPilarTitle(pilar: string) {
     const titles: Record<string, string> = {
-      "Personas": "Personas y Cultura",
-      "Procesos": "Procesos (Forma de operar)",
-      "Tecnología": "Tecnología (Herramientas)",
-      "Datos": "Datos (Toma de decisiones)"
+      "Cultura y Organización": "Cultura y Organización (Habilidades y Liderazgo)",
+      "Estrategia": "Estrategia (La Brújula)",
+      "Operaciones y Procesos": "Operaciones y Procesos (El Motor)",
+      "Datos y Analítica": "Datos y Analítica (La Inteligencia)",
+      "Tecnología": "Tecnología (Las Herramientas)"
     };
-    return titles[pilar];
+    return titles[pilar] || pilar;
+  }
+
+  private getPilarSubtitle(pilar: string) {
+    const subtitles: Record<string, string> = {
+      "Cultura y Organización": "El éxito digital depende de la mentalidad, no del código.",
+      "Estrategia": "Digitalizar el caos solo genera un caos más rápido.",
+      "Operaciones y Procesos": "Eficiencia es hacer las cosas bien; efectividad es hacer las cosas correctas.",
+      "Datos y Analítica": "Lo que no se mide, no se puede mejorar.",
+      "Tecnología": "El software debe adaptarse a las personas, no las personas al software."
+    };
+    return subtitles[pilar] || "";
   }
 
   private isPilarComplete(pilar: string) {
@@ -481,4 +525,4 @@ class AssessmentForm extends HTMLElement {
   }
 }
 
-customElements.define("assessment-form", AssessmentForm);
+customElements.define("diagnostico-form", DiagnosticoForm);

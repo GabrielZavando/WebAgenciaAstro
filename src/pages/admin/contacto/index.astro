@@ -1,156 +1,106 @@
 ---
-import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardLayout from '../../../layouts/DashboardLayout.astro'
+import ContactoTable from '../../../components/admin/ContactoTable.astro'
+import { apiClient } from '../../../lib/api-client'
+import type { ContactoResponseDto } from '../../../types/api'
 
-// Obtenemos el endpoint desde el env o formamos uno por default
-import type { ProspectResponseDto } from "../../../types/api";
-
-// Obtenemos el endpoint desde el env o formamos uno por default
-const API_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:8080';
-
-let prospects: ProspectResponseDto[] = [];
-let error = null;
-
-try {
-  // Petición a la API (NestJS)
-  const res = await fetch(`${API_URL}/forms/admin/prospects`);
-  if (!res.ok) {
-    throw new Error('No se pudo obtener la lista de contactos');
-  }
-  prospects = await res.json();
-} catch (e) {
-  console.error(e);
-  error = (e as Error).message;
+// Proteger la ruta — solo admins con sesión activa
+const token = Astro.cookies.get('session')?.value
+if (!token) {
+  return Astro.redirect('/login')
 }
 
-// Helper de fechas
-const formatDate = (dateValue: any) => {
-  try {
-    // Firestore devuelve timestamps como { _seconds, _nanoseconds }
-    const timestamp =
-      dateValue?._seconds
-        ? new Date(dateValue._seconds * 1000)
-        : dateValue
-          ? new Date(dateValue)
-          : new Date();
-    if (isNaN(timestamp.getTime())) return 'Fecha inválida';
-    return new Intl.DateTimeFormat('es-AR', {
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }).format(timestamp);
-  } catch (e) {
-    return 'Fecha desconocida';
+let contacts: ContactoResponseDto[] = []
+let errorMsg: string | null = null
+
+try {
+  const rawData = await apiClient.get<any[]>(
+    '/forms/admin/contactos',
+    { token },
+  )
+  // Normalizar contactoId → id para el frontend
+  contacts = rawData.map((c) => ({
+    ...c,
+    id: c.contactoId ?? c.id,
+  }))
+} catch (error: unknown) {
+  const err = error as Error & { status?: number }
+  if (err.status === 403) {
+    errorMsg = 'No tienes permisos de Administrador para ver esta página.'
+  } else {
+    errorMsg = `Error al cargar contactos: ${err.message}`
   }
-};
+  console.error('Error fetching contactos:', error)
+}
 ---
 
-<DashboardLayout title="Administrar Contactos" breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Contacto' }]} role="admin">
-  <div class="users-table-view prospects-view">
+<DashboardLayout
+  title="Gestión de Contactos"
+  breadcrumbs={[
+    { label: 'Admin', href: '/admin' },
+    { label: 'Contacto' },
+  ]}
+  role="admin"
+>
+  <div class="users-table-view">
     <div class="header-actions">
       <div class="header-title-row">
         <div>
-          <h1>Formularios de Contacto</h1>
-          <p class="text-muted">Maneja las consultas de los clientes potenciales.</p>
+          <h1>Contactos</h1>
+          <p class="text-muted">
+            Lista de todos los leads y contactos recibidos.
+          </p>
         </div>
       </div>
 
       <div class="header-search-row">
         <form class="search-form" onsubmit="return false;">
-          <input type="text" id="prospectSearch" class="search-input" placeholder="Buscar por nombre, email o mensaje..." autocomplete="off" />
+          <input
+            type="text"
+            id="contactSearch"
+            class="search-input"
+            placeholder="Buscar por nombre, correo o teléfono..."
+            autocomplete="off"
+          />
           <button type="submit" class="search-btn">Buscar</button>
         </form>
       </div>
     </div>
 
-    <main class="admin-content">
-      {error && (
-        <div class="error-message">
-          <p>Error: {error}</p>
-        </div>
-      )}
+    {errorMsg && (
+      <div class="error-banner">
+        <span class="material-symbols-outlined">report</span> {errorMsg}
+      </div>
+    )}
 
-      {prospects.length === 0 && !error ? (
-        <div class="empty-state">
-          <p>No hay mensajes de contacto actualmente.</p>
-        </div>
-      ) : null}
-
-      {prospects.length > 0 && (
-        <div class="prospects-grid">
-          {prospects.map((prospect: ProspectResponseDto) => {
-             const conversationLength = prospect.conversations ? prospect.conversations.length : 0;
-             const hasReplies = conversationLength > 1;
-
-             return (
-              <a href={`/admin/contacto/${prospect.id}`} class="prospect-card">
-                <div class="card-header">
-                  <div class="prospect-info">
-                    <h3 class="prospect-name search-target-name">{prospect.name}</h3>
-                    <span class="prospect-email search-target-email">{prospect.email}</span>
-                  </div>
-                  <div class="interaction-status">
-                    {hasReplies ? (
-                      <span class="badge replied">Respondido</span>
-                    ) : (
-                      <span class="badge pending">Pendiente</span>
-                    )}
-                  </div>
-                </div>
-
-                <div class="card-body">
-                  <p class="prospect-phone search-target-phone">
-                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">call</span> {prospect.phone || 'No provisto'}
-                  </p>
-                  <div class="latest-message">
-                    <p class="message-preview search-target-message">
-                       {prospect.message?.substring(0, 100) || prospect.conversations?.[0]?.incomingMessage?.content?.substring(0, 100)}...
-                    </p>
-                  </div>
-                </div>
-
-                <div class="card-footer">
-                   <div class="meta-info">
-                     <span class="date-badge" title="Última actualización">
-                       <span class="material-symbols-outlined" style="font-size: 0.9rem; margin-right: 0.25rem;">schedule</span>
-                       {formatDate(prospect.updatedAt || prospect.createdAt)}
-                     </span>
-                     <span class="msgs-count">
-                       <span class="material-symbols-outlined" style="font-size: 0.9rem; margin-right: 0.25rem;">forum</span>
-                       {conversationLength} mensajes
-                     </span>
-                   </div>
-                   <div class="view-thread">
-                     Ver conversación <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-left: 0.25rem;">arrow_forward</span>
-                   </div>
-                </div>
-              </a>
-             )
-          })}
-        </div>
-      )}
-    </main>
-
-    <script>
-      // Filtrado de Búsqueda
-      const searchInput = document.getElementById('prospectSearch') as HTMLInputElement;
-      searchInput?.addEventListener('input', () => {
-        const term = searchInput.value.toLowerCase();
-        const cards = document.querySelectorAll('.prospect-card');
-        
-        cards.forEach(card => {
-          const name = card.querySelector('.search-target-name')?.textContent?.toLowerCase() || '';
-          const email = card.querySelector('.search-target-email')?.textContent?.toLowerCase() || '';
-          const phone = card.querySelector('.search-target-phone')?.textContent?.toLowerCase() || '';
-          const message = card.querySelector('.search-target-message')?.textContent?.toLowerCase() || '';
-          
-          if (name.includes(term) || email.includes(term) || phone.includes(term) || message.includes(term)) {
-            (card as HTMLElement).style.display = 'flex';
-          } else {
-            (card as HTMLElement).style.display = 'none';
-          }
-        });
-      });
-    </script>
+    <div class="content-card fade-in">
+      <ContactoTable contacts={contacts} />
+    </div>
   </div>
 </DashboardLayout>
 
+<script>
+  const searchInput = document.getElementById(
+    'contactSearch',
+  ) as HTMLInputElement
+  const rows = document.querySelectorAll('.contact-row')
 
+  searchInput?.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase()
+    rows.forEach((row) => {
+      const name =
+        row.querySelector('.user-name')?.textContent?.toLowerCase() ?? ''
+      const email =
+        row.querySelector('.contact-email')?.textContent?.toLowerCase() ?? ''
+      const phone =
+        row.querySelector('.contact-phone')?.textContent?.toLowerCase() ?? ''
+
+      const match =
+        name.includes(term) ||
+        email.includes(term) ||
+        phone.includes(term)
+
+      ;(row as HTMLElement).style.display = match ? '' : 'none'
+    })
+  })
+</script>
