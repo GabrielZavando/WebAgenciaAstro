@@ -136,9 +136,21 @@ const formatDate = (dateValue: any) => {
                       </div>
                     </td>
                     <td>
-                      <span class={`status-badge ${isConfirmed ? 'confirmed' : 'pending'}`}>
-                        {isConfirmed ? 'Confirmado' : 'Pendiente'}
-                      </span>
+                      {(() => {
+                        const s = sub.status
+                        const labelMap: Record<string, string> = {
+                          confirmed: 'Confirmado',
+                          sent: 'Enviado',
+                          pending: 'Pendiente',
+                          unconfirmed: 'No confirmado',
+                          inactive: 'Inactivo',
+                          unsubscribed: 'Desuscrito',
+                        }
+                        const label = labelMap[s] ?? s
+                        return (
+                          <span class={`status-badge ${s}`}>{label}</span>
+                        )
+                      })()}
                     </td>
                     <td>{formattedDate}</td>
                   </tr>
