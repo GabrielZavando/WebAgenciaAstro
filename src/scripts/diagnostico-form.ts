@@ -427,7 +427,7 @@ class DiagnosticoForm extends HTMLElement {
         <div class="aform__success-cta">
           <p>¿Quieres acelerar tu transformación digital con ayuda experta?</p>
           <a
-            href="https://calendar.app.google/HbTU9z3qgBWTUzkK7"
+            href="https://calendly.com/gabrielzavando/30min"
             target="_blank"
             class="btn-cta"
           >

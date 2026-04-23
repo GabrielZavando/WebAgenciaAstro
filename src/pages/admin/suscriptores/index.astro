@@ -265,6 +265,9 @@ const formatDate = (dateValue: any) => {
   }
 
   function updateBulkButtons() {
+    const hasSelection = selectedIds.size > 0;
+    const deleteBtn = document.getElementById('btnDeleteSelected') as HTMLButtonElement | null;
+    
     if (deleteBtn) {
       deleteBtn.disabled = !hasSelection;
       deleteBtn.style.display = hasSelection ? 'inline-flex' : 'none';
