@@ -80,7 +80,6 @@ const config = await getSystemConfig();
         // También desplazamos suavemente hacia arriba para enfocar el formulario
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-
       form.addEventListener('diagnostico-success', () => {
         // Ejecutar confeti interactivo
         if (typeof (window as any).confetti === 'function') {

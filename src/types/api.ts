@@ -92,10 +92,22 @@ export interface ContactoResponseDto {
   updatedAt: any
 }
 
+export interface ProspectResponseDto {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  message: string
+  status: string
+  conversations: any[]
+  createdAt: any
+  updatedAt: any
+}
+
 export interface SubscriberResponseDto {
   id: string
   email: string
-  status: 'pending' | 'confirmed' | 'unsubscribed'
+  status: 'pending' | 'sent' | 'confirmed' | 'unconfirmed' | 'inactive' | 'unsubscribed'
   subscribedAt: any
   confirmedAt?: any
 }

@@ -265,9 +265,6 @@ const formatDate = (dateValue: any) => {
   }
 
   function updateBulkButtons() {
-    const deleteBtn = document.getElementById('btnDeleteSelected') as HTMLButtonElement | null;
-    const hasSelection = selectedIds.size > 0;
-    
     if (deleteBtn) {
       deleteBtn.disabled = !hasSelection;
       deleteBtn.style.display = hasSelection ? 'inline-flex' : 'none';
@@ -371,7 +368,7 @@ const formatDate = (dateValue: any) => {
         if (cb && cb.checked) {
           cb.checked = false;
           const id = cb.dataset.id;
-          if (id) selectedIds.add(id);
+          if (id) selectedIds.delete(id);
         }
       }
     });
@@ -385,7 +382,7 @@ const formatDate = (dateValue: any) => {
     let dataToExport = allSubscribers;
     
     if (hasSelection) {
-      dataToExport = allSubscribers.filter((s: any) => selectedIds.has(s.subscriberId));
+      dataToExport = allSubscribers.filter((s: any) => selectedIds.has(s.id));
     }
 
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
