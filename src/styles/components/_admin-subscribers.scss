@@ -105,6 +105,30 @@
       color: #f59e0b;
       border-color: rgba(245, 158, 11, 0.2);
     }
+
+    &.sent {
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    &.unconfirmed {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    &.inactive {
+      background: rgba(107, 114, 128, 0.1);
+      color: #6b7280;
+      border-color: rgba(107, 114, 128, 0.2);
+    }
+
+    &.unsubscribed {
+      background: rgba(55, 65, 81, 0.1);
+      color: #374151;
+      border-color: rgba(55, 65, 81, 0.2);
+    }
   }
 
   .table-footer {

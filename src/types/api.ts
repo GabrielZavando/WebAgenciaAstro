@@ -56,6 +56,42 @@ export interface FileResponseDto {
   createdAt: any
 }
 
+export interface ConsultaResponse {
+  consultaId: string
+  asunto?: string
+  fecha: any
+  contenido: string
+  estado: 'respondida_automaticamente' | 'no_respondida' | 'respondida_manualmente'
+  respuesta?: {
+    fecha: any
+    contenido: string
+    emailSent: boolean
+  }
+}
+
+export interface DiagnosticoResponse {
+  diagnosticoId: string
+  respuestas: boolean[]
+  estado: 'enviado' | 'no_enviado'
+  contenido: any
+  createdAt: any
+}
+
+export interface ContactoResponseDto {
+  id: string
+  name: string
+  email: string
+  empresa?: string
+  industria?: string
+  phone?: string
+  origen: string
+  status: string
+  consultas?: ConsultaResponse[]
+  diagnosticos?: DiagnosticoResponse[]
+  createdAt: any
+  updatedAt: any
+}
+
 export interface ProspectResponseDto {
   id: string
   name: string
@@ -71,7 +107,7 @@ export interface ProspectResponseDto {
 export interface SubscriberResponseDto {
   id: string
   email: string
-  status: 'pending' | 'confirmed' | 'unsubscribed'
+  status: 'pending' | 'sent' | 'confirmed' | 'unconfirmed' | 'inactive' | 'unsubscribed'
   subscribedAt: any
   confirmedAt?: any
 }

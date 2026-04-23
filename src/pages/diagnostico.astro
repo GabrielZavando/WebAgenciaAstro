@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+import ModalMessage from "../components/shared/ModalMessage.astro";
 import { getSystemConfig } from "../utils/config";
 
 const config = await getSystemConfig();
@@ -48,28 +49,88 @@ const config = await getSystemConfig();
           <span class="assessment-header__highlight">tu negocio?</span>
         </h1>
         <p class="assessment-header__description">
-          Analiza 12 puntos clave y recibe una hoja de ruta estratégica para digitalizar tu empresa.
+          Analiza 15 puntos clave y recibe una hoja de ruta estratégica para digitalizar tu empresa.
         </p>
       </header>
 
       <!-- Formulario de Evaluación -->
       <div class="assessment-wrapper fade-in" style="--delay: 0.1s">
-        <assessment-form id="form-diagnostico"></assessment-form>
+        <diagnostico-form id="form-diagnostico"></diagnostico-form>
       </div>
     </div>
   </main>
+  
+  <ModalMessage
+    id="diagnostic-success-modal"
+    type="success"
+    title="¡Diagnóstico completado!"
+    message="Estamos procesando tus respuestas. En unos instantes recibirás tu informe confidencial por correo electrónico."
+  />
 
+  <script is:inline src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
-    import "../scripts/assessment-form.ts";
+    import "../scripts/diagnostico-form.ts";
 
     const form = document.getElementById('form-diagnostico');
     const main = document.getElementById('assessment-main');
 
     if (form && main) {
-      form.addEventListener('assessment-start', () => {
+      form.addEventListener('diagnostico-start', () => {
         main.classList.add('assessment-page--active');
         // También desplazamos suavemente hacia arriba para enfocar el formulario
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      form.addEventListener('diagnostico-success', () => {
+        // Ejecutar confeti interactivo
+        if (typeof (window as any).confetti === 'function') {
+          const duration = 3 * 1000;
+          const end = Date.now() + duration;
+
+          (function frame() {
+            (window as any).confetti({
+              particleCount: 5,
+              angle: 60,
+              spread: 55,
+              origin: { x: 0 },
+              zIndex: 200000,
+              colors: ['#471761', '#ff0080', '#1c1c1e']
+            });
+            (window as any).confetti({
+              particleCount: 5,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1 },
+              zIndex: 200000,
+              colors: ['#471761', '#ff0080', '#1c1c1e']
+            });
+
+            if (Date.now() < end) {
+              requestAnimationFrame(frame);
+            }
+          }());
+        }
+
+        // Mostrar modal y redirigir al home cuando se cierre
+        if (typeof (window as any).modalHelpers !== 'undefined') {
+          (window as any).modalHelpers.openModal('diagnostic-success-modal');
+          
+          const modal = document.getElementById('diagnostic-success-modal');
+          if (modal) {
+            // Un pequeño delay para evitar interceptar el cambio de clase inicial al abrirlo
+            setTimeout(() => {
+              const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                  if (mutation.attributeName === 'class' || mutation.attributeName === 'aria-hidden') {
+                    if (!modal.classList.contains('active') || modal.getAttribute('aria-hidden') === 'true') {
+                      window.location.href = '/';
+                    }
+                  }
+                });
+              });
+              observer.observe(modal, { attributes: true });
+            }, 100);
+          }
+        }
       });
     }
   </script>
