@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/MainLayout.astro';
+import Banner from '../../components/landing/Banner.astro';
+import Services from '../../components/landing/Services.astro';
+import PackWebProfesional from '../../components/landing/PackWebProfesional.astro';
+import PackSistemas from '../../components/landing/PackSistemas.astro';
+import SolucionesModulares from '../../components/landing/SolucionesModulares.astro';
+import MetodologiaCTP from '../../components/landing/MetodologiaCTP.astro';
+import bannerBlogImg from '../../assets/img/banner-blog.jpg';
+---
+
+<Layout 
+  title="Soluciones Digitales Soberanas | Gabriel Zavando"
+  description="Desarrollo web y automatización con acompañamiento permanente. Packs desde $290.000 CLP. Soberanía digital garantizada para Pymes en Chile."
+>
+  <Banner image={bannerBlogImg} size="half" align="center">
+      <h1 class="banner__title fade-in">
+        <span class="title-xl">Soluciones Digitales</span>
+        <span class="title-md">Tecnología que se adapta a tu negocio.<br/>Acompañamiento que perdura.</span>
+      </h1>
+      
+      <div class="mt-8 flex justify-center fade-in fade-in-delay-2">
+        <a href="https://calendly.com/gabrielzavando/30min" class="btn-cta" target="_blank" rel="noopener noreferrer">
+          Agendar Consultoría
+        </a>
+      </div>
+  </Banner>
+
+  <Services />
+  <SolucionesModulares />
+  <PackWebProfesional />
+  <PackSistemas />
+  <MetodologiaCTP />
+</Layout>
+
+<style>
+  /* Clases eliminadas ya que ahora usamos utilidades de Tailwind en el markup */
+</style>

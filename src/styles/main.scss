@@ -14,3 +14,6 @@
 
 // 4. Components Layer - Bloques reutilizables y desacoplados
 @use 'components' as *;
+
+// 5. Pages Layer - Estilos de páginas específicas
+@use 'pages' as *;

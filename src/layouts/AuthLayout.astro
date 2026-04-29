@@ -4,17 +4,19 @@ import Head from "../components/shared/Head.astro";
 interface Props {
   title?: string;
   description?: string;
+  forcedTheme?: 'light' | 'dark';
 }
 const {
   title = "Iniciar Sesión | Agencia Digital",
   description = "Panel de control y administración.",
+  forcedTheme,
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme={forcedTheme} data-forced-theme={forcedTheme}>
   <head>
-    <Head title={title} description={description} />
+    <Head title={title} description={description} forcedTheme={forcedTheme} />
   </head>
   <body>
     {import.meta.env.PUBLIC_GTM_ID && (

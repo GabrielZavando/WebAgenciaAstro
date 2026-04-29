@@ -1,32 +1,46 @@
 ---
 interface Props {
-  id: number;
+  id: string | number;
+  need?: string;
   icon: string;
   title: string;
   description: string;
+  ctaText?: string;
+  anchor?: string;
   class?: string;
 }
 
-const { id, icon, title, description, class: className = '' } = Astro.props;
+const { id, need, icon, title, description, ctaText = 'Ver detalles', anchor, class: className = '' } = Astro.props;
 ---
 
 <div 
   class={`service-card ${className}`} 
-  data-modal={`modal-${id}`}
-  role="button"
-  tabindex="0"
+  data-modal={!anchor ? `modal-${id}` : undefined}
+  role={!anchor ? "button" : undefined}
+  tabindex={!anchor ? "0" : undefined}
 >
+  {need && <span class="service-card__need">{need}</span>}
   <div class="service-card__icon" set:html={icon}></div>
   <h3 class="service-card__title">{title}</h3>
   <p class="service-card__description">{description}</p>
-  <button 
-    type="button"
-    class="btn-cta"
-    aria-label={`Ver detalles sobre ${title}`}
-    aria-haspopup="dialog"
-    tabindex="-1"
-  >
-    Ver detalles
-  </button>
+  
+  {anchor ? (
+    <a 
+      href={anchor} 
+      class="btn-cta"
+    >
+      {ctaText} <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+  ) : (
+    <button 
+      type="button"
+      class="btn-cta"
+      aria-label={`Ver detalles sobre ${title}`}
+      aria-haspopup="dialog"
+      tabindex="-1"
+    >
+      {ctaText} <span class="material-symbols-outlined">arrow_forward</span>
+    </button>
+  )}
 </div>
 
