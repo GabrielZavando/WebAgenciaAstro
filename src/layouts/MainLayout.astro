@@ -13,6 +13,9 @@ interface Props {
   hideHeader?: boolean;
   hideFooter?: boolean;
   forcedTheme?: 'light' | 'dark';
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
 }
 const {
   title = config.name,
@@ -21,13 +24,24 @@ const {
   hideHeader = false,
   hideFooter = false,
   forcedTheme,
+  ogTitle,
+  ogDescription,
+  ogImage,
 } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme={forcedTheme} data-forced-theme={forcedTheme}>
   <head>
-    <Head title={title} description={description} faviconUrl={config.faviconUrl} forcedTheme={forcedTheme} />
+    <Head 
+      title={title} 
+      description={description} 
+      faviconUrl={config.faviconUrl} 
+      forcedTheme={forcedTheme}
+      ogTitle={ogTitle}
+      ogDescription={ogDescription}
+      ogImage={ogImage}
+    />
     {/* Cloudflare Turnstile - Centralizado */}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>

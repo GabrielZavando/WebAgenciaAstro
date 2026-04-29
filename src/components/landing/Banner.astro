@@ -10,9 +10,10 @@ interface Props {
 
 const { image = banner, size = 'full', align = 'center' } = Astro.props;
 
-const name = "Gabriel Zavando";
-const charge = "Full Stack Developer";
-const subtitle = "Desarrollo software a medida y automatizo procesos con IA para hacer tu negocio más eficiente y escalable.";
+const name = "Transformación Digital";
+const chargeLine1 = "Orden digital para tu empresa.";
+const chargeLine2 = "Con un socio que garantiza que siga funcionando.";
+const subtitle = "Escala tu negocio sin multiplicar tu carga de trabajo. Sistemas digitales que cuidan tu tiempo mientras tú haces crecer tu marca.";
 ---
 
 <section id="inicio" class={`banner banner--${size}`}>
@@ -34,17 +35,17 @@ const subtitle = "Desarrollo software a medida y automatizo procesos con IA para
         <slot>
             <h1 class="banner__title fade-in">
                 <span class="title-xl">{name}</span>
-                <span class="title-md">{charge}</span>
+                <span class="title-md">{chargeLine1}<br/>{chargeLine2}</span>
             </h1>
             <p class="parrafo fade-in fade-in-delay-1">
                 {subtitle}
             </p>
             <div class="banner__actions fade-in fade-in-delay-2">
                 <a href="https://calendly.com/gabrielzavando/30min" class="btn-cta" target="_blank" rel="noopener noreferrer">
-                    Agendar Asesoría
+                    <span class="material-symbols-outlined mr-1">calendar_today</span> Agendar Asesoría
                 </a>
-                <a href="/#servicios" class="btn-cta__accent">
-                    Ver soluciones
+                <a href="/diagnostico" class="btn-cta__accent">
+                    <span class="material-symbols-outlined mr-1">analytics</span> Diagnóstico gratis
                 </a>
             </div>
         </slot>

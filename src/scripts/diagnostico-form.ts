@@ -44,17 +44,17 @@ const QUESTIONS: Question[] = [
 ];
 
 const LEVELS = {
-  INI: { name: "Nivel SEMILLA", emoji: "🌱", description: "El negocio está en una etapa puramente analógica. La información es vulnerable y depende de tu memoria o presencia física. Prioridad: Ordenar procesos básicos y migrar la información crítica a la nube. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
-  INT: { name: "Nivel BROTE", emoji: "🚀", description: "Ya existe una base tecnológica, pero hay \"islas de información\". El equipo usa herramientas, pero de forma aislada y con mucha duplicidad. Prioridad: Integrar herramientas y capacitar al equipo en una cultura digital compartida. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
-  ADV: { name: "Nivel PLANTA", emoji: "💎", description: "Tu negocio tiene raíces digitales sólidas. El sistema trabaja para ti, permitiéndote escalar y tomar decisiones basadas en datos. Prioridad: Optimización avanzada con Inteligencia Artificial y búsqueda de máxima eficiencia operativa. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." }
+  INI: { name: "Nivel SEMILLA", icon: "eco", description: "El negocio está en una etapa puramente analógica. La información es vulnerable y depende de tu memoria o presencia física. Prioridad: Ordenar procesos básicos y migrar la información crítica a la nube. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
+  INT: { name: "Nivel BROTE", icon: "rocket_launch", description: "Ya existe una base tecnológica, pero hay \"islas de información\". El equipo usa herramientas, pero de forma aislada y con mucha duplicidad. Prioridad: Integrar herramientas y capacitar al equipo en una cultura digital compartida. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." },
+  ADV: { name: "Nivel PLANTA", icon: "diamond", description: "Tu negocio tiene raíces digitales sólidas. El sistema trabaja para ti, permitiéndote escalar y tomar decisiones basadas en datos. Prioridad: Optimización avanzada con Inteligencia Artificial y búsqueda de máxima eficiencia operativa. <br><br><strong>Regla de Oro:</strong> No intentes pasar de Semilla a Planta en una semana. Enfócate en convertir un \"No\" en un \"Sí\" cada mes." }
 };
 
 const PILAR_ICONS: Record<string, string> = {
-  "Cultura y Organización": "👨‍💻",
-  "Estrategia": "🧭",
-  "Operaciones y Procesos": "⚙️",
-  "Datos y Analítica": "📊",
-  "Tecnología": "💻"
+  "Cultura y Organización": "groups",
+  "Estrategia": "explore",
+  "Operaciones y Procesos": "settings",
+  "Datos y Analítica": "bar_chart",
+  "Tecnología": "computer"
 };
 
 class DiagnosticoForm extends HTMLElement {
@@ -254,7 +254,7 @@ class DiagnosticoForm extends HTMLElement {
 
     return `
       <div class="aform__pilar-header">
-        <div class="aform__pilar-icon">${PILAR_ICONS[pilar]}</div>
+        <div class="aform__pilar-icon"><span class="material-symbols-outlined">${PILAR_ICONS[pilar]}</span></div>
         <div class="aform__pilar-info">
           <div class="aform__pilar-sup">${pilar}</div>
           <h3 class="aform__title">${this.getPilarTitle(pilar)}</h3>
@@ -316,7 +316,7 @@ class DiagnosticoForm extends HTMLElement {
             <span class="aform__contact-score-num">${score}/15</span>
             <span class="aform__contact-score-label">Puntos de Madurez</span>
           </div>
-          <h3 class="aform__title">🎉 Tus resultados están listos</h3>
+          <h3 class="aform__title"><span class="material-symbols-outlined">celebration</span> Tus resultados están listos</h3>
           <p class="aform__subtitle">
             Ingresa tus datos para recibir el reporte estratégico en PDF directamente en tu bandeja de entrada.
           </p>
@@ -396,7 +396,7 @@ class DiagnosticoForm extends HTMLElement {
         <h2 class="aform__success-title">¡Diagnóstico Completado!</h2>
         
         <div class="aform__result-badge">
-          <span class="emoji">${this.result?.level === 'semilla' ? '🌱' : this.result?.level === 'brote' ? '🚀' : '💎'}</span>
+          <span class="icon-container"><span class="material-symbols-outlined">${this.result?.level === 'semilla' ? 'eco' : this.result?.level === 'brote' ? 'rocket_launch' : 'diamond'}</span></span>
           <span class="label">Nivel ${this.result?.level.toUpperCase()}</span>
         </div>
 

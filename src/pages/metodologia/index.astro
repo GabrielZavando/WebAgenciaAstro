@@ -1,0 +1,50 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import Banner from '../../components/landing/Banner.astro';
+import GeneralVision from '../../components/metodologia/GeneralVision.astro';
+import DetailedPipeline from '../../components/metodologia/DetailedPipeline.astro';
+import ChangeManagement from '../../components/metodologia/ChangeManagement.astro';
+import MaturitySpiral from '../../components/metodologia/MaturitySpiral.astro';
+
+import bannerBlogImg from '../../assets/img/banner-blog.jpg';
+---
+
+<MainLayout 
+  title="Metodología CTP: Transformación Digital con Soberanía | Gabriel Zavando" 
+  description="Conoce el Método CTP: Diagnóstico → Cerebro → Músculo → Soberanía. Estrategia antes que código. Acompañamiento permanente. Diagnóstico gratis."
+  ogTitle="Metodología CTP: Estrategia antes que código"
+  ogDescription="4 fases probadas para transformar tu negocio con tecnología soberana."
+  ogImage={bannerBlogImg.src}
+>
+  <Banner image={bannerBlogImg} size="half" align="center">
+      <h1 class="banner__title fade-in">
+        <span class="title-xl">Metodología CTP</span>
+        <span class="title-md">Ciclo de Transformación Progresiva.<br/>Estrategia antes que código. Soberanía desde el día 1.</span>
+      </h1>
+
+      <div class="banner__actions fade-in fade-in-delay-2">
+        <a href="https://calendly.com/gabrielzavando/30min" target="_blank" rel="noopener noreferrer" class="btn-cta">
+          <span class="material-symbols-outlined">calendar_today</span> Agendar diagnóstico gratis
+        </a>
+      </div>
+  </Banner>
+  <main class="page-methodology">
+    <GeneralVision />
+    <DetailedPipeline />
+
+    <ChangeManagement />
+    <MaturitySpiral />
+
+    <section class="pb-20 bg-surface">
+      <div class="container text-center">
+        <div class="detailed-pipeline__cta fade-in">
+          <a href="https://calendly.com/gabrielzavando/30min" target="_blank" rel="noopener noreferrer" class="btn-cta btn-primary">
+            <span class="material-symbols-outlined">calendar_today</span> 
+            Comienza tu transformación 
+            <span class="material-symbols-outlined ml-1">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</MainLayout>

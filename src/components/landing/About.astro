@@ -1,138 +1,61 @@
 ---
 import gabriel from '../../assets/img/gabriel.jpeg';
 import { Image } from 'astro:assets';
-
-// Logos Tecnologías
-import logoAngular from '../../assets/img/logo-angular.webp';
-import logoAstro from '../../assets/img/logo-astro.webp';
-import logoNode from '../../assets/img/logo-node.webp';
-import logoNest from '../../assets/img/logo-nest.webp';
-import logoWordPress from '../../assets/img/logo-wordpress.webp';
-import logoPostgres from '../../assets/img/logo-postgres.webp';
-import logoMongo from '../../assets/img/logo-mongo.webp';
-import logoGit from '../../assets/img/logo-git.webp';
-import logoAI from '../../assets/img/logo-ai.webp';
 ---
 
- <section class="about" id="quien-soy">
+<section class="about" id="quien-soy">
   <div class="about-content">
-    <h2 class="title-section fade-in">Sobre Mí</h2>
-    <div class="about-content__header">
-        <h3 class="about-content__header__title fade-in fade-in-delay-1">
-          Software que se adapta a tu negocio, no al revés.
-        </h3>
+    
+    <div class="about-header text-center fade-in">
+      <h2 class="title-section">Socio tecnológico. Acompañamiento permanente.</h2>
+      <h3 class="subtitle-section">
+        Mi trabajo no es escribir código y desaparecer. Es diseñar el sistema que tu negocio necesita para que tú dejes de ser el sistema.
+      </h3>
     </div>
 
-    <div class="about-content-figure">
-      <div class="about-content-figure__text">
-        <p class="about__paragraph fade-in fade-in-delay-2">
-          Soy Gabriel, desarrollador de software freelance con una visión clara: 
-          la tecnología debe ser una herramienta de libertad, no una limitación. 
-          Desarrollo soluciones digitales a medida para Pymes y profesionales, 
-          asegurando que cada línea de código se adapte estrictamente a tus 
-          procesos operativos y no que tú debas cambiar tu forma de trabajar 
-          para usar el sistema.
-        </p>
-        <p class="about__paragraph fade-in fade-in-delay-3">
-          Mi metodología se basa en la mejora continua y el uso estratégico de 
-          software de código abierto (Open Source) siempre que sea posible. 
-          Esto me permite entregarte soluciones más accesibles, altamente 
-          personalizables y sin las restricciones de los sistemas cerrados. 
-          Desde aplicaciones web en Angular y Astro hasta integraciones robustas 
-          con Node.js, mi enfoque es construir activos digitales que crezcan contigo.
-        </p>
-        <p class="about__paragraph fade-in fade-in-delay-4">
-          No busco implementaciones aisladas, sino relaciones de confianza basadas 
-          en resultados. Utilizo la Inteligencia Artificial para automatizar lo 
-          repetitivo y arquitecturas escalables para que tu inversión tecnológica 
-          sea sólida hoy y mañana. Si buscas un aliado técnico que priorice la 
-          flexibilidad y la eficiencia de tu negocio, estoy aquí para hacerlo realidad.
-        </p>
-  
-      </div>
-
-      <div class="about-content-figure__image">
+    <!-- Bloque 1: Foto y Texto -->
+    <div class="about-intro">
+      <div class="about-intro__image-wrapper fade-in fade-in-delay-1">
         <Image
           src={gabriel}
-          alt="Gabriel Zavando - Desarrollador Full Stack"
-            width={300}
-            height={375}
-          class="about__photo fade-in fade-in-delay-5"
+          alt="Gabriel Zavando - Consultor Estratégico & Desarrollador Full Stack"
+          width={400}
+          height={500}
+          class="about-intro__photo"
           loading="lazy"
         />
       </div>
+      
+      <div class="about-intro__text-wrapper">
+        <div class="about-intro__text fade-in fade-in-delay-2">
+          <p>
+            Llevo 10 años trabajando codo a codo con Pymes y Startups en Chile. <br/>
+            En ese tiempo vi el mismo patrón una y otra vez:
+          </p>
+          <p class="highlight-pattern">
+            Negocios que compran software que no se adapta a sus procesos. <br/>
+            Sitios web sin mantenimiento que quedan obsoletos. <br/>
+            Plantillas genéricas que obligan a cambiar tu forma de trabajar.
+          </p>
+          <p>
+            <strong>Y lo más importante: entendí que no puedes digitalizar un caos.</strong> <br/>
+            Por eso creé el método CTP: primero orden, luego tecnología. <br/>
+            Y mantenimiento para garantizar que funcione siempre.
+          </p>
+        </div>
+        
+        <div class="about-intro__badge fade-in fade-in-delay-3">
+          <span class="material-symbols-outlined">key</span> 10+ años con Pymes y Startups | Transformación Digital con método | Soberanía garantizada
+        </div>
+      </div>
     </div>
 
-    <div class="about-content__specialties">
-      <h3 class="subtitle-section fade-in">Especialidades</h3>
-      <ul class="about-content__specialties__list">
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-1">
-          <span class="material-symbols-outlined">laptop_mac</span>
-          <span>Interfaces Modernas y Rápidas</span>
-        </li>
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-2">
-          <span class="material-symbols-outlined">dns</span>
-          <span>Arquitecturas Sólidas y Seguras</span>
-        </li>
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-3">
-          <span class="material-symbols-outlined">smartphone</span>
-          <span>Optimización Multidispositivo</span>
-        </li>
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-4">
-          <span class="material-symbols-outlined">sync_alt</span>
-          <span>Integración y Conectividad</span>
-        </li>
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-5">
-          <span class="material-symbols-outlined">settings</span>
-          <span>Soluciones que se Adaptan a Ti</span>
-        </li>
-        <li class="about-content__specialties__item specialty-item fade-in fade-in-delay-6">
-          <span class="material-symbols-outlined">smart_toy</span>
-          <span>Agentes Inteligentes 24/7</span>
-        </li>
-      </ul>
+
+
+    <div class="about-signature fade-in">
+      <p class="name">Gabriel Zavando</p>
+      <p class="title">Consultor Estratégico & Desarrollador Full Stack</p>
     </div>
 
-    <div class="about-content__tech">
-      <h3 class="subtitle-section fade-in">Tecnologías</h3>
-      <ul class="about-content__tech__list">
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-1">
-          <Image src={logoAngular} alt="Logo Angular" class="about-tech-logo" />
-          <span>Angular</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-2">
-          <Image src={logoAstro} alt="Logo Astro" class="about-tech-logo" />
-          <span>Astro</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-3">
-          <Image src={logoNode} alt="Logo Node.js" class="about-tech-logo" />
-          <span>Node.js</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-4">
-          <Image src={logoNest} alt="Logo NestJS" class="about-tech-logo" />
-          <span>NestJS</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-5">
-          <Image src={logoWordPress} alt="Logo WordPress" class="about-tech-logo" />
-          <span>WordPress</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-6">
-          <Image src={logoPostgres} alt="Logo PostgreSQL" class="about-tech-logo" />
-          <span>PostgreSQL</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-7">
-          <Image src={logoMongo} alt="Logo MongoDB" class="about-tech-logo" />
-          <span>MongoDB</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-8">
-          <Image src={logoGit} alt="Logo Git" class="about-tech-logo" />
-          <span>Git</span>
-        </li>
-        <li class="about-content__tech__item tech-item fade-in fade-in-delay-9">
-          <Image src={logoAI} alt="Logo Modelos de AI" class="about-tech-logo" />
-          <span>Modelos de AI</span>
-        </li>
-      </ul>
-    </div>
   </div>
 </section>

@@ -1,246 +1,211 @@
 @use '../config' as *;
 
 .about {
-  padding: var(--space-xl) 0;
-  background-color: var(--color-body);
+  padding: var(--space-2xl) 0;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
 }
 
 .about-content {
-  // Container usando el nuevo sistema
   width: 100%;
   max-width: #{container(max)};
   margin: 0 auto;
   padding: 0 var(--padding-container);
-
-  &__header {
-    text-align: center;
-    margin-bottom: var(--space-xl);
-
-    &__title {
-      font-family: var(--font-headings);
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--color-text);
-      margin-bottom: var(--space-md);
-      line-height: 1.3;
-
-      @include respond-to(md) {
-        font-size: 1.75rem;
-      }
-    }
-  }
 }
 
-// Layout principal con imagen y texto
-.about-content-figure {
-  @include flex(column, flex-start, stretch, nowrap, xl);
-  margin-bottom: var(--space-2xl);
+.text-center {
+  text-align: center;
+  max-width: #{container(max)};
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  // Desde 480px - Imagen y texto lado a lado
-  @include respond-to(xs) {
-    @include flex(row, space-between, flex-start, nowrap, xl);
-    align-items: flex-start;
+.about-header {
+  margin-bottom: var(--space-2xl);
+}
+
+
+
+// Bloque 1: Intro (Foto + Texto)
+.about-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
+
+  @include respond-to(lg) {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2xl);
+  }
+
+  &__image-wrapper {
+    flex-shrink: 0;
+    text-align: center;
+    
+    @include respond-to(lg) {
+      width: 400px;
+    }
+  }
+
+  &__photo {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    border-radius: 0; // Flat design
+    border: 3px solid var(--color-primary);
+    
+    @include respond-to(lg) {
+      max-width: 100%;
+    }
+  }
+
+  &__text-wrapper {
+    flex-grow: 1;
   }
 
   &__text {
-    flex: 1;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
     
-    // Desde 480px - Margen para separar del imagen
-    @include respond-to(xs) {
-      margin-right: var(--space-xl);
-      max-width: 60%;
+    p {
+      margin-bottom: var(--space-md);
+    }
+
+    .highlight-pattern {
+      border-left: 3px solid var(--color-primary);
+      padding-left: var(--space-md);
+      margin-left: var(--space-xs);
+      font-style: italic;
+      background: var(--color-surface-secondary); // Fondo plano
+      padding-top: var(--space-sm);
+      padding-bottom: var(--space-sm);
+    }
+
+    strong {
+      color: var(--color-text);
+      font-weight: 600;
     }
   }
 
-  &__image {
-    @include flex(row, center, center);
-    margin-bottom: var(--space-lg);
-
-    // Desde 480px - Sin margen inferior
-    @include respond-to(xs) {
-      margin-bottom: 0;
-      flex-shrink: 0;
-    }
-  }
-}
-
-// Estilos para párrafos
-.about__paragraph {
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-lg);
-  text-align: left;
-
-  @include respond-to(md) {
-    font-size: 1.125rem;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-// Estilos para la imagen
-.about__photo {
-  border-radius: 0; // Flat design
-  width: 240px;
-  height: 300px;
-  object-fit: cover;
-  border: 3px solid var(--color-primary);
-  transition: all var(--transition-normal) ease;
-
-  @include respond-to(md) {
-    width: 320px;
-    height: 400px;
-  }
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-}
-
-// Secciones de especialidades y tecnologías
-.about-content__specialties,
-.about-content__tech {
-  margin-bottom: var(--space-xl);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-// Listas como grid de cards
-.about-content__specialties__list,
-.about-content__tech__list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-sm);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-  // Desde 480px - Dos columnas
-  @include respond-to(xs) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  // Desde 768px - Tres columnas
-  @include respond-to(sm) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-// Items como cards flat con iconos
-.about-content__specialties__item,
-.about-content__tech__item {
-  background-color: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: 0; // Flat design
-  padding: var(--space-lg);
-  text-align: center;
-  font-family: var(--font-primary);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--color-text);
-  transition: all var(--transition-normal) ease;
-  position: relative;
-  overflow: hidden;
-  @include flex(column, center, center, nowrap, sm);
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 3px;
-    background-color: var(--color-primary);
-    transition: left var(--transition-normal) ease;
-  }
-
-  i, .material-symbols-outlined, .about-tech-logo {
-    font-size: 4rem; // Duplicado para móvil
-    width: auto;
-    height: 4rem;
-    object-fit: contain;
-    margin-bottom: var(--space-sm);
+  &__badge {
+    display: inline-block;
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    border-radius: 0; // Flat design
     color: var(--color-primary);
-    transition: all var(--transition-normal) ease;
-    display: block; // Asegurar que sea bloque
-  }
-
-  span {
-    font-size: 0.9rem;
     font-weight: 500;
-    line-height: 1.3;
+    font-size: 0.95rem;
+  }
+}
+
+// Bloque 2: Diferenciación (Tabla)
+.about-diff {
+  margin-bottom: var(--space-3xl);
+  padding-top: var(--space-2xl);
+  border-top: 1px solid rgba(var(--color-border-rgb), 0.5);
+
+  &__header {
+    margin-bottom: var(--space-xl);
   }
 
-  &:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-    &::before {
-      left: 0;
-    }
-
-    i, .material-symbols-outlined, .about-tech-logo {
-      transform: scale(1.1);
-      color: var(--color-primary);
-    }
+  &__table-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: auto; // scroll en móvil si es necesario
   }
 
-  @include respond-to(md) {
-    padding: var(--space-xl);
-    
-    i, .material-symbols-outlined, .about-tech-logo {
-      font-size: 50px; // Tamaño solicitado para escritorio
-      height: 50px;
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid var(--color-border); // Flat design border
+    background: var(--color-surface);
+
+    th, td {
+      border: 1px solid var(--color-border);
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
     }
 
-    span {
+    th {
+      font-family: var(--font-headings);
+      font-weight: 700;
+      font-size: 1.15rem;
+      border-bottom: 2px solid var(--color-border);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .do-header {
+      color: #2ecc71;
+      border-bottom: 3px solid #2ecc71;
+      background-color: rgba(46, 204, 113, 0.25);
+    }
+
+    .dont-header {
+      color: #e74c3c;
+      border-bottom: 3px solid #e74c3c;
+      background-color: rgba(231, 76, 60, 0.25);
+    }
+
+    td {
+      color: var(--color-text-secondary);
       font-size: 1rem;
+      line-height: 1.6;
+      transition: background-color var(--transition-fast) ease;
+
+      &:first-child {
+        background-color: rgba(46, 204, 113, 0.12);
+        border-left: 4px solid transparent;
+        
+        &:hover {
+          background-color: rgba(46, 204, 113, 0.2);
+          border-left-color: #2ecc71;
+        }
+      }
+
+      &:last-child {
+        background-color: rgba(231, 76, 60, 0.12);
+        border-left: 4px solid transparent;
+
+        &:hover {
+          background-color: rgba(231, 76, 60, 0.2);
+          border-left-color: #e74c3c;
+        }
+      }
     }
+  }
+
+  &__microcopy {
+    margin-top: var(--space-xl);
+    font-style: italic;
+    color: var(--color-text);
+    font-size: 1.1rem;
+    font-weight: 500;
   }
 }
 
-// Diferenciación sutil entre especialidades y tecnologías
-.about-content__tech__item {
-  &::before {
-    background-color: var(--color-secondary);
+// Firma final
+.about-signature {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-lg);
+  margin-top: var(--space-2xl);
+  text-align: center;
+  
+  .name {
+    font-family: var(--font-headings);
+    font-size: 1.5rem;
+    color: var(--color-text);
+    font-weight: 600;
+    margin-bottom: 4px;
   }
 
-  i, .material-symbols-outlined, .about-tech-logo {
-    color: var(--color-secondary);
-  }
-
-  .about-tech-logo {
-    width: 4rem;
-    height: 4rem;
-    object-fit: contain;
-
-    @include respond-to(md) {
-      width: 70px;
-      height: 70px;
-    }
-  }
-
-  &:hover {
-    border-color: var(--color-secondary);
-
-    i, .material-symbols-outlined, .about-tech-logo {
-      color: var(--color-secondary);
-    }
-  }
-}
-
-// Responsive improvements
-@include respond-to(lg) {
-  .about-content__specialties__list,
-  .about-content__tech__list {
-    grid-template-columns: repeat(3, 1fr);
+  .title {
+    font-style: italic;
+    color: var(--color-primary);
+    font-size: 1rem;
   }
 }

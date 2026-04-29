@@ -3,18 +3,33 @@ import plansData from '../../data/plans.json';
 
 const plans = plansData.planes.map(plan => ({
   name: plan.nombre,
-  description: plan.descripcion,
-  price6: plan.precio_6_meses,
-  price12: plan.precio_12_meses,
-  features: Object.entries(plan.caracteristicas).map(([key, value]) => ({ key, value })),
-  exclusions: Object.entries(plan.exclusiones).map(([key, value]) => ({ key, value }))
+  icon: plan.icono,
+  tagline: plan.tagline,
+  objective: plan.objetivo,
+  price6mes: plan.precio_6_meses_mes,
+  price6total: plan.precio_6_meses_total,
+  price12mes: plan.precio_12_meses_mes,
+  price12total: plan.precio_12_meses_total,
+  ahorro: plan.ahorro,
+  features: plan.caracteristicas,
+  mantenimiento: plan.mantenimiento,
+  bonus: plan.bonus || [],
+  soberania: plan.soberania,
+  garantia: plan.garantia,
+  disponibilidad: plan.disponibilidad,
+  ctaCalendly: plan.cta_calendly,
+  ctaContratar: plan.cta_contratar,
+  ctaContratarText: plan.cta_contratar_text || 'Contratar ahora',
+  featured: plan.destacado || false
 }));
 ---
 
 <section class="plans" id="planes">
   <div class="plans__container">
-    <h2 class="title-section fade-in">Planes</h2>
-    <p class="plans__subtitle fade-in fade-in-delay-1">Elige el plan que mejor se adapte a tus necesidades</p>
+    <div class="plans__header">
+      <h2 class="title-section fade-in">Planes</h2>
+      <h3 class="subtitle-section fade-in fade-in-delay-1">No vendo paquetes genéricos. Diseño soluciones que se adaptan a tu realidad: desde tu presencia web profesional hasta la automatización completa de tu operación.</h3>
+    </div>
 
     <!-- Switch para seleccionar periodo de pago -->
     <div class="plans__switch-container fade-in fade-in-delay-2">
@@ -33,46 +48,133 @@ const plans = plansData.planes.map(plan => ({
 
     <div class="plans__grid">
       {plans.map((plan, index) => (
-        <div class={`plan-card plan-item ${index === 1 ? 'plan-card--featured' : ''} fade-in fade-in-delay-${index + 3}`}>
-          {index === 1 && <div class="plan-card__badge">Más popular</div>}
+        <div class={`plan-card plan-item ${plan.featured ? 'plan-card--featured' : ''} fade-in fade-in-delay-${index + 3}`}>
+          {plan.featured && <div class="plan-card__badge">Más popular</div>}
           
-          <h3 class="plan-card__title">{plan.name}</h3>
-          <p class="plan-card__description">{plan.description}</p>
-
-          <div class="plan-card__price">
-            <span class="price__amount" data-price-6={plan.price6} data-price-12={plan.price12}>
-              ${plan.price6}
-            </span>
-            <span class="price__period">/6 meses</span>
+          <div class="plan-card__header">
+            {plan.icon && <span class="material-symbols-outlined plan-card__icon">{plan.icon}</span>}
+            <h3 class="plan-card__title">{plan.name}</h3>
+            <p class="plan-card__tagline">{plan.tagline}</p>
           </div>
 
-          <ul class="plan-card__features">
-            {plan.features.map(feature => (
-              <li class="feature feature--included">
-                <div class="feature__row">
-                  <span class="feature__icon">{feature.key.split(' ')[0]}</span>
-                  <span class="feature__name">{feature.key.replace(/^✔ |^✘ /, '')}</span>
-                </div>
-                <span class="feature__desc">{feature.value}</span>
-              </li>
-            ))}
-          </ul>
+          <div class="plan-card__price-section">
+            <div class="price__main">
+              <span class="price__currency">$</span>
+              <span class="price__amount" 
+                data-price-6={plan.price6mes} 
+                data-price-12={plan.price12mes}
+              >
+                {plan.price6mes}
+              </span>
+            </div>
+            <span class="price__period">/6 meses</span>
+            
+            <div class="price__details">
+              <p class="price__total" 
+                data-total-6={plan.price6total} 
+                data-total-12={plan.price12total}
+              >
+                Total periodo: ${plan.price6total}
+              </p>
+              <p class="price__savings" 
+                data-ahorro={plan.ahorro}
+                style="display: none;"
+              >
+                Ahorro: <strong>{plan.ahorro}</strong>
+              </p>
+            </div>
+          </div>
 
-          {plan.exclusions.length > 0 ? (
-            <ul class="plan-card__exclusions">
-              {plan.exclusions.map(exclusion => (
-                <li class="feature feature--excluded">
-                  <div class="feature__row">
-                    <span class="feature__icon">{exclusion.key.split(' ')[0]}</span>
-                    <span class="feature__name">{exclusion.key.replace(/^✔ |^✘ /, '')}</span>
-                  </div>
-                  <span class="feature__desc">{exclusion.value}</span>
-                </li>
+          <div class="plan-card__divider"></div>
+
+          <div class="plan-card__objective">
+            <span class="material-symbols-outlined">target</span>
+            <div class="objective__content">
+              <span class="label">OBJETIVO:</span>
+              <p>{plan.objective}</p>
+            </div>
+          </div>
+
+          <div class="plan-card__section">
+            <span class="label">LO QUE RECIBES:</span>
+            <ul class="plan-card__features">
+              {plan.features.map(feature => {
+                const isBusinessHeader = feature.startsWith('BUSINESS:');
+                const isShoppingHeader = feature.startsWith('SHOPPING:');
+                const isHeader = isBusinessHeader || isShoppingHeader;
+                const cleanFeature = feature.replace('BUSINESS: ', '').replace('SHOPPING: ', '');
+                
+                return (
+                  <li class={`feature ${isHeader ? 'feature--category' : ''}`}>
+                    {isBusinessHeader && <span class="material-symbols-outlined feature__icon">business</span>}
+                    {isShoppingHeader && <span class="material-symbols-outlined feature__icon">shopping_cart</span>}
+                    {!isHeader && <span class="material-symbols-outlined feature__icon">check_circle</span>}
+                    <span class="feature__text">{cleanFeature}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div class="plan-card__soberania">
+            <span class="material-symbols-outlined">key</span>
+            <div class="soberania__content">
+              <span class="label">SOBERANÍA:</span>
+              <p>{plan.soberania}</p>
+            </div>
+          </div>
+
+          <div class="plan-card__mantenimiento">
+            <span class="label">Incluye:</span>
+            <ul class="mantenimiento__list">
+              {plan.mantenimiento.map(item => (
+                <li>• {item}</li>
               ))}
             </ul>
-          ) : null}
+          </div>
 
-          <button class="btn-cta">Contratar ahora</button>
+          {plan.bonus.length > 0 && (
+            <div class="plan-card__bonus">
+              <span class="label">
+                <span class="material-symbols-outlined">redeem</span>
+                BONUS DE LANZAMIENTO:
+              </span>
+              <ul class="bonus__list">
+                {plan.bonus.map(item => (
+                  <li>
+                    <span class="material-symbols-outlined">redeem</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="plan-card__divider"></div>
+
+          <div class="plan-card__garantia">
+            <span class="material-symbols-outlined">shield</span>
+            <div class="garantia__content">
+              <span class="label">GARANTÍA:</span>
+              <p>{plan.garantia}</p>
+            </div>
+          </div>
+
+          {plan.disponibilidad && (
+            <div class="plan-card__availability">
+              <span class="material-symbols-outlined">local_fire_department</span>
+              <p>{plan.disponibilidad}</p>
+            </div>
+          )}
+
+          <div class="plan-card__actions">
+            <a href={plan.ctaCalendly} target="_blank" rel="noopener noreferrer" class="btn-cta btn-cta--secondary">
+              <span class="material-symbols-outlined">calendar_today</span> Agendar diagnóstico gratis
+            </a>
+            <a href={plan.ctaContratar} class="btn-cta">
+              {plan.ctaContratarText} <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
         </div>
       ))}
     </div>
@@ -84,34 +186,17 @@ const plans = plansData.planes.map(plan => ({
   // Funcionalidad del switch de precios
   document.addEventListener('DOMContentLoaded', () => {
     const switchInput = document.querySelector('#period-switch') as HTMLInputElement;
-    const priceAmounts = document.querySelectorAll('.price__amount');
-    const pricePeriods = document.querySelectorAll('.price__period');
     const label6 = document.querySelector('.switch__label--6');
     const label12 = document.querySelector('.switch__label--12');
+    
+    const priceAmounts = document.querySelectorAll('.price__amount');
+    const pricePeriods = document.querySelectorAll('.price__period');
+    const priceTotals = document.querySelectorAll('.price__total');
+    const priceSavings = document.querySelectorAll('.price__savings');
 
-    // Función para actualizar precios
-    function updatePrices(is12Months: boolean) {
-      priceAmounts.forEach(priceElement => {
-        const price6 = priceElement.getAttribute('data-price-6');
-        const price12 = priceElement.getAttribute('data-price-12');
-        
-        if (is12Months) {
-          priceElement.textContent = `$${price12}`;
-        } else {
-          priceElement.textContent = `$${price6}`;
-        }
-      });
-
-      // Actualizar textos de periodo
-      pricePeriods.forEach(periodElement => {
-        if (is12Months) {
-          periodElement.textContent = '/12 meses';
-        } else {
-          periodElement.textContent = '/6 meses';
-        }
-      });
-
-      // Actualizar labels activos
+    // Función para actualizar el estado visual de los precios
+    function updatePeriodState(is12Months: boolean) {
+      // Actualizar labels del switch
       if (label6 && label12) {
         if (is12Months) {
           label6.classList.remove('active');
@@ -121,18 +206,36 @@ const plans = plansData.planes.map(plan => ({
           label12.classList.remove('active');
         }
       }
+
+      // Actualizar precios en las tarjetas
+      priceAmounts.forEach((el, i) => {
+        const amount = is12Months ? el.getAttribute('data-price-12') : el.getAttribute('data-price-6');
+        el.textContent = amount;
+      });
+
+      // Actualizar periodos
+      pricePeriods.forEach(el => {
+        el.textContent = is12Months ? '/12 meses' : '/6 meses';
+      });
+
+      // Actualizar totales y ahorros
+      priceTotals.forEach((el, i) => {
+        const total = is12Months ? el.getAttribute('data-total-12') : el.getAttribute('data-total-6');
+        el.textContent = `Total periodo: $${total}`;
+      });
+
+      priceSavings.forEach(el => {
+        (el as HTMLElement).style.display = is12Months ? 'block' : 'none';
+      });
     }
 
     // Inicializar estado (6 meses por defecto)
-    if (label6) {
-      label6.classList.add('active');
-    }
+    updatePeriodState(false);
 
     // Event listener para el switch
     if (switchInput) {
       switchInput.addEventListener('change', () => {
-        const is12Months = switchInput.checked;
-        updatePrices(is12Months);
+        updatePeriodState(switchInput.checked);
       });
     }
   });

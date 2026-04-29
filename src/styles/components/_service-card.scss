@@ -16,6 +16,17 @@
   height: 100%; // Permite que todas las cards tengan la misma altura en el grid
   cursor: pointer;
 
+  &__need {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+
   // Estilo flat moderno - hover con efecto de elevación
   &:hover {
     border-color: var(--color-primary) !important;
@@ -92,4 +103,7 @@
     }
   }
 
+  .btn-cta {
+    margin-top: 1rem;
+  }
 }

@@ -39,21 +39,7 @@
   }
 }
 
-.workflow-diagram__intro {
-  text-align: center;
-  font-family: var(--font-primary);
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-2xl);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
 
-  @include respond-to(md) {
-    font-size: 1.25rem;
-  }
-}
 
 // Container principal del diagrama con áreas definidas
 .workflow-diagram {
@@ -276,12 +262,13 @@ color: var(--step-color);
   font-family: var(--font-primary);
   font-size: 0.875rem;
   font-weight: 600;
-color: var(--step-color);
-text-transform: uppercase;
+  color: var(--step-color);
+  text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: var(--space-lg);
   padding: var(--space-xs) var(--space-sm);
-background-color: var(--step-bg);
+  background-color: transparent;
+  border: 1px solid var(--step-color);
   display: inline-block;
   text-align: center;
   flex-shrink: 0;
@@ -338,13 +325,13 @@ background-color: var(--step-bg);
 }
 
 .workflow-step__circle--3, .workflow-step__content--3, .workflow-step__arrow--3 {
-  --step-color: var(--color-accent);
+  --step-color: #00A3A3;
   --step-bg: #ccfff9;
 }
 
 .workflow-step__circle--4, .workflow-step__content--4 {
-  --step-color: var(--color-dark);
-  --step-bg: #eeeeee;
+  --step-color: #f59e0b;
+  --step-bg: rgba(245, 158, 11, 0.1);
 }
 
 // Aplicar colores a círculos
@@ -354,18 +341,18 @@ background-color: var(--step-bg);
 }
 .workflow-step__circle--3 { 
   border-color: var(--step-color);
-  .workflow-step__number, .workflow-step__icon { color: var(--color-dark); }
+  .workflow-step__number, .workflow-step__icon { color: var(--step-color); }
 }
 
 // Aplicar colores a contenidos
 .workflow-step__content--1, .workflow-step__content--2, .workflow-step__content--3, .workflow-step__content--4 {
   border-color: var(--step-color);
-  .workflow-step__duration { background-color: var(--step-bg); color: var(--step-color); }
+  .workflow-step__duration { background-color: transparent; border-color: var(--step-color); color: var(--step-color); }
   .workflow-step__list li::before { background-color: var(--step-bg); color: var(--step-color); }
 }
 .workflow-step__content--3 .workflow-step__duration,
 .workflow-step__content--3 .workflow-step__list li::before {
-  color: var(--color-dark);
+  color: var(--step-color);
 }
 
 // Aplicar colores a flechas
@@ -383,7 +370,7 @@ background-color: var(--step-bg);
     font-size: 1.125rem;
     color: var(--color-text-secondary);
     margin-bottom: var(--space-xl);
-    max-width: 600px;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.6;
