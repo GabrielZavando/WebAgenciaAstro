@@ -40,7 +40,6 @@
   flex-direction: column;
   gap: var(--space-lg);
   margin-bottom: var(--space-2xl);
-}
 
   @include respond-to(md) {
     gap: var(--space-xl);
@@ -114,6 +113,7 @@
     font-weight: 500;
     font-size: var(--text-sm);
   }
+}
 
 // Bloque 2: Diferenciación (Tabla)
 .about-diff {
