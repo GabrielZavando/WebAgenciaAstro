@@ -3,7 +3,7 @@
 # Las variables PUBLIC_* se inyectan en build-time via --build-arg
 # porque Astro/Vite las embebe en el bundle estático del cliente.
 # ============================================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 RUN npm install -g corepack@latest && corepack enable pnpm
@@ -39,7 +39,7 @@ RUN pnpm run build && ls -la dist/
 # ============================================================
 # Stage 2: Production — imagen ligera solo con lo necesario
 # ============================================================
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
