@@ -9,6 +9,7 @@ WORKDIR /app
 RUN npm install -g corepack@latest && corepack enable pnpm
 
 COPY package.json pnpm-lock.yaml ./
+RUN pnpm config set strict-dep-builds false
 RUN pnpm install --frozen-lockfile
 
 # ARGs para las variables públicas de Astro (embebidas en el bundle)
@@ -47,6 +48,7 @@ RUN npm install -g corepack@latest && corepack enable pnpm
 
 # Solo dependencias de runtime
 COPY package.json pnpm-lock.yaml ./
+RUN pnpm config set strict-dep-builds false
 RUN pnpm install --prod --frozen-lockfile
 
 # Copiar el output del build de Astro SSR
