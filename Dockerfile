@@ -23,6 +23,7 @@ ARG PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 ARG PUBLIC_FIREBASE_APP_ID
 ARG PUBLIC_TURNSTILE_SITE_KEY
 ARG PUBLIC_GTM_ID
+ARG PUBLIC_SITE_URL
 # Exponerlas como ENV para que Vite las recoja durante el build
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
 ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
@@ -34,6 +35,7 @@ ENV PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 ENV PUBLIC_FIREBASE_APP_ID=$PUBLIC_FIREBASE_APP_ID
 ENV PUBLIC_TURNSTILE_SITE_KEY=$PUBLIC_TURNSTILE_SITE_KEY
 ENV PUBLIC_GTM_ID=$PUBLIC_GTM_ID
+ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL
 COPY . .
 RUN pnpm run build && ls -la dist/
 
@@ -54,14 +56,18 @@ RUN pnpm install --prod --frozen-lockfile
 # Copiar el output del build de Astro SSR
 COPY --from=builder /app/dist ./dist
 
+# Install curl for the platform healthcheck (Coolify runs it inside the
+# container; node:22-alpine does not ship curl)
+RUN apk add --no-cache curl
+
 # Usuario no-root por seguridad
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S astro -u 1001
 USER astro
 
-# Cloud Run inyecta PORT como variable de entorno
-ENV PORT=8080
-EXPOSE 8080
+# Coolify injects PORT as a runtime env var; the Astro server reads
+# process.env.PORT (astro.config.mjs), so no fixed port is declared here.
+# The platform assigns the external port at deploy time.
 
 # Servidor standalone de Astro SSR
 CMD ["node", "./dist/server/entry.mjs"]

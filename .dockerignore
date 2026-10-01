@@ -6,3 +6,19 @@ dist
 .astro
 *.log
 .cache
+
+# Local secrets — never embed in the image (SC-003)
+.env
+.env.*
+*.local
+
+# Repo/docs folders not needed in the build context
+.github
+.opencode
+.vscode
+ai-specs
+docs
+openspec
+coverage
+playwright-report
+test-results
