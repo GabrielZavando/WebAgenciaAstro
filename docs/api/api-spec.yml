@@ -1,0 +1,9 @@
+openapi: 3.0.3
+info:
+  title: API del Proyecto
+  version: 0.1.0
+  description: >
+    Contrato OpenAPI del proyecto. Reemplazar con los endpoints reales.
+paths: {}
+components:
+  schemas: {}

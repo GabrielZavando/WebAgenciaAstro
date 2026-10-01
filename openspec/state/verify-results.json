@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "change": "deploy-frontend-coolify",
+  "ticket_id": "deploy-frontend-coolify",
+  "status": "PARTIAL",
+  "evidence_mode": "executable",
+  "timestamp": "2026-09-30T16:07:30.773Z",
+  "tasks": {
+    "total": 6,
+    "passed": 5,
+    "failed": 0,
+    "untested": 1
+  },
+  "scenarios": [
+    {
+      "id": "SC-001",
+      "test": "docker build succeeded with PUBLIC_SITE_URL",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-002",
+      "test": "container answers HTTP 200 on dynamic PORT=3457",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-003",
+      "test": "builder stage build context contains no .env* files (SC-003)",
+      "status": "PASS"
+    },
+    {
+      "id": "SC-004",
+      "test": "untested",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-005",
+      "test": "untested",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-006",
+      "test": "sitemap.xml uses PUBLIC_SITE_URL",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-007",
+      "test": ".env is not tracked in git",
+      "status": "UNTESTED"
+    }
+  ]
+}

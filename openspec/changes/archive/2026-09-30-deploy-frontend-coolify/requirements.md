@@ -1,0 +1,33 @@
+# Requirements: deploy-frontend-coolify
+
+> Cada requisito es trazable a al menos un escenario de `scenarios.md` (`SC-{NNN}`). **Restucture (§7)**: los requisitos de comportamiento de plataforma (deploy por webhook REQ-004, validación en dominio temporal REQ-005, rollback implícito REQ-007) quedan fuera del alcance — son parte de la configuración one-time de Coolify, documentada en `docs/deploy-standards.md`.
+
+## REQ-001: Imagen Docker genérica
+
+La imagen Docker del frontend SHALL construirse sin acoplarse a Cloud Run: sin `ENV PORT=8080` ni `EXPOSE 8080`, con `ARG PUBLIC_SITE_URL` (+ `ENV` correspondiente) embebido en el bundle del build y `CMD` = `node ./dist/server/entry.mjs`.
+
+**Trazabilidad**: SC-001, SC-002
+
+## REQ-002: Puerto dinámico de la plataforma
+
+El contenedor SHALL escuchar en el puerto inyectado por la plataforma (`PORT`) en runtime, sin puerto hardcodeado en el Dockerfile; en local usa el default de `astro.config` (4321).
+
+**Trazabilidad**: SC-002
+
+## REQ-003: Sin secretos en la imagen
+
+`.dockerignore` SHALL excluir explícitamente `.env`, `.env.*` y `*.local` (más archivos locales/repo) para que ningún secreto local quede embebido en la imagen final.
+
+**Trazabilidad**: SC-003
+
+## REQ-006: Sitemap con URL del sitio configurada
+
+El endpoint `/sitemap.xml` SHALL generar URLs usando `PUBLIC_SITE_URL` configurada como ARG/ENV de build, sin caer en `localhost` ni fallbacks incorrectos.
+
+**Trazabilidad**: SC-006
+
+## REQ-008: Guardas de regression para secretos en git
+
+El script de validación SHALL verificar como guardas de regression que `.env` no esté trackeado en git (`git ls-files .env` vacío) y que `.gitignore` declare `.env` (con `.env.*` para variantes y `!.env.example` preservando el template), previniendo que variantes de secretos o re-adiciones versionen secretos en commits futuros. Estado verificado: `.env` no está trackeado y está en `.gitignore`.
+
+**Trazabilidad**: SC-007, SC-003

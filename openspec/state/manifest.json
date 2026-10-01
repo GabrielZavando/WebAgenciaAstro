@@ -1,0 +1,22 @@
+{
+  "changes": [
+    {
+      "change_name": "deploy-frontend-coolify",
+      "ticket_id": "deploy-frontend-coolify",
+      "archived_at": "2026-09-30T18:26:13+00:00",
+      "specs_applied": [
+        "frontend-coolify-deploy"
+      ],
+      "verification": {
+        "status": "PARTIAL",
+        "timestamp": "2026-09-30T16:07:30.773Z",
+        "source": "openspec/state/verify-results.json"
+      },
+      "adversarial": {
+        "verdict": "SHIP",
+        "timestamp": "2026-09-30T16:28:35Z",
+        "source": "openspec/state/adversarial-result.json"
+      }
+    }
+  ]
+}

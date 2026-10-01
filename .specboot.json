@@ -1,0 +1,9 @@
+{
+  "frameworkVersion": "0.11.1",
+  "name": ".",
+  "description": "",
+  "services": [
+    "."
+  ],
+  "stack": "framework"
+}
