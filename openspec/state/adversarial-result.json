@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "change": "deploy-frontend-coolify",
-  "ticket_id": "deploy-frontend-coolify",
+  "change": "cleanup-obsolete-frontend-workflows",
+  "ticket_id": "cleanup-obsolete-frontend-workflows",
   "verdict": "SHIP",
-  "confidence": 0.75,
-  "timestamp": "2026-09-30T16:28:35Z",
+  "confidence": 0.85,
+  "timestamp": "2026-10-02T01:15:53Z",
   "findings": {
     "total": 3,
     "critical": 0,

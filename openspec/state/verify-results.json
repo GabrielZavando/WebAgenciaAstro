@@ -1,50 +1,55 @@
 {
   "schema_version": 1,
-  "change": "deploy-frontend-coolify",
-  "ticket_id": "deploy-frontend-coolify",
+  "change": "cleanup-obsolete-frontend-workflows",
+  "ticket_id": "cleanup-obsolete-frontend-workflows",
   "status": "PARTIAL",
   "evidence_mode": "executable",
-  "timestamp": "2026-09-30T16:07:30.773Z",
+  "timestamp": "2026-10-01T23:59:46Z",
   "tasks": {
-    "total": 6,
-    "passed": 5,
+    "total": 9,
+    "passed": 8,
     "failed": 0,
     "untested": 1
   },
   "scenarios": [
     {
       "id": "SC-001",
-      "test": "docker build succeeded with PUBLIC_SITE_URL",
+      "test": "validate-workflows-cleanup.sh check (a): obsolete workflow absent - preview.yml (weak evidence: SC-001/002/003 in script comments, not in check names)",
       "status": "UNTESTED"
     },
     {
       "id": "SC-002",
-      "test": "container answers HTTP 200 on dynamic PORT=3457",
+      "test": "validate-workflows-cleanup.sh check (a): obsolete workflow absent - deploy.yml (weak evidence: SC-001/002/003 in script comments, not in check names)",
       "status": "UNTESTED"
     },
     {
       "id": "SC-003",
-      "test": "builder stage build context contains no .env* files (SC-003)",
-      "status": "PASS"
+      "test": "validate-workflows-cleanup.sh check (a): obsolete workflow absent - cleanup.yml (weak evidence: SC-001/002/003 in script comments, not in check names)",
+      "status": "UNTESTED"
     },
     {
       "id": "SC-004",
-      "test": "untested",
+      "test": "validate-workflows-cleanup.sh check (b): ci.yml present (weak evidence: SC-004 in script comments, not in check names)",
       "status": "UNTESTED"
     },
     {
       "id": "SC-005",
-      "test": "untested",
+      "test": "validate-workflows-cleanup.sh check (c): PUBLIC_API_URL/PUBLIC_API_BASE_URL preserved (weak evidence: SC-005 in script comments, not in check names)",
       "status": "UNTESTED"
     },
     {
       "id": "SC-006",
-      "test": "sitemap.xml uses PUBLIC_SITE_URL",
+      "test": "validate-workflows-cleanup.sh check (d): zero Cloud Run deploy refs in workflows (weak evidence: SC-006 in script comments, not in check names)",
       "status": "UNTESTED"
     },
     {
       "id": "SC-007",
-      "test": ".env is not tracked in git",
+      "test": "untested",
+      "status": "UNTESTED"
+    },
+    {
+      "id": "SC-008",
+      "test": "untested",
       "status": "UNTESTED"
     }
   ]
