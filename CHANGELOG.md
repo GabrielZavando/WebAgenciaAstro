@@ -2,6 +2,13 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versión siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.0](https://github.com/GabrielZavando/WebAgenciaAstro/compare/landing-page-v1.4.0...landing-page-v1.5.0) (2026-10-02)
+
+
+### Features
+
+* **deploy:** prepare Coolify deployment for Astro SSR frontend ([#14](https://github.com/GabrielZavando/WebAgenciaAstro/issues/14)) ([8b2f9fd](https://github.com/GabrielZavando/WebAgenciaAstro/commit/8b2f9fdcb74f6f2b974269e7c7cd7b6b794f4771))
+
 ## [1.4.0](https://github.com/GabrielZavando/WebAgenciaAstro/compare/landing-page-v1.3.1...landing-page-v1.4.0) (2026-03-25)
 
 
